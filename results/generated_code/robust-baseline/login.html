@@ -1,0 +1,54 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+</head>
+<body>
+  <form id="login-form">
+    <label for="email">Email</label>
+    <input type="email" id="email" name="email" required placeholder="name@domain.com" />
+    <label for="password">Password</label>
+    <input type="password" id="password" name="password" required placeholder="Enter password" />
+    <button type="submit" id="submit-btn">Login</button>
+  </form>
+  <div id="status" role="status"></div>
+
+  <script>
+    const form = document.getElementById('login-form');
+    const btn = document.getElementById('submit-btn');
+    const status = document.getElementById('status');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      if (!email || !password) return;
+
+      btn.disabled = true;
+      btn.innerText = 'Logging in...';
+      status.innerText = '';
+
+      try {
+        const res = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.error || 'Server error occurred during login');
+        }
+        status.innerText = 'Welcome ' + (data.user?.name || 'User') + '! Login successful.';
+      } catch (err) {
+        status.innerText = 'Error: ' + err.message;
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'Login';
+      }
+    });
+  </script>
+</body>
+</html>

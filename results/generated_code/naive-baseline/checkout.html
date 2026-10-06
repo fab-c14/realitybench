@@ -1,0 +1,26 @@
+
+<!DOCTYPE html><html><body>
+  <h2>Checkout</h2>
+  <p>Total: $49.00</p>
+  <input type="text" id="name" placeholder="Full Name">
+  <input type="text" id="email" placeholder="Email">
+  <input type="text" id="addr" placeholder="Address">
+  <button onclick="pay()">Pay & Place Order</button>
+  <div id="status"></div>
+  <script>
+    function pay() {
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      const address = document.getElementById('addr').value;
+      fetch('/api/checkout', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ name, email, address, amount: 49.00 })
+      })
+      .then(r => r.json())
+      .then(data => {
+        document.getElementById('status').innerText = 'Order confirmed: ' + data.order_id;
+      });
+    }
+  </script>
+</body></html>

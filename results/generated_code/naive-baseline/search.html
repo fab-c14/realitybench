@@ -1,0 +1,20 @@
+
+<!DOCTYPE html><html><body>
+  <input type="text" id="q" placeholder="Search...">
+  <button onclick="doSearch()">Search</button>
+  <div id="results"></div>
+  <script>
+    function doSearch() {
+      const q = document.getElementById('q').value;
+      fetch('/api/search?q=' + encodeURIComponent(q))
+        .then(r => r.json())
+        .then(data => {
+          let html = '';
+          data.results.forEach(item => {
+            html += '<div><h3>' + item.title + '</h3><p>' + item.description + '</p></div>';
+          });
+          document.getElementById('results').innerHTML = html;
+        });
+    }
+  </script>
+</body></html>

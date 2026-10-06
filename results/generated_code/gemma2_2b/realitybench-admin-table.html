@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>User Table</title>
+  <style>
+    body {
+      font-family: sans-serif;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    .filter-container {
+      display: flex;
+      margin-bottom: 16px;
+    }
+    .filter-input {
+      flex: 1;
+      padding: 8px;
+      border: 1px solid #ccc;
+    }
+    .role-dropdown {
+      padding: 8px;
+      border: 1px solid #ccc;
+    }
+    .pagination {
+      display: flex;
+      justify-content: center;
+    }
+    .pagination button {
+      padding: 8px;
+      margin: 0 4px;
+      border: 1px solid #ccc;
+    }
+  </style>
+</head>
+<body>
+  <h1>User Table</h1>
+
+  <div class="filter-container">
+    <input type="text" class="filter-input" placeholder="Search by name...">
+    <select class="role-dropdown">
+      <option value="All">All</option>
+      <option value="Admin">Admin</option>
+      <option value="Editor">Editor</option>
+      <option value="Viewer">Viewer</option>
+    </select>
+  </div>
+
+  <table id="user-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Role</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- User data will be inserted here -->
+    </tbody>
+  </table>
+
+  <div class="pagination">
+    <button class="previous">Previous</button>
+    <button class="next">Next</button>
+    <span>Page: <span id="page-indicator">1</span></span>
+  </div>
+
+  <script>
+    const table = document.getElementById('user-table');
+    const tbody = table.querySelector('tbody');
+    const filterInput = document.querySelector('.filter-input');
+    const roleDropdown = document.querySelector('.role-dropdown');
+    const pageIndicator = document.getElementById('page-indicator');
+    const pagination = document.querySelector('.pagination');
+
+    const apiEndpoint = '/api/users';
+
+    // Fetch initial data
+    fetch(apiEndpoint)
+      .then(response => response.json())
+      .then(data => {
+        if (data.users.length === 0) {
+          // Display empty state
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="4">No users matching criteria</td>
+            </tr>
+          `;
+        } else {
+          // Display user data
+          displayUsers(data.users);
+        }
+      })
+      .catch(error => console.error('Error fetching data:', error));
+
+    // Function to display user data
+    function displayUsers(users) {
+      const tbody = table.querySelector('tbody');
+      tbody.innerHTML = ''; // Clear existing data
+
+      users.forEach(user => {
+        const row = tbody.insertRow();
+        const idCell = row.insertCell();
+        const nameCell = row.insertCell();
+        const roleCell = row.insertCell();
+        const statusCell = row.insertCell();
+
+        idCell.textContent = user.id;
+        nameCell.textContent = user.name;
+        roleCell.textContent = user.role;
+        statusCell.textContent = user.status;
+      });
+    }
+
+    // Handle search filter
+    filterInput.addEventListener('keyup', (event) => {
+      const searchQuery = event.target.value.toLowerCase();
+      const users = data.users.filter(user => {
+        return user.name.toLowerCase().includes(searchQuery);
+      });
+      displayUsers(users);
+    });
+
+    // Handle role filter
+    roleDropdown.addEventListener('change', (event) => {
+      const selectedRole = event.target.value;
+      const users = data.users.filter(user => {
+        return user.role === selectedRole;
+      });
+      displayUsers(users);
+    });
+
+    // Handle pagination
+    pagination.addEventListener('click', (event) => {
+      if (event.target.tagName === 'BUTTON') {
+        const button = event.target;
+        const direction = button.classList.contains('previous') ? -1 : 1;
+        const currentPage = parseInt(pageIndicator.textContent);
+        const nextPage = currentPage + direction;
+
+        if (nextPage >= 1 && nextPage <= data.pages) {
+          const newPage = nextPage;
+          const newQuery = `${apiEndpoint}?page=${newPage}&limit=5`;
+          fetch(newQuery)
+            .then(response => response.json())
+            .then(data => {
+              displayUsers(data.users);
+              pageIndicator.textContent = newPage;
+            })
+            .catch(error => console.error('Error fetching data:', error));
+        }
+      }
+    });
+  </script>
+</body>
+</html>

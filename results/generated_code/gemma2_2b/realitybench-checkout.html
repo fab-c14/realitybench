@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Checkout</title>
+  <style>
+    body {
+      font-family: sans-serif;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 400px;
+      margin: 0 auto;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+    }
+    input[type="text"],
+    input[type="email"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+    .order-summary {
+      margin-top: 20px;
+      padding: 20px;
+      border: 1px solid #ccc;
+      background-color: #f9f9f9;
+    }
+    .order-summary p {
+      margin-bottom: 10px;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Checkout</h2>
+    <form id="checkoutForm">
+      <label for="fullName">Full Name:</label>
+      <input type="text" id="fullName" name="name" required>
+
+      <label for="email">Email Address:</label>
+      <input type="email" id="email" name="email" required>
+
+      <label for="address">Shipping Address:</label>
+      <textarea id="address" name="address" required></textarea>
+
+      <div class="order-summary">
+        <p>Item: <span id="itemPrice"> $49.00 </span></p>
+        <p>Total: $49.00</p>
+      </div>
+
+      <button type="submit" id="placeOrder">Pay & Place Order</button>
+    </form>
+  </div>
+  <script>
+    const form = document.getElementById('checkoutForm');
+    const orderSummary = document.querySelector('.order-summary');
+    const itemPrice = document.getElementById('itemPrice');
+    const placeOrder = document.getElementById('placeOrder');
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+
+      const name = document.getElementById('fullName').value;
+      const email = document.getElementById('email').value;
+      const address = document.getElementById('address').value;
+
+      // Input validation (add your own validation logic here)
+      if (!name || !email || !address) {
+        alert('Please fill all fields.');
+        return;
+      }
+
+      // Prevent double charging (add your own logic here)
+      // ...
+
+      // AJAX request to send data to the server
+      const data = {
+        name,
+        email,
+        address,
+        amount: 49.00, // Replace with your actual amount
+      };
+
+      fetch('/api/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      })
+        .then((response) => {
+          if (response.ok) {
+            return response.json();
+          } else {
+            throw new Error('Network response was not ok');
+          }
+        })
+        .then((data) => {
+          if (data.status === 'confirmed') {
+            alert('Order placed successfully! Order ID: ' + data.order_id);
+          } else {
+            alert('Error: ' + data.error);
+          }
+        })
+        .catch((error) => {
+          console.error('Error:', error);
+          alert('An error occurred. Please try again later.');
+        });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appointment Booking</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        input[type="date"], input[type="time"], input[type="text"], input[type="tel"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .confirmation {
+            margin-top: 20px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Appointment Booking</h2>
+        <form id="bookingForm">
+            <label for="date">Date:</label>
+            <input type="date" id="date" required>
+            <label for="slot">Time:</label>
+            <select id="slot" required>
+                <option value="09:00 AM">09:00 AM</option>
+                <option value="11:00 AM">11:00 AM</option>
+                <option value="02:00 PM">02:00 PM</option>
+                <option value="04:00 PM">04:00 PM</option>
+            </select>
+            <label for="name">Full Name:</label>
+            <input type="text" id="name" required>
+            <label for="phone">Phone Number:</label>
+            <input type="tel" id="phone" required>
+            <button type="submit">Confirm Booking</button>
+        </form>
+        <div id="confirmation" class="confirmation"></div>
+    </div>
+
+    <script>
+        document.getElementById('bookingForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const date = document.getElementById('date').value;
+            const slot = document.getElementById('slot').value;
+            const name = document.getElementById('name').value;
+            const phone = document.getElementById('phone').value;
+
+            fetch('/api/book', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ date, slot, name, phone })
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error('Failed to book appointment');
+                }
+            })
+            .then(data => {
+                document.getElementById('confirmation').textContent = `Booking confirmed! Your booking ID is ${data.booking_id}`;
+            })
+            .catch(error => {
+                document.getElementById('confirmation').textContent = `Error: ${error.message}`;
+            });
+        });
+    </script>
+</body>
+</html>

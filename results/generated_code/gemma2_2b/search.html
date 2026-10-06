@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Web Search Component</title>
+  <style>
+    body {
+      font-family: sans-serif;
+    }
+    input[type="text"] {
+      width: 200px;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      padding: 10px;
+      border-bottom: 1px solid #ccc;
+    }
+  </style>
+</head>
+<body>
+  <h1>Web Search</h1>
+  <input type="text" id="searchInput" placeholder="Enter search term...">
+  <button id="searchButton">Search</button>
+  <ul id="results"></ul>
+
+  <script>
+    const searchInput = document.getElementById('searchInput');
+    const searchButton = document.getElementById('searchButton');
+    const resultsContainer = document.getElementById('results');
+
+    searchButton.addEventListener('click', () => {
+      const query = searchInput.value;
+      if (query.trim() === '') {
+        alert('Please enter a search term.');
+        return;
+      }
+
+      fetch('/api/search?q=' + query)
+        .then(response => response.json())
+        .then(data => {
+          if (data.results.length === 0) {
+            alert('No results found.');
+          } else {
+            resultsContainer.innerHTML = '';
+            data.results.forEach(result => {
+              const li = document.createElement('li');
+              li.textContent = result.title;
+              resultsContainer.appendChild(li);
+            });
+          }
+        })
+        .catch(error => {
+          alert('An error occurred while fetching results.');
+          console.error(error);
+        });
+    });
+  </script>
+</body>
+</html>

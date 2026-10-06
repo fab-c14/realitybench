@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Country & Region Selector</title>
+  <style>
+    body {
+      font-family: sans-serif;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    select {
+      padding: 10px;
+      border: 1px solid #ccc;
+      margin-bottom: 10px;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Country & Region Selector</h2>
+    <form id="locationForm">
+      <label for="country">Country:</label>
+      <select id="country">
+        <option value="">Select country...</option>
+        <option value="US">US</option>
+        <option value="CA">CA</option>
+        <option value="GB">GB</option>
+      </select>
+
+      <label for="region">Region/State:</label>
+      <select id="region" disabled></select>
+      <button type="submit">Save Location</button>
+    </form>
+  </div>
+
+  <script>
+    const form = document.getElementById('locationForm');
+    const countrySelect = document.getElementById('country');
+    const regionSelect = document.getElementById('region');
+
+    // Fetch regions on country change
+    countrySelect.addEventListener('change', () => {
+      regionSelect.disabled = false;
+      fetch(`/api/regions?country=${countrySelect.value}`)
+        .then(response => response.json())
+        .then(regions => {
+          regions.forEach(region => {
+            regionSelect.innerHTML += `<option value="${region.code}">${region.name}</option>`;
+          });
+          regionSelect.disabled = false;
+        })
+        .catch(error => {
+          console.error('Error fetching regions:', error);
+          regionSelect.innerHTML = '<p>Error fetching regions.</p>';
+        });
+    });
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const country = countrySelect.value;
+      const region = regionSelect.value;
+
+      if (country === '' || region === '') {
+        alert('Please select both country and region.');
+        return;
+      }
+
+      const data = { country, region };
+      fetch('/api/location', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      })
+        .then(response => response.json())
+        .then(result => {
+          if (result.status === 'saved') {
+            alert('Location saved successfully!');
+          } else {
+            alert('Error saving location.');
+          }
+        })
+        .catch(error => {
+          console.error('Error submitting location:', error);
+          alert('Error submitting location. Please try again later.');
+        });
+    });
+  </script>
+</body>
+</html>

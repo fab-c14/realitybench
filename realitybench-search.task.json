@@ -1,0 +1,6 @@
+{
+  "versionNumber": 1,
+  "name": "realitybench-search",
+  "description": "Evaluates LLM on Search software generation across Demo Score, Reality Score, and Reality Gap.",
+  "definition": "@kbench.task(name=\"realitybench-search\")\ndef realitybench_search(llm) -> dict:\n    \"\"\"\n    Evaluates LLM on Search software generation across Demo Score, Reality Score, and Reality Gap.\n    \"\"\"\n    response = llm.prompt(SEARCH_TASK_PROMPT)\n    code = extract_html_code(response)\n\n    report = grade_search_implementation(code)\n\n    kbench.assertions.assert_true(\n        report.demo_score > 0.0,\n        expectation=\"Model should produce a functional search component on happy path\"\n    )\n\n    return report.to_dict()\n"
+}

@@ -1,0 +1,6 @@
+{
+  "versionNumber": 1,
+  "name": "realitybench-booking",
+  "description": "Evaluates LLM on Booking software generation.",
+  "definition": "@kbench.task(name=\"realitybench-booking\")\ndef realitybench_booking(llm) -> dict:\n    \"\"\"\n    Evaluates LLM on Booking software generation.\n    \"\"\"\n    response = llm.prompt(BOOKING_TASK_PROMPT)\n    code = extract_html_code(response)\n    report = grade_booking_implementation(code)\n    kbench.assertions.assert_true(\n        report.demo_score > 0.0,\n        expectation=\"Model should produce a functional booking component on happy path\"\n    )\n    return report.to_dict()\n"
+}

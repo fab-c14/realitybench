@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Country and Region Selector</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .loading {
+            display: none;
+            margin-top: 10px;
+            text-align: center;
+        }
+        .error {
+            display: none;
+            margin-top: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Select Location</h2>
+        <select id="country" onchange="fetchRegions()">
+            <option value="">Select country...</option>
+            <option value="US">US</option>
+            <option value="CA">CA</option>
+            <option value="GB">GB</option>
+        </select>
+        <select id="region" disabled>
+            <option value="">Select region...</option>
+        </select>
+        <button id="submit">Save Location</button>
+        <div class="loading" id="loading">Loading regions...</div>
+        <div class="error" id="error"></div>
+    </div>
+
+    <script>
+        const countrySelect = document.getElementById('country');
+        const regionSelect = document.getElementById('region');
+        const submitButton = document.getElementById('submit');
+        const loadingDiv = document.getElementById('loading');
+        const errorDiv = document.getElementById('error');
+
+        countrySelect.addEventListener('change', fetchRegions);
+
+        function fetchRegions() {
+            loadingDiv.style.display = 'block';
+            errorDiv.style.display = 'none';
+
+            const country = countrySelect.value;
+            if (!country) {
+                return;
+            }
+
+            fetch(`/api/regions?country=${country}`)
+                .then(response => response.json())
+                .then(data => {
+                    regionSelect.disabled = false;
+                    regionSelect.innerHTML = '<option value="">Select region...</option>';
+                    data.forEach(region => {
+                        const option = document.createElement('option');
+                        option.value = region.code;
+                        option.textContent = region.name;
+                        regionSelect.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    errorDiv.style.display = 'block';
+                    errorDiv.textContent = 'Failed to fetch regions. Please try again later.';
+                })
+                .finally(() => {
+                    loadingDiv.style.display = 'none';
+                });
+        }
+
+        submitButton.addEventListener('click', () => {
+            if (!countrySelect.value || !regionSelect.value) {
+                alert('Please select a country and region.');
+                return;
+            }
+
+            const country = countrySelect.value;
+            const region = regionSelect.value;
+
+            fetch('/api/location', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ country, region })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Location saved successfully!');
+                countrySelect.value = '';
+                regionSelect.value = '';
+            })
+            .catch(error => {
+                errorDiv.style.display = 'block';
+                errorDiv.textContent = 'Failed to save location. Please try again later.';
+            });
+        });
+    </script>
+</body>
+</html>

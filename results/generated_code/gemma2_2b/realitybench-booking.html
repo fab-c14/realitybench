@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Appointment Booking</title>
+  <style>
+    body {
+      font-family: sans-serif;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 500px;
+      margin: 0 auto;
+    }
+    input[type="date"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+    }
+    select {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    .error {
+      color: red;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Appointment Booking</h2>
+    <form id="bookingForm">
+      <label for="date">Date:</label>
+      <input type="date" id="date" value="<?php echo date('Y-m-d'); ?>" required>
+      <label for="slot">Time Slot:</label>
+      <select id="slot">
+        <option value="09:00 AM">09:00 AM</option>
+        <option value="11:00 AM">11:00 AM</option>
+        <option value="02:00 PM">02:00 PM</option>
+        <option value="04:00 PM">04:00 PM</option>
+      </select>
+      <label for="name">Full Name:</label>
+      <input type="text" id="name" required>
+      <label for="phone">Phone Number:</label>
+      <input type="tel" id="phone" required>
+      <button type="submit">Confirm Booking</button>
+    </form>
+    <div id="feedback"></div>
+  </div>
+  <script>
+    const form = document.getElementById('bookingForm');
+    const feedback = document.getElementById('feedback');
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const date = document.getElementById('date').value;
+      const slot = document.getElementById('slot').value;
+      const name = document.getElementById('name').value;
+      const phone = document.getElementById('phone').value;
+
+      // Validation
+      if (!date || !slot || !name || !phone) {
+        feedback.innerHTML = '<div class="error">Please fill all fields.</div>';
+        return;
+      }
+
+      // Check if slot is available
+      // (Replace this with your API call to check slot availability)
+      if (isSlotAvailable(date, slot)) {
+        // Book the appointment
+        const data = {
+          date,
+          slot,
+          name,
+          phone,
+        };
+        fetch('/api/book', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        })
+        .then((response) => {
+          if (response.ok) {
+            feedback.innerHTML = '<div class="success">Booking confirmed! Booking ID: ' + response.json().booking_id + '</div>';
+          } else {
+            feedback.innerHTML = '<div class="error">Error booking appointment. Please try again.</div>';
+          }
+        })
+        .catch((error) => {
+          feedback.innerHTML = '<div class="error">Error booking appointment. Please try again.</div>';
+        });
+      } else {
+        feedback.innerHTML = '<div class="error">Slot is unavailable.</div>';
+      }
+    });
+
+    function isSlotAvailable(date, slot) {
+      // Replace this with your API call to check slot availability
+      return true; // Example: return true if slot is available
+    }
+  </script>
+</body>
+</html>

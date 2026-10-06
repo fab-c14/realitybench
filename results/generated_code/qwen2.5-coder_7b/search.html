@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Web Search Component</title>
+<style>
+  body { font-family: Arial, sans-serif; }
+  .search-container { margin: 20px; }
+  .search-input { padding: 10px; width: 300px; }
+  .search-button { padding: 10px 20px; }
+  .results-container { margin-top: 20px; }
+  .result-item { border-bottom: 1px solid #ccc; padding: 10px 0; }
+  .error-message { color: red; }
+</style>
+</head>
+<body>
+
+<div class="search-container">
+  <input type="text" class="search-input" id="search-input" placeholder="Search...">
+  <button class="search-button" onclick="performSearch()">Search</button>
+</div>
+<div class="results-container" id="results-container"></div>
+<div class="error-message" id="error-message"></div>
+
+<script>
+  async function performSearch() {
+    const query = document.getElementById('search-input').value.trim();
+    if (!query) {
+      document.getElementById('error-message').textContent = 'Please enter a search query.';
+      document.getElementById('results-container').innerHTML = '';
+      return;
+    }
+
+    document.getElementById('error-message').textContent = '';
+    document.getElementById('results-container').innerHTML = 'Loading...';
+
+    try {
+      const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const data = await response.json();
+      if (!data.results || data.results.length === 0) {
+        document.getElementById('results-container').innerHTML = 'No results found.';
+        return;
+      }
+
+      const resultsContainer = document.getElementById('results-container');
+      resultsContainer.innerHTML = '';
+      data.results.forEach(item => {
+        const resultItem = document.createElement('div');
+        resultItem.className = 'result-item';
+        resultItem.innerHTML = `<strong>${item.title}</strong><br>${item.description}`;
+        resultsContainer.appendChild(resultItem);
+      });
+    } catch (error) {
+      document.getElementById('results-container').innerHTML = '';
+      document.getElementById('error-message').textContent = 'Failed to fetch results. Please try again later.';
+    }
+  }
+</script>
+
+</body>
+</html>

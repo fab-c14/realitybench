@@ -1,0 +1,6 @@
+{
+  "versionNumber": 1,
+  "name": "realitybench-api-form",
+  "description": "Evaluates LLM on Dependent API Form software generation.",
+  "definition": "@kbench.task(name=\"realitybench-api-form\")\ndef realitybench_api_form(llm) -> dict:\n    \"\"\"Evaluates LLM on Dependent API Form software generation.\"\"\"\n    response = llm.prompt(API_FORM_TASK_PROMPT)\n    code = extract_html_code(response)\n    report = grade_api_form_implementation(code)\n    kbench.assertions.assert_true(\n        report.demo_score > 0.0,\n        expectation=\"Model should produce a functional dependent API form on happy path\"\n    )\n    return report.to_dict()\n"
+}

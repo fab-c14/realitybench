@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Self-Contained Web Checkout</title>
+  <style>
+    body {
+      font-family: sans-serif;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+    .error {
+      color: red;
+      margin-bottom: 10px;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Checkout</h1>
+  <form id="checkoutForm">
+    <label for="fullName">Full Name:</label>
+    <input type="text" id="fullName" name="name" required>
+    <label for="email">Email Address:</label>
+    <input type="email" id="email" name="email" required>
+    <label for="address">Shipping Address:</label>
+    <textarea id="address" name="address" required></textarea>
+    <div id="orderSummary">
+      <h2>Order Summary</h2>
+      <p>Item: $49.00</p>
+      <p>Total: $49.00</p>
+    </div>
+    <button type="submit" id="placeOrder">Pay & Place Order</button>
+  </form>
+
+  <div id="orderConfirmation" style="display: none;">
+    <h2>Order Confirmation</h2>
+    <p>Order ID: <span id="orderId">ORD-12345</span></p>
+  </div>
+
+  <script>
+    const form = document.getElementById('checkoutForm');
+    const orderConfirmation = document.getElementById('orderConfirmation');
+    const orderIdSpan = document.getElementById('orderId');
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+
+      const name = document.getElementById('fullName').value;
+      const email = document.getElementById('email').value;
+      const address = document.getElementById('address').value;
+
+      // Input validation
+      if (!name || !email || !address) {
+        alert('Please fill all required fields.');
+        return;
+      }
+
+      // Prevent double charging
+      // ... (Implementation for double charging prevention)
+
+      // Submit form data
+      const data = {
+        name,
+        email,
+        address,
+        amount: 49.00,
+      };
+
+      fetch('/api/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      })
+      .then((response) => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          throw new Error('Failed to submit order.');
+        }
+      })
+      .then((responseJson) => {
+        if (responseJson.status === 'confirmed') {
+          orderConfirmation.style.display = 'block';
+          orderIdSpan.textContent = 'ORD-12345';
+        } else {
+          alert('Error submitting order. Please try again.');
+        }
+      })
+      .catch((error) => {
+        console.error('Error submitting order:', error);
+        alert('Error submitting order. Please try again.');
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+{
+  "versionNumber": 1,
+  "name": "realitybench-product-page",
+  "description": "Evaluates LLM on Product Page software generation.",
+  "definition": "@kbench.task(name=\"realitybench-product-page\")\ndef realitybench_product_page(llm) -> dict:\n    \"\"\"\n    Evaluates LLM on Product Page software generation.\n    \"\"\"\n    response = llm.prompt(PRODUCT_PAGE_TASK_PROMPT)\n    code = extract_html_code(response)\n    report = grade_product_page_implementation(code)\n    kbench.assertions.assert_true(\n        report.demo_score > 0.0,\n        expectation=\"Model should produce a functional product page on happy path\"\n    )\n    return report.to_dict()\n"
+}

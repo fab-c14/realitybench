@@ -1,0 +1,6 @@
+{
+  "versionNumber": 1,
+  "name": "realitybench-chat",
+  "description": "Evaluates LLM on Chat software generation.",
+  "definition": "@kbench.task(name=\"realitybench-chat\")\ndef realitybench_chat(llm) -> dict:\n    \"\"\"\n    Evaluates LLM on Chat software generation.\n    \"\"\"\n    response = llm.prompt(CHAT_TASK_PROMPT)\n    code = extract_html_code(response)\n    report = grade_chat_implementation(code)\n    kbench.assertions.assert_true(\n        report.demo_score > 0.0,\n        expectation=\"Model should produce a functional chat component on happy path\"\n    )\n    return report.to_dict()\n"
+}

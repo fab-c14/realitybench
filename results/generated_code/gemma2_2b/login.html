@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Login Component</title>
+  <style>
+    body {
+      font-family: sans-serif;
+    }
+
+    .container {
+      width: 300px;
+      margin: 0 auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    button {
+      background-color: #007bff;
+      color: #fff;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .error {
+      color: red;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Login</h2>
+    <form id="loginForm">
+      <label for="email">Email:</label>
+      <input type="email" id="email" name="email" required>
+      <label for="password">Password:</label>
+      <input type="password" id="password" name="password" required>
+      <button type="submit">Login</button>
+    </form>
+    <div class="error" id="error"></div>
+    <div id="success"></div>
+  </div>
+
+  <script>
+    const form = document.getElementById('loginForm');
+    const errorDiv = document.getElementById('error');
+    const successDiv = document.getElementById('success');
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      // Basic validation (replace with your actual logic)
+      if (!email || !password) {
+        errorDiv.textContent = 'Please fill all fields.';
+        return;
+      }
+
+      // AJAX request (replace with your actual API call)
+      fetch('/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, password })
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data.token && data.user) {
+          // Display success message
+          successDiv.textContent = 'Welcome, ' + data.user.name + '!';
+          // Store token for future use (replace with your actual token management)
+          localStorage.setItem('token', data.token);
+        } else {
+          errorDiv.textContent = 'Invalid credentials.';
+        }
+      })
+      .catch(error => {
+        errorDiv.textContent = 'An error occurred: ' + error.message;
+      });
+    });
+  </script>
+</body>
+</html>
