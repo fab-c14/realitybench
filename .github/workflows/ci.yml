@@ -11,6 +11,11 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false
 
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
 jobs:
   lint:
     name: Code Quality & Linting
@@ -71,7 +76,7 @@ jobs:
     needs: [lint, test]
     if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     permissions:
-      contents: read
+      contents: write
       pages: write
       id-token: write
     environment:
@@ -104,14 +109,23 @@ jobs:
           cp results/full_benchmark_results.json _site/data/
           cp results/pilot_benchmark_results.json _site/data/
 
-      - name: Setup GitHub Pages
+      - name: Deploy to gh-pages Branch (Resilient Branch Hosting)
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./_site
+
+      - name: Setup GitHub Pages (Actions-based Hosting)
         uses: actions/configure-pages@v5
+        continue-on-error: true
 
       - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: '_site'
+        continue-on-error: true
 
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+        continue-on-error: true
