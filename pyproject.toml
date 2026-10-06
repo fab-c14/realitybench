@@ -31,6 +31,7 @@ dev = [
     "pytest-cov>=4.1.0",
     "ruff>=0.4.0",
     "pyright>=1.1.350",
+    "pylint>=3.1.0",
 ]
 
 [project.scripts]
@@ -54,3 +55,44 @@ target-version = "py311"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.pylint.main]
+py-version = "3.11"
+ignore = [".venv", "results", "build", "dist"]
+jobs = 0
+
+[tool.pylint.basic]
+good-names = ["i", "j", "k", "ex", "Run", "_", "x", "y", "ax", "bar", "f", "e", "t", "s", "w", "h"]
+
+[tool.pylint.messages_control]
+disable = [
+    "missing-module-docstring",
+    "missing-class-docstring",
+    "missing-function-docstring",
+    "line-too-long",
+    "too-many-arguments",
+    "too-many-locals",
+    "too-many-statements",
+    "too-many-branches",
+    "too-many-instance-attributes",
+    "too-many-positional-arguments",
+    "too-few-public-methods",
+    "fixme",
+    "invalid-name",
+    "duplicate-code",
+    "broad-exception-caught",
+    "wrong-import-position",
+    "wrong-import-order",
+    "import-outside-toplevel",
+    "redefined-outer-name",
+    "global-statement",
+    "disallowed-name",
+    "superfluous-parens",
+    "unused-argument",
+    "trailing-whitespace",
+    "consider-using-dict-items",
+]
+
+[tool.pylint.format]
+max-line-length = 120
+

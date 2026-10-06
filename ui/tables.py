@@ -232,4 +232,3 @@ def matrix_table(
         table.add_row(*row_cells)
 
     return table
-

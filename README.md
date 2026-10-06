@@ -1,7 +1,9 @@
 # RealityBench 🛡️
 ### Benchmarking AI-Generated Software Beyond the Happy Path
 
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![CI](https://github.com/fab-c14/realitybench/actions/workflows/ci.yml/badge.svg)](https://github.com/fab-c14/realitybench/actions/workflows/ci.yml)
+[![Pylint](https://img.shields.io/badge/pylint-10.00%2F10-brightgreen.svg)](https://github.com/fab-c14/realitybench)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![Tested with Playwright](https://img.shields.io/badge/DOM%20Harness-Playwright%20Chromium-green.svg)](https://playwright.dev/)
 [![Rich Terminal UI](https://img.shields.io/badge/CLI%20Presentation-Rich-purple.svg)](https://github.com/Textualize/rich)
 [![Kaggle Benchmarks](https://img.shields.io/badge/Kaggle-Benchmarks%20SDK-20BEFF.svg)](https://github.com/Kaggle/kaggle-benchmarks)
@@ -195,18 +197,27 @@ Renders `results/dashboard.html` with interactive KPI cards, Chart.js multi-mode
 
 ---
 
-## 🧪 Automated Testing
+## 🧪 Automated Testing & CI
 
-RealityBench maintains an automated test suite verifying scoring mathematics, task registry invariants, and Rich UI rendering safety:
+RealityBench maintains an automated test suite verifying scoring mathematics, task registry invariants, and Rich UI rendering safety, alongside static analysis and linting:
 
 ```bash
-python -m pytest -v
+# Run unit test suite (17 passed)
+uv run pytest -v
+
+# Run Pylint across all benchmark, UI, and test modules (10.00 / 10)
+uv run pylint benchmark/ ui/ cli.py analysis/ tests/
+
+# Run Ruff fast linter
+uv run ruff check ui/ cli.py analysis/ tests/
 ```
 
 All 17 tests run deterministically without external network requests:
 - `tests/test_registry.py`: Asserts all 12 tasks load with complete metadata and valid HTML baselines.
 - `tests/test_scoring.py`: Asserts category weight normalization, edge cases, and JSON schema compatibility.
 - `tests/test_ui.py`: Asserts table, panel, chart, matrix, dashboard layout, screens, and flag toggles across CP1252 and UTF-8 console streams.
+
+Continuous Integration is automatically run via GitHub Actions on every push and pull request against `main` (`.github/workflows/ci.yml`).
 
 ---
 

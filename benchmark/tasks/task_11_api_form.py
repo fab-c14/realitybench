@@ -503,7 +503,7 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
 
         # 3. Check that region value is NOT still "CA" (California)
         curr_region_val = region_select.input_value()
-        state_reset_ok = (curr_region_val != "CA")
+        state_reset_ok = curr_region_val != "CA"
 
         results.append(TestResult(
             test_name="reality_country_switch_state_reset",

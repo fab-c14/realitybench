@@ -70,8 +70,9 @@ def render_final_screen(
     Renders the final results celebration screen, multi-model leaderboard,
     and Task x Model performance matrix.
     """
-    if ui_options.quiet:
-        # In quiet mode, just print the raw scoreboard
+    effective_no_animation = no_animation or ui_options.no_animation
+    if ui_options.quiet or effective_no_animation:
+        # In quiet or no-animation mode, print the clean scoreboard
         console.print(scoreboard_table(results.get("target_summaries", {})))
         return
 

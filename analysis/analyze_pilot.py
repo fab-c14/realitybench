@@ -79,7 +79,7 @@ def analyze():
     # Q1: Separation
     reality_scores = [s["avg_reality_score"] for s in summary]
     reality_gaps = [s["avg_reality_gap"] for s in summary]
-    
+
     score_spread = max(reality_scores) - min(reality_scores) if reality_scores else 0
     q1_answer = f"YES. Reality Score exhibits a wide spread of {score_spread*100:.1f} percentage points across models and baselines."
 

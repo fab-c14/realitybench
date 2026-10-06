@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Code Quality & Linting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          version: "latest"
+
+      - name: Set up Python 3.11
+        run: uv python install 3.11
+
+      - name: Install dependencies
+        run: uv sync --all-extras
+
+      - name: Run Ruff Lint Check
+        run: uv run ruff check ui/ cli.py analysis/ tests/
+
+      - name: Run Pylint
+        run: uv run pylint benchmark/ ui/ cli.py analysis/ tests/
+
+  test:
+    name: Test Suite & Calibration
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          version: "latest"
+
+      - name: Set up Python 3.11
+        run: uv python install 3.11
+
+      - name: Install dependencies
+        run: uv sync --all-extras
+
+      - name: Install Playwright Chromium with system dependencies
+        run: uv run playwright install --with-deps chromium
+
+      - name: Run Unit Tests
+        run: uv run pytest -v
+
+      - name: Run Pilot Benchmark Calibration Test
+        run: uv run realitybench pilot --target naive-baseline --no-animation --no-color

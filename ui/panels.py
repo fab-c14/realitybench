@@ -106,21 +106,21 @@ def error_panel(
             border_style=border_style,
             box=box.HEAVY
         )
-    else:
-        # Generic (title, message) call
-        title = arg1
-        details = arg2
-        content = Text()
-        content.append(f"{details}\n", style="yellow")
-        if exception:
-            content.append(f"\nException Details: {exception!s}", style="muted")
 
-        return Panel(
-            content,
-            title=f"[bold red]{title}[/bold red]",
-            border_style="red",
-            box=box.ROUNDED
-        )
+    # Generic (title, message) call
+    title = arg1
+    details = arg2
+    content = Text()
+    content.append(f"{details}\n", style="yellow")
+    if exception:
+        content.append(f"\nException Details: {exception!s}", style="muted")
+
+    return Panel(
+        content,
+        title=f"[bold red]{title}[/bold red]",
+        border_style="red",
+        box=box.ROUNDED
+    )
 
 
 def code_panel(
