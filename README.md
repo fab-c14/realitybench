@@ -83,15 +83,43 @@ Results from evaluating full baselines and local models:
 
 ---
 
+## ⚡ Quickstart with `uv`
+
+RealityBench uses [`uv`](https://github.com/astral-sh/uv) for fast, reproducible dependency management and execution.
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/fab-c14/realitybench.git
+cd realitybench
+
+# 2. Install all dependencies (including dev tools)
+uv sync --all-extras
+
+# 3. Install Playwright browser engine
+uv run playwright install chromium
+
+# 4. View available commands
+uv run realitybench --help
+
+# 5. Run the fast 3-task pilot benchmark
+uv run realitybench pilot
+
+# 6. Launch the interactive graphical browser dashboard
+uv run realitybench view
+```
+
+---
+
 ## 💻 CLI Commands & Usage
 
-RealityBench includes a colorful, developer-first CLI powered by `rich` and `typer`.
+RealityBench includes a colorful, developer-first CLI powered by `rich` and `typer`. You can run commands directly using `uv run realitybench <command>` or `python cli.py <command>`.
 
 ### 1. Catalog & Task Inspection
 
 ```bash
 # List all 12 registered benchmark tasks
-python cli.py tasks
+uv run realitybench tasks
+# or: python cli.py tasks
 
 # Inspect a task prompt specification with Syntax highlighting
 python cli.py inspect realitybench-login

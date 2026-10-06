@@ -5,10 +5,11 @@ Reads results/full_benchmark_results.json and creates:
 2. Comprehensive empirical report in results/REALITYBENCH_REPORT.md
 """
 
-import sys
-import os
 import json
-from typing import Dict, Any, List
+import os
+import sys
+from typing import Any
+
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -23,14 +24,14 @@ CHARTS_DIR = os.path.join(bench_root, "analysis", "charts")
 REPORT_FILE = os.path.join(bench_root, "results", "REALITYBENCH_REPORT.md")
 
 
-def load_results() -> Dict[str, Any]:
+def load_results() -> dict[str, Any]:
     if not os.path.exists(RESULTS_FILE):
         raise FileNotFoundError(f"Results file not found: {RESULTS_FILE}")
     with open(RESULTS_FILE, "r", encoding="utf-8") as f:
         return json.load(f)
 
 
-def generate_charts(data: Dict[str, Any]):
+def generate_charts(data: dict[str, Any]):
     os.makedirs(CHARTS_DIR, exist_ok=True)
     targets = list(data.get("target_summaries", {}).keys())
     if not targets:
@@ -170,7 +171,7 @@ def generate_charts(data: Dict[str, Any]):
     print(f"[Chart] Saved: {chart3_path}")
 
 
-def generate_report(data: Dict[str, Any]):
+def generate_report(data: dict[str, Any]):
     targets = list(data.get("target_summaries", {}).keys())
     task_count = data.get("task_count", 12)
 

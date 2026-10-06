@@ -14,11 +14,9 @@ Answers the 9 core pilot validation questions:
 Generates analysis report and charts.
 """
 
-import os
-import sys
 import json
+import os
 from collections import defaultdict
-from typing import Dict, Any, List
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RESULTS_FILE = os.path.join(BASE_DIR, "results", "pilot_results.json")
@@ -54,7 +52,7 @@ def analyze():
     test_failures = defaultdict(int)
     test_runs = defaultdict(int)
 
-    for model, tasks in models_data.items():
+    for tasks in models_data.values():
         for task_name, task_report in tasks.items():
             for t in task_report.get("test_details", []):
                 cat = t.get("category", "unknown")
@@ -79,7 +77,6 @@ def analyze():
     print("=" * 80)
 
     # Q1: Separation
-    demo_scores = [s["avg_demo_score"] for s in summary]
     reality_scores = [s["avg_reality_score"] for s in summary]
     reality_gaps = [s["avg_reality_gap"] for s in summary]
     
@@ -102,7 +99,7 @@ def analyze():
 
     # Q7: Domination
     max_test_fail = max(test_failures.values()) if test_failures else 0
-    max_test_name = [k for k, v in test_failures.items() if v == max_test_fail][0] if test_failures else "None"
+    max_test_name = next((k for k, v in test_failures.items() if v == max_test_fail), "None") if test_failures else "None"
     q7_answer = f"NO. No single assertion dominates. The most frequent failure ({max_test_name}) accounts for {max_test_fail}/{sum(test_failures.values())} of total recorded failures."
 
     # Q8: Reproducible
@@ -138,10 +135,10 @@ def generate_charts(summary, cat_attempts, cat_failures):
         x = np.arange(len(models))
         width = 0.28
 
-        fig, ax = plt.subplots(figsize=(10, 6))
-        rects1 = ax.bar(x - width, demo, width, label='Demo Score (Happy Path)', color='#2563eb')
-        rects2 = ax.bar(x, reality, width, label='Reality Score (Perturbations)', color='#10b981')
-        rects3 = ax.bar(x + width, gap, width, label='Reality Gap (Delta)', color='#f59e0b')
+        _fig, ax = plt.subplots(figsize=(10, 6))
+        _rects1 = ax.bar(x - width, demo, width, label='Demo Score (Happy Path)', color='#2563eb')
+        _rects2 = ax.bar(x, reality, width, label='Reality Score (Perturbations)', color='#10b981')
+        _rects3 = ax.bar(x + width, gap, width, label='Reality Gap (Delta)', color='#f59e0b')
 
         ax.set_ylabel('Score (%)', fontsize=12)
         ax.set_title('RealityBench Pilot: Demo vs Reality Across Models', fontsize=14, fontweight='bold')
@@ -164,8 +161,8 @@ def generate_charts(summary, cat_attempts, cat_failures):
         sorted_cats = [cats[i].replace('_', ' ').title() for i in sorted_indices]
         sorted_rates = [rates[i] for i in sorted_indices]
 
-        fig, ax = plt.subplots(figsize=(10, 5))
-        bars = ax.barh(sorted_cats[::-1], sorted_rates[::-1], color='#ef4444')
+        _fig, ax = plt.subplots(figsize=(10, 5))
+        _bars = ax.barh(sorted_cats[::-1], sorted_rates[::-1], color='#ef4444')
         ax.set_xlabel('Failure Rate (%)', fontsize=12)
         ax.set_title('Vulnerability by Software Engineering Category', fontsize=14, fontweight='bold')
         ax.grid(axis='x', linestyle='--', alpha=0.3)
@@ -176,7 +173,7 @@ def generate_charts(summary, cat_attempts, cat_failures):
         plt.close()
         print(f"[+] Saved chart: {chart2_path}")
 
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         print(f"Chart generation error: {e}")
 
 
