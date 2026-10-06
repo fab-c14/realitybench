@@ -1,14 +1,15 @@
-name: CI
+name: CI & Deployment
 
 on:
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   lint:
@@ -63,3 +64,54 @@ jobs:
 
       - name: Run Pilot Benchmark Calibration Test
         run: uv run realitybench pilot --target naive-baseline --no-animation --no-color
+
+  deploy-pages:
+    name: Deploy Interactive Dashboard to GitHub Pages
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          version: "latest"
+
+      - name: Set up Python 3.11
+        run: uv python install 3.11
+
+      - name: Install dependencies
+        run: uv sync --all-extras
+
+      - name: Generate HTML Dashboard
+        run: |
+          uv run python -c "from analysis.generate_html_dashboard import generate_and_open_dashboard; generate_and_open_dashboard(open_browser=False)"
+
+      - name: Prepare Site Artifacts
+        run: |
+          mkdir -p _site/data
+          cp results/dashboard.html _site/index.html
+          cp results/full_benchmark_results.json _site/data/
+          cp results/pilot_benchmark_results.json _site/data/
+
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '_site'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

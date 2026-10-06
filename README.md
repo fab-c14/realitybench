@@ -1,7 +1,8 @@
 # RealityBench 🛡️
 ### Benchmarking AI-Generated Software Beyond the Happy Path
 
-[![CI](https://github.com/fab-c14/realitybench/actions/workflows/ci.yml/badge.svg)](https://github.com/fab-c14/realitybench/actions/workflows/ci.yml)
+[![CI & Deployment](https://github.com/fab-c14/realitybench/actions/workflows/ci.yml/badge.svg)](https://github.com/fab-c14/realitybench/actions/workflows/ci.yml)
+[![Live Dashboard](https://img.shields.io/badge/Live%20Dashboard-GitHub%20Pages-2563eb.svg)](https://fab-c14.github.io/realitybench/)
 [![Pylint](https://img.shields.io/badge/pylint-10.00%2F10-brightgreen.svg)](https://github.com/fab-c14/realitybench)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![Tested with Playwright](https://img.shields.io/badge/DOM%20Harness-Playwright%20Chromium-green.svg)](https://playwright.dev/)
@@ -188,12 +189,30 @@ python cli.py breakdown qwen2.5-coder:1.5b
 
 ```bash
 # Generate and launch the interactive graphical HTML dashboard in your default browser
-python cli.py view
+uv run realitybench view
 
 # Generate dashboard without opening browser automatically
-python cli.py view --no-browser
+uv run realitybench view --no-browser
 ```
+
 Renders `results/dashboard.html` with interactive KPI cards, Chart.js multi-model comparisons, Reality Gap charts, and a filterable Task x Model matrix.
+
+> 🌐 **Live Web Deployment**: The interactive dashboard is continuously deployed to GitHub Pages at **[https://fab-c14.github.io/realitybench/](https://fab-c14.github.io/realitybench/)**.
+
+---
+
+## 🚀 Deployment & CI/CD Architecture
+
+RealityBench is designed for automated validation and zero-friction deployment:
+
+1. **Continuous Integration (`.github/workflows/ci.yml`)**:
+   - **Static Analysis**: Runs `ruff` and `pylint` (enforcing 10.00 / 10 quality score).
+   - **Playwright Test Matrix**: Executes all 17 deterministic tests and pilot browser evaluation in headless mode.
+2. **Interactive Web Dashboard on GitHub Pages**:
+   - On every push to `main`, GitHub Actions automatically compiles the standalone analytics dashboard and deploys to GitHub Pages via `actions/deploy-pages@v4`.
+   - Raw benchmark datasets are also published under `/data/full_benchmark_results.json` for researcher access.
+3. **Distribution & Packaging (`.github/workflows/release.yml`)**:
+   - Automated `uv build` wheels (`.whl`) and source distributions (`.tar.gz`) generated on release tags.
 
 ---
 
