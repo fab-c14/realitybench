@@ -1,7 +1,7 @@
 # RealityBench: Empirical Evaluation Report
 ## Benchmarking AI-Generated Software Beyond the Happy Path
 
-**Generated:** 2026-10-06T09:37:26Z
+**Generated:** 2026-10-06T13:13:06Z
 **Total Benchmark Tasks:** 12
 **Evaluation Targets:** naive-baseline, robust-baseline, qwen2.5-coder:1.5b, gemma2:2b
 
