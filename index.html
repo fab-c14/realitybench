@@ -3,421 +3,1140 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RealityBench | Graphical Interactive Dashboard</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>RealityBench | Benchmarking AI Software Beyond the Happy Path</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600;700&family=Geist:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-primary: #0f172a;
-            --bg-secondary: #1e293b;
-            --bg-card: #1e293b;
-            --border-color: #334155;
-            --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
-            --accent-blue: #38bdf8;
-            --accent-green: #34d399;
-            --accent-red: #f87171;
-            --accent-yellow: #fbbf24;
-            --accent-purple: #c084fc;
+            --bg-base: #09090b;
+            --bg-surface: #111114;
+            --bg-elevated: #18181c;
+            --border-subtle: #222227;
+            --border-strong: #33333c;
+            --border-active: #4a4a58;
+            --text-primary: #f4f4f7;
+            --text-secondary: #92929e;
+            --text-muted: #5e5e6c;
+            --accent-blue: #2563eb;
+            --accent-blue-hover: #3b82f6;
+            --accent-emerald: #10b981;
+            --accent-crimson: #ef4444;
+            --accent-amber: #f59e0b;
+            --font-sans: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --font-mono: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
         }
+
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: var(--font-sans);
+            -webkit-font-smoothing: antialiased;
         }
+
         body {
-            background-color: var(--bg-primary);
+            background-color: var(--bg-base);
             color: var(--text-primary);
-            padding: 24px;
             line-height: 1.5;
+            padding: 0;
+            min-height: 100vh;
         }
-        .header {
+
+        .page-wrap {
+            max-width: 1320px;
+            margin: 0 auto;
+            padding: 40px 24px 80px 24px;
+        }
+
+        /* Subtle technical grid background */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+            background-size: 56px 56px;
+            z-index: 0;
+        }
+
+        .content-layer {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Navigation Bar */
+        .site-nav {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding-bottom: 20px;
-            border-bottom: 1px solid var(--border-color);
-            margin-bottom: 24px;
+            height: 64px;
+            border-bottom: 1px solid var(--border-subtle);
+            margin-bottom: 48px;
         }
-        .header-title {
+
+        .nav-brand {
             display: flex;
             align-items: center;
             gap: 12px;
-        }
-        .badge-red {
-            background-color: #dc2626;
-            color: #ffffff;
-            font-size: 12px;
-            font-weight: 700;
-            padding: 4px 8px;
-            border-radius: 4px;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-        .header h1 {
-            font-size: 26px;
-            font-weight: 800;
-            letter-spacing: -0.02em;
-        }
-        .header p {
-            color: var(--text-secondary);
-            font-size: 14px;
-        }
-        .grid-kpis {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 16px;
-            margin-bottom: 28px;
-        }
-        .kpi-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 20px;
-            position: relative;
-            overflow: hidden;
-        }
-        .kpi-title {
-            font-size: 13px;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 8px;
-        }
-        .kpi-value {
-            font-size: 28px;
-            font-weight: 800;
+            text-decoration: none;
             color: var(--text-primary);
         }
-        .kpi-subtitle {
-            font-size: 12px;
+
+        .nav-logo {
+            width: 28px;
+            height: 28px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-strong);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-mono);
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--accent-blue-hover);
+        }
+
+        .nav-title {
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            font-size: 13px;
+        }
+
+        .nav-links a {
             color: var(--text-secondary);
-            margin-top: 4px;
+            text-decoration: none;
+            transition: color 120ms ease;
         }
-        .grid-charts {
+
+        .nav-links a:hover {
+            color: var(--text-primary);
+        }
+
+        .nav-cta {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 6px;
+            background: var(--accent-blue);
+            color: #ffffff !important;
+            border: 1px solid var(--accent-blue-hover);
+            transition: all 120ms ease;
+            display: inline-block;
+            white-space: nowrap;
+        }
+
+        .nav-cta:hover {
+            background: var(--accent-blue-hover);
+            transform: translateY(-1px);
+        }
+
+        .nav-cta:active {
+            transform: scale(0.98);
+        }
+
+        /* Asymmetric Split Hero */
+        .hero-section {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 28px;
+            grid-template-columns: 1.15fr 1fr;
+            gap: 40px;
+            align-items: center;
+            margin-bottom: 72px;
         }
-        @media (max-width: 900px) {
-            .grid-charts {
+
+        @media (max-width: 990px) {
+            .hero-section {
                 grid-template-columns: 1fr;
+                gap: 32px;
             }
         }
-        .chart-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 20px;
+
+        .hero-content {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
         }
-        .chart-header {
+
+        .hero-eyebrow {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--accent-blue-hover);
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .model-source {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin: -4px 0 12px;
+        }
+
+        .scoreboard-meta {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+
+        .hero-h1 {
+            font-size: clamp(34px, 4.2vw, 48px);
+            font-weight: 800;
+            line-height: 1.12;
+            letter-spacing: -0.035em;
+        }
+
+        .hero-subtext {
+            font-size: 16px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            max-width: 50ch;
+        }
+
+        .hero-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            font-family: var(--font-mono);
+            font-size: 13px;
+            font-weight: 600;
+            padding: 10px 20px;
+            border-radius: 6px;
+            background: var(--accent-blue);
+            color: #ffffff;
+            border: 1px solid var(--accent-blue-hover);
+            cursor: pointer;
+            transition: all 120ms ease;
+            white-space: nowrap;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-blue-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        .btn-ghost {
+            font-family: var(--font-mono);
+            font-size: 13px;
+            font-weight: 500;
+            padding: 10px 18px;
+            border-radius: 6px;
+            background: var(--bg-surface);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-strong);
+            cursor: pointer;
+            transition: all 120ms ease;
+            white-space: nowrap;
+        }
+
+        .btn-ghost:hover {
+            color: var(--text-primary);
+            border-color: var(--border-active);
+            background: var(--bg-elevated);
+        }
+
+        .btn-ghost:active {
+            transform: scale(0.98);
+        }
+
+        /* Interactive Reality Sandbox */
+        .sandbox-panel {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-strong);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .sandbox-top {
+            background: var(--bg-elevated);
+            border-bottom: 1px solid var(--border-subtle);
+            padding: 12px 16px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sandbox-title {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-secondary);
+        }
+
+        .sandbox-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .sim-btn {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 4px;
+            border: 1px solid var(--border-subtle);
+            background: var(--bg-base);
+            color: var(--text-secondary);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 100ms ease;
+        }
+
+        .sim-btn:hover {
+            color: var(--text-primary);
+            border-color: var(--border-strong);
+        }
+
+        .sim-btn.active {
+            background: var(--accent-blue);
+            color: #ffffff;
+            border-color: var(--accent-blue-hover);
+        }
+
+        .sandbox-body {
+            padding: 24px;
+        }
+
+        .sim-component-box {
+            background: var(--bg-base);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+            transition: all 200ms ease;
+        }
+
+        .sim-input-row {
+            margin-bottom: 12px;
+        }
+
+        .sim-input-row label {
+            display: block;
+            font-size: 11px;
+            font-family: var(--font-mono);
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        .sim-input {
+            width: 100%;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-strong);
+            color: var(--text-primary);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-family: var(--font-sans);
+            outline: none;
+            transition: border-color 120ms ease;
+        }
+
+        .sim-input:focus {
+            border-color: var(--accent-blue-hover);
+        }
+
+        .sim-submit-btn {
+            width: 100%;
+            padding: 10px;
+            background: var(--accent-blue);
+            border: 1px solid var(--accent-blue-hover);
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 13px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 100ms ease;
+        }
+
+        .sim-submit-btn:hover {
+            background: var(--accent-blue-hover);
+        }
+
+        .sim-submit-btn:active {
+            transform: scale(0.98);
+        }
+
+        .sim-status-banner {
+            padding: 10px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-family: var(--font-mono);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 42px;
+        }
+
+        .status-idle {
+            background: var(--bg-elevated);
+            color: var(--text-secondary);
+            border: 1px dashed var(--border-strong);
+        }
+
+        .status-ok {
+            background: rgba(16, 185, 129, 0.12);
+            color: var(--accent-emerald);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .status-fail {
+            background: rgba(239, 68, 68, 0.12);
+            color: var(--accent-crimson);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        /* Section Layout Discipline */
+        .section-wrap {
+            margin-bottom: 72px;
+        }
+
+        .section-header-block {
+            margin-bottom: 28px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+            margin-bottom: 6px;
+        }
+
+        .section-desc {
+            color: var(--text-secondary);
+            font-size: 14px;
+            max-width: 65ch;
+            line-height: 1.5;
+        }
+
+        /* The Reality Gap Comparison Matrix */
+        .model-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        @media (max-width: 1024px) {
+            .model-cards-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .model-cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-links a:not(.nav-cta) {
+                display: none;
+            }
+
+            .catalog-table th:nth-child(1),
+            .catalog-table td:nth-child(1),
+            .catalog-table th:nth-child(3),
+            .catalog-table td:nth-child(3) {
+                display: none;
+            }
+
+            .catalog-table th,
+            .catalog-table td {
+                width: auto !important;
+            }
+        }
+
+        .model-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: 10px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 150ms ease;
+        }
+
+        .model-card:hover {
+            border-color: var(--border-strong);
+            transform: translateY(-2px);
+        }
+
+        .model-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .model-name {
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+
+        .status-pill {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+
+        .pill-green {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--accent-emerald);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .pill-red {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--accent-crimson);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .pill-blue {
+            background: rgba(37, 99, 235, 0.15);
+            color: var(--accent-blue-hover);
+            border: 1px solid rgba(37, 99, 235, 0.3);
+        }
+
+        .score-pair {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
+            padding: 8px 0;
+            border-bottom: 1px dashed var(--border-subtle);
+            font-size: 13px;
         }
-        .chart-header h3 {
-            font-size: 16px;
+
+        .score-pair:last-child {
+            border-bottom: none;
+        }
+
+        .score-lbl {
+            color: var(--text-secondary);
+        }
+
+        .score-num {
+            font-family: var(--font-mono);
             font-weight: 700;
         }
-        .table-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
+
+        .gap-callout {
+            margin-top: 14px;
+            padding: 8px 12px;
+            background: var(--bg-base);
+            border-radius: 6px;
+            border: 1px solid var(--border-subtle);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: var(--font-mono);
+            font-size: 12px;
+        }
+
+        /* 12 Tasks Interactive Catalog */
+        .task-catalog-wrap {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
             border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 28px;
+            overflow: hidden;
         }
-        .table-card h3 {
-            font-size: 16px;
-            font-weight: 700;
-            margin-bottom: 16px;
+
+        .catalog-filter-bar {
+            padding: 16px 20px;
+            background: var(--bg-elevated);
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
         }
-        table {
+
+        .catalog-search {
+            background: var(--bg-base);
+            border: 1px solid var(--border-strong);
+            color: var(--text-primary);
+            font-size: 12px;
+            font-family: var(--font-mono);
+            padding: 6px 12px;
+            border-radius: 6px;
+            width: 260px;
+            outline: none;
+        }
+
+        .catalog-search:focus {
+            border-color: var(--accent-blue-hover);
+        }
+
+        .catalog-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 14px;
+            font-size: 13px;
         }
-        th, td {
-            padding: 12px 14px;
+
+        .catalog-table th, .catalog-table td {
+            padding: 14px 18px;
             text-align: left;
-            border-bottom: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-subtle);
         }
-        th {
-            background: rgba(15, 23, 42, 0.6);
-            color: var(--text-secondary);
-            font-weight: 600;
-            font-size: 12px;
+
+        .catalog-table th {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--text-muted);
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.06em;
+            background: var(--bg-base);
         }
-        tr:hover td {
-            background: rgba(255, 255, 255, 0.02);
+
+        .catalog-row {
+            cursor: pointer;
+            transition: background 120ms ease;
         }
-        .tag {
-            display: inline-block;
-            padding: 3px 8px;
-            border-radius: 4px;
+
+        .catalog-row:hover td {
+            background: var(--bg-elevated);
+        }
+
+        /* Modal Inspector */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            z-index: 200;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-strong);
+            border-radius: 12px;
+            width: min(720px, 94vw);
+            max-height: 88vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-close {
+            background: var(--bg-base);
+            border: 1px solid var(--border-strong);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            font-family: var(--font-mono);
+            font-size: 12px;
+            padding: 4px 10px;
+            cursor: pointer;
+        }
+
+        .modal-close:hover {
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .modal-detail-box {
+            background: var(--bg-base);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .modal-detail-title {
+            font-family: var(--font-mono);
             font-size: 11px;
             font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 6px;
         }
-        .tag-green { background: rgba(52, 211, 153, 0.15); color: var(--accent-green); }
-        .tag-yellow { background: rgba(251, 191, 36, 0.15); color: var(--accent-yellow); }
-        .tag-red { background: rgba(248, 113, 113, 0.15); color: var(--accent-red); }
-        .tag-purple { background: rgba(192, 132, 252, 0.15); color: var(--accent-purple); }
-        .score-bar-container {
-            width: 100px;
-            height: 6px;
-            background: #334155;
-            border-radius: 3px;
-            overflow: hidden;
-            display: inline-block;
-            vertical-align: middle;
-            margin-right: 8px;
+
+        /* Footer */
+        .site-footer {
+            padding-top: 40px;
+            border-top: 1px solid var(--border-subtle);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-muted);
+            font-size: 13px;
+            flex-wrap: wrap;
+            gap: 16px;
         }
-        .score-bar-fill {
-            height: 100%;
-            border-radius: 3px;
+
+        .footer-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-        .footer {
-            text-align: center;
+
+        .footer-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .footer-links a {
             color: var(--text-secondary);
-            font-size: 12px;
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid var(--border-color);
+            text-decoration: none;
+            transition: color 120ms ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--text-primary);
         }
     </style>
 </head>
 <body>
+    <div class="page-wrap content-layer">
 
-    <div class="header">
-        <div>
-            <div class="header-title">
-                <span class="badge-red">RealityBench</span>
-                <h1>Graphical Interactive Dashboard</h1>
+        <!-- Top Header Navigation -->
+        <nav class="site-nav">
+            <a href="#" class="nav-brand">
+                <div class="nav-logo">RB</div>
+                <div class="nav-title">RealityBench</div>
+            </a>
+            <div class="nav-links">
+                <a href="#models">Results</a>
+                <a href="#tasks">Tasks</a>
+                <a href="#cli">Run it</a>
+                <a href="https://github.com/fab-c14/realitybench" target="_blank" class="nav-cta">GitHub</a>
             </div>
-            <p>Benchmarking AI-Generated Software Beyond the Happy Path | Dataset: Full Benchmark Suite (12 Tasks)</p>
-        </div>
-        <div style="text-align: right;">
-            <p style="font-size: 12px; color: var(--text-secondary);">Recorded: 2026-10-06T13:13:06Z</p>
-            <p style="font-size: 12px; color: var(--accent-blue);">Engine: Playwright Headless Chromium</p>
-        </div>
-    </div>
+        </nav>
 
-    <!-- KPIs -->
-    <div class="grid-kpis">
-        <div class="kpi-card">
-            <div class="kpi-title">Evaluated Targets</div>
-            <div class="kpi-value">4</div>
-            <div class="kpi-subtitle">Baselines & Local LLMs</div>
-        </div>
-        <div class="kpi-card">
-            <div class="kpi-title">Max Reality Gap</div>
-            <div class="kpi-value" style="color: var(--accent-red);">+75.0%</div>
-            <div class="kpi-subtitle">Observed in naive-baseline</div>
-        </div>
-        <div class="kpi-card">
-            <div class="kpi-title">Top Resilient Model</div>
-            <div class="kpi-value" style="color: var(--accent-green);">qwen2.5-coder</div>
-            <div class="kpi-subtitle">Narrow +6.3% Reality Gap</div>
-        </div>
-        <div class="kpi-card">
-            <div class="kpi-title">Top Failure Vector</div>
-            <div class="kpi-value" style="color: var(--accent-yellow);">HTTP 500</div>
-            <div class="kpi-subtitle">State wiping upon network fault</div>
-        </div>
-    </div>
-
-    <!-- Charts Section -->
-    <div class="grid-charts">
-        <div class="chart-card">
-            <div class="chart-header">
-                <h3>Regime Comparison: Demo vs. Reality Score</h3>
-                <span style="font-size: 12px; color: var(--text-secondary);">Happy Path (40%) vs. Perturbations (60%)</span>
+        <!-- Asymmetric Split Hero -->
+        <section class="hero-section">
+            <div class="hero-content">
+                <div class="hero-eyebrow">
+                    <span>Kaggle Benchmarking Challenge</span>
+                </div>
+                <h1 class="hero-h1">
+                    Does AI-written code survive real users?
+                </h1>
+                <p class="hero-subtext">
+                    RealityBench breaks AI-generated web apps on purpose: server errors, double clicks, bad input, small screens.
+                </p>
+                <div class="hero-actions">
+                    <button class="btn-primary" onclick="scrollToResults()">See results</button>
+                    <button class="btn-ghost" id="copyCliBtn" onclick="copyCliCmd()">Copy CLI command</button>
+                </div>
             </div>
-            <canvas id="scoresChart" height="200"></canvas>
-        </div>
-        <div class="chart-card">
-            <div class="chart-header">
-                <h3>The Reality Gap Spectrum</h3>
-                <span style="font-size: 12px; color: var(--text-secondary);">Demo Score - Reality Score</span>
+
+            <!-- Live Interactive Reality Sandbox -->
+            <div class="sandbox-panel">
+                <div class="sandbox-top">
+                    <span class="sandbox-title">Interactive Failure Sandbox</span>
+                    <div class="sandbox-controls">
+                        <button class="sim-btn active" id="btnHappy" onclick="runSim('happy')">Happy Path</button>
+                        <button class="sim-btn" id="btnHttp500" onclick="runSim('500')">Inject HTTP 500</button>
+                        <button class="sim-btn" id="btnSpam" onclick="runSim('spam')">Double Click</button>
+                    </div>
+                </div>
+                <div class="sandbox-body">
+                    <div class="sim-component-box">
+                        <div class="sim-input-row">
+                            <label>Email Address</label>
+                            <input type="text" id="simEmail" class="sim-input" value="engineer@company.com">
+                        </div>
+                        <div class="sim-input-row">
+                            <label>Password</label>
+                            <input type="password" id="simPassword" class="sim-input" value="supersecretpassword">
+                        </div>
+                        <button class="sim-submit-btn" id="simSubmitBtn" onclick="handleSimSubmit()">Sign In to Dashboard</button>
+                    </div>
+
+                    <div id="simStatus" class="sim-status-banner status-idle">
+                        <span>Select a scenario above to test runtime behavior.</span>
+                        <span style="font-size: 11px; opacity: 0.7;">Playwright Chromium Verified</span>
+                    </div>
+                </div>
             </div>
-            <canvas id="gapChart" height="200"></canvas>
+        </section>
+
+        <!-- Section 2: Results -->
+        <section class="section-wrap" id="models">
+            <div class="section-header-block">
+                <h2 class="section-title">Results</h2>
+                <p class="section-desc">
+                    Demo Score checks the normal flow. Reality Score checks failures and bad input. A big gap means it only works in demos.
+                </p>
+                <div class="scoreboard-meta">Updated 2026-10-06</div>
+            </div>
+
+            <div class="model-cards-grid">
+                <div class="model-card">
+                    <div>
+                        <div class="model-card-header">
+                            <span class="model-name">robust-baseline</span>
+                            <span class="status-pill pill-green">Production ready</span>
+                        </div>
+                        <div class="model-source">Hand-written reference</div>
+                        <div class="score-pair">
+                            <span class="score-lbl">Demo Score</span>
+                            <span class="score-num" style="color: var(--accent-blue-hover);">100.0%</span>
+                        </div>
+                        <div class="score-pair">
+                            <span class="score-lbl">Reality Score</span>
+                            <span class="score-num" style="color: var(--accent-emerald);">100.0%</span>
+                        </div>
+                    </div>
+                    <div class="gap-callout">
+                        <span>Reality Gap</span>
+                        <span style="font-weight: 700; color: var(--accent-emerald);">0.0%</span>
+                    </div>
+                </div>
+                <div class="model-card">
+                    <div>
+                        <div class="model-card-header">
+                            <span class="model-name">qwen2.5-coder:1.5b</span>
+                            <span class="status-pill pill-blue">Resilient</span>
+                        </div>
+                        <div class="model-source">Local model run</div>
+                        <div class="score-pair">
+                            <span class="score-lbl">Demo Score</span>
+                            <span class="score-num" style="color: var(--accent-blue-hover);">81.8%</span>
+                        </div>
+                        <div class="score-pair">
+                            <span class="score-lbl">Reality Score</span>
+                            <span class="score-num" style="color: var(--accent-emerald);">75.4%</span>
+                        </div>
+                    </div>
+                    <div class="gap-callout">
+                        <span>Reality Gap</span>
+                        <span style="font-weight: 700; color: var(--text-primary);">+6.3%</span>
+                    </div>
+                </div>
+                <div class="model-card">
+                    <div>
+                        <div class="model-card-header">
+                            <span class="model-name">gemma2:2b</span>
+                            <span class="status-pill pill-blue">Resilient</span>
+                        </div>
+                        <div class="model-source">Local model run</div>
+                        <div class="score-pair">
+                            <span class="score-lbl">Demo Score</span>
+                            <span class="score-num" style="color: var(--accent-blue-hover);">80.2%</span>
+                        </div>
+                        <div class="score-pair">
+                            <span class="score-lbl">Reality Score</span>
+                            <span class="score-num" style="color: var(--accent-emerald);">72.2%</span>
+                        </div>
+                    </div>
+                    <div class="gap-callout">
+                        <span>Reality Gap</span>
+                        <span style="font-weight: 700; color: var(--text-primary);">+8.0%</span>
+                    </div>
+                </div>
+                <div class="model-card">
+                    <div>
+                        <div class="model-card-header">
+                            <span class="model-name">naive-baseline</span>
+                            <span class="status-pill pill-red">Fragility trap</span>
+                        </div>
+                        <div class="model-source">Hand-written reference</div>
+                        <div class="score-pair">
+                            <span class="score-lbl">Demo Score</span>
+                            <span class="score-num" style="color: var(--accent-blue-hover);">99.0%</span>
+                        </div>
+                        <div class="score-pair">
+                            <span class="score-lbl">Reality Score</span>
+                            <span class="score-num" style="color: var(--accent-crimson);">33.3%</span>
+                        </div>
+                    </div>
+                    <div class="gap-callout">
+                        <span>Reality Gap</span>
+                        <span style="font-weight: 700; color: var(--accent-crimson);">+65.6%</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: The 12 Tasks Suite -->
+        <section class="section-wrap" id="tasks">
+            <div class="section-header-block">
+                <h2 class="section-title">The 12-Task Benchmark Suite</h2>
+                <p class="section-desc">
+                    Deterministic Playwright Chromium evaluation across core web engineering components. Click any task to inspect happy path specifications and reality failure vectors.
+                </p>
+            </div>
+
+            <div class="task-catalog-wrap">
+                <div class="catalog-filter-bar">
+                    <label for="taskSearch" style="font-size: 13px; color: var(--text-secondary);">Filter tasks</label>
+                    <input type="text" id="taskSearch" class="catalog-search" placeholder="Name or category">
+                </div>
+
+                <table class="catalog-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 48px;">#</th>
+                            <th style="width: 240px;">Component</th>
+                            <th style="width: 160px;">Category</th>
+                            <th>Software Engineering Focus</th>
+                        </tr>
+                    </thead>
+                    <tbody id="catalogBody">
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Section 4: Quickstart CLI -->
+        <section class="section-wrap" id="cli">
+            <div class="section-header-block">
+                <h2 class="section-title">Run it yourself</h2>
+                <p class="section-desc">
+                    Python 3.11 and Playwright. Every score comes from a real browser check, never from another AI's opinion.
+                </p>
+            </div>
+
+            <div style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 24px; font-family: var(--font-mono); font-size: 13px;">
+                <div style="color: var(--text-muted); margin-bottom: 8px;"># Run the fast 3-task pilot benchmark locally</div>
+                <div style="color: var(--text-primary); margin-bottom: 18px;">uv run realitybench pilot</div>
+
+                <div style="color: var(--text-muted); margin-bottom: 8px;"># Run the full 12-task benchmark suite with colorful terminal layout</div>
+                <div style="color: var(--text-primary); margin-bottom: 18px;">uv run realitybench run</div>
+
+                <div style="color: var(--text-muted); margin-bottom: 8px;"># Inspect task matrix across models</div>
+                <div style="color: var(--text-primary);">uv run realitybench matrix</div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="site-footer">
+            <div class="footer-left">
+                <span>RealityBench</span>
+                <span>&bull;</span>
+                <span>Kaggle Benchmarking Challenge Submission</span>
+            </div>
+            <div class="footer-links">
+                <a href="https://github.com/fab-c14/realitybench" target="_blank">GitHub</a>
+                <a href="https://dev.to/challenges/kaggle-2026-09-23" target="_blank">DEV Challenge</a>
+                <a href="https://github.com/Kaggle/kaggle-benchmarks" target="_blank">Kaggle Benchmarks SDK</a>
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- Task Detail Modal -->
+    <div class="modal-overlay" id="taskModal" onclick="closeModal(event)">
+        <div class="modal-card" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <div>
+                    <span style="font-family: var(--font-mono); font-size: 11px; color: var(--accent-blue-hover); text-transform: uppercase;">Task Specification</span>
+                    <h3 id="modalTitle" style="font-size: 18px; font-weight: 700; margin-top: 2px;">Task Details</h3>
+                </div>
+                <button class="modal-close" onclick="closeModalDirect()">ESC</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-detail-box">
+                    <div class="modal-detail-title">Happy Path Expectation (Demo Score 40%)</div>
+                    <div id="modalHappyPath" style="font-size: 13px; color: var(--text-secondary); line-height: 1.5;"></div>
+                </div>
+
+                <div class="modal-detail-box">
+                    <div class="modal-detail-title">Controlled Perturbations (Reality Score 60%)</div>
+                    <div id="modalStressTest" style="font-size: 13px; color: var(--text-secondary); line-height: 1.5;"></div>
+                </div>
+
+                <div class="modal-detail-box">
+                    <div class="modal-detail-title">Primary Vulnerabilities Caught</div>
+                    <div id="modalVulnerability" style="font-size: 13px; color: var(--accent-crimson); line-height: 1.5;"></div>
+                </div>
+            </div>
         </div>
-    </div>
-
-    <!-- Multi-Model Leaderboard Table -->
-    <div class="table-card">
-        <h3>Multi-Model Empirical Leaderboard</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Target / Model</th>
-                    <th>Demo Score (Happy)</th>
-                    <th>Reality Score (Perturb)</th>
-                    <th>Reality Gap</th>
-                    <th>Robustness Classification</th>
-                </tr>
-            </thead>
-            <tbody id="leaderboardBody">
-            </tbody>
-        </table>
-    </div>
-
-    <!-- Task x Model Performance Matrix -->
-    <div class="table-card">
-        <h3>Task &times; Model Performance Matrix</h3>
-        <table id="matrixTable">
-            <thead>
-                <tr id="matrixHeader">
-                    <th>#</th>
-                    <th>Task Name</th>
-                </tr>
-            </thead>
-            <tbody id="matrixBody">
-            </tbody>
-        </table>
-    </div>
-
-    <div class="footer">
-        <p>RealityBench &bull; Official Kaggle Benchmarking Challenge Submission &bull; 100% Deterministic Playwright Evaluation</p>
     </div>
 
     <script>
-        const targets = ["naive-baseline", "robust-baseline", "qwen2.5-coder:1.5b", "gemma2:2b"];
-        const summaries = {"naive-baseline": {"avg_demo_score": 0.9896, "avg_reality_score": 0.3333, "avg_reality_gap": 0.6562}, "robust-baseline": {"avg_demo_score": 1.0, "avg_reality_score": 1.0, "avg_reality_gap": 0.0}, "qwen2.5-coder:1.5b": {"avg_demo_score": 0.8177, "avg_reality_score": 0.7542, "avg_reality_gap": 0.0635}, "gemma2:2b": {"avg_demo_score": 0.8021, "avg_reality_score": 0.7222, "avg_reality_gap": 0.0799}};
-        const evaluations = {"naive-baseline": {"realitybench-login": {"task_name": "realitybench-login", "demo_score": 1.0, "reality_score": 0.3333, "reality_gap": 0.6667, "overall_score": 0.6, "category_scores": {"functional_correctness": 1.0, "expected_interactions": 1.0, "failure_recovery": 0.0, "state_robustness": 1.0, "input_robustness": 0.0, "accessibility": 0.0, "responsive_behavior": 1.0, "interaction_safety": 0.0}, "failure_taxonomy": ["Validation failure: Sent empty credentials to API", "Validation failure: Invalid email format allowed through", "Recovery failure: Silent failure on HTTP 500 without error feedback", "Interaction failure: Unhandled duplicate submission", "Accessibility failure: Enter key did not submit credentials"], "tests_passed": 4, "tests_total": 9, "test_details": [{"name": "happy_path_render_elements", "category": "functional_correctness", "regime": "demo", "passed": true, "details": "Email input, password input, and submit button rendered", "failure_type": ""}, {"name": "happy_path_successful_auth", "category": "expected_interactions", "regime": "demo", "passed": true, "details": "Request sent: True, Payload valid: True, Success UI: True", "failure_type": ""}, {"name": "input_empty_validation", "category": "input_robustness", "regime": "reality", "passed": false, "details": "Empty submission prevented from hitting backend", "failure_type": "Validation failure: Sent empty credentials to API"}, {"name": "input_malformed_email", "category": "input_robustness", "regime": "reality", "passed": false, "details": "Malformed email blocked before network call", "failure_type": "Validation failure: Invalid email format allowed through"}, {"name": "network_500_error_feedback", "category": "failure_recovery", "regime": "reality", "passed": false, "details": "Error state displayed upon HTTP 500", "failure_type": "Recovery failure: Silent failure on HTTP 500 without error feedback"}, {"name": "state_preservation_on_error", "category": "state_robustness", "regime": "reality", "passed": true, "details": "Entered email preserved: 'bob@example.com'", "failure_type": ""}, {"name": "double_click_protection", "category": "interaction_safety", "regime": "reality", "passed": false, "details": "Intercepted 2 request(s) on double click (expected 1)", "failure_type": "Interaction failure: Unhandled duplicate submission"}, {"name": "keyboard_accessibility_enter_submit", "category": "accessibility", "regime": "reality", "passed": false, "details": "Enter key in password field submits form", "failure_type": "Accessibility failure: Enter key did not submit credentials"}, {"name": "mobile_viewport_overflow", "category": "responsive_behavior", "regime": "reality", "passed": true, "details": "No horizontal overflow on 375px mobile viewport", "failure_type": ""}]}, "realitybench-search": {"task_name": "realitybench-search", "demo_score": 1.0, "reality_score": 0.0833, "reality_gap": 0.9167, "overall_score": 0.45, "category_scores": {"functional_correctness": 1.0, "expected_interactions": 1.0, "failure_recovery": 0.0, "state_robustness": 0.0, "input_robustness": 0.0, "accessibility": 0.0, "responsive_behavior": 1.0, "interaction_safety": 0.0}, "failure_taxonomy": ["Validation failure: Sent empty search query to API", "State consistency failure: Blank container on zero search results", "Recovery failure: Silent failure on search server 500", "Duplicate interaction: Multiple API searches spammed on double-click", "Accessibility failure: Search cannot be triggered by Enter key"], "tests_passed": 3, "tests_total": 8, "test_details": [{"name": "happy_path_render_elements", "category": "functional_correctness", "regime": "demo", "passed": true, "details": "Search input and search button rendered", "failure_type": ""}, {"name": "happy_path_successful_search", "category": "expected_interactions", "regime": "demo", "passed": true, "details": "Request sent: True, Query captured: True, Results displayed: True", "failure_type": ""}, {"name": "input_empty_query_check", "category": "input_robustness", "regime": "reality", "passed": false, "details": "Blank search suppressed before API dispatch", "failure_type": "Validation failure: Sent empty search query to API"}, {"name": "state_empty_results_feedback", "category": "state_robustness", "regime": "reality", "passed": false, "details": "Empty results state rendered friendly user feedback", "failure_type": "State consistency failure: Blank container on zero search results"}, {"name": "network_500_search_recovery", "category": "failure_recovery", "regime": "reality", "passed": false, "details": "Error message displayed upon HTTP 500 failure", "failure_type": "Recovery failure: Silent failure on search server 500"}, {"name": "rapid_search_duplicate_safety", "category": "interaction_safety", "regime": "reality", "passed": false, "details": "Requests triggered on rapid click: 2 (expected: 1)", "failure_type": "Duplicate interaction: Multiple API searches spammed on double-click"}, {"name": "keyboard_accessibility_search_enter", "category": "accessibility", "regime": "reality", "passed": false, "details": "Search submittable via keyboard Enter key", "failure_type": "Accessibility failure: Search cannot be triggered by Enter key"}, {"name": "mobile_viewport_overflow", "category": "responsive_behavior", "regime": "reality", "passed": true, "details": "No horizontal overflow on mobile viewport", "failure_type": ""}]}, "realitybench-checkout": {"task_name": "realitybench-checkout", "demo_score": 1.0, "reality_score": 0.3333, "reality_gap": 0.6667, "overall_score": 0.6, "category_scores": {"functional_correctness": 1.0, "expected_interactions": 1.0, "failure_recovery": 0.0, "state_robustness": 1.0, "input_robustness": 0.0, "accessibility": 0.0, "responsive_behavior": 1.0, "interaction_safety": 0.0}, "failure_taxonomy": ["Validation failure: Placed order with empty customer data", "Recovery failure: Silent failure on payment 500 without user feedback", "Duplicate interaction: Customer double-charged on rapid button click", "Accessibility failure: Cannot checkout with keyboard Enter key"], "tests_passed": 4, "tests_total": 8, "test_details": [{"name": "happy_path_render_elements", "category": "functional_correctness", "regime": "demo", "passed": true, "details": "Inputs present: True, Total amount shown: True", "failure_type": ""}, {"name": "happy_path_order_confirmation", "category": "expected_interactions", "regime": "demo", "passed": true, "details": "Request sent: True, Payload valid: True, Confirmation shown: True", "failure_type": ""}, {"name": "input_empty_checkout_validation", "category": "input_robustness", "regime": "reality", "passed": false, "details": "Empty checkout blocked before charging/API call", "failure_type": "Validation failure: Placed order with empty customer data"}, {"name": "network_500_payment_error", "category": "failure_recovery", "regime": "reality", "passed": false, "details": "Payment error message displayed upon 500 response", "failure_type": "Recovery failure: Silent failure on payment 500 without user feedback"}, {"name": "state_preservation_on_payment_failure", "category": "state_robustness", "regime": "reality", "passed": true, "details": "Customer details preserved: name='Jane Doe', email='jane@example.com'", "failure_type": ""}, {"name": "double_charge_protection", "category": "interaction_safety", "regime": "reality", "passed": false, "details": "Orders placed on rapid double click: 2 (expected: 1)", "failure_type": "Duplicate interaction: Customer double-charged on rapid button click"}, {"name": "keyboard_accessibility_checkout_enter", "category": "accessibility", "regime": "reality", "passed": false, "details": "Checkout form submittable via keyboard Enter navigation", "failure_type": "Accessibility failure: Cannot checkout with keyboard Enter key"}, {"name": "mobile_viewport_overflow", "category": "responsive_behavior", "regime": "reality", "passed": true, "details": "No horizontal overflow on 375px mobile checkout viewport", "failure_type": ""}]}, "realitybench-file-upload": {"task_name": "realitybench-file-upload", "demo_score": 1.0, "reality_score": 0.3333, "reality_gap": 0.6667, "overall_score": 0.6, "category_scores": {"functional_correctness": 1.0, "expected_interactions": 1.0, "failure_recovery": 0.0, "state_robustness": 1.0, "input_robustness": 0.0, "accessibility": 0.0, "responsive_behavior": 1.0, "interaction_safety": 0.0}, "failure_taxonomy": ["Input robustness failure: Uploaded unsupported .exe file without client-side rejection", "Input robustness failure: Sent 8MB file exceeding 5MB limit", "Recovery failure: Silent failure or UI destruction on HTTP 500", "Duplicate interaction: Multiple simultaneous upload requests fired", "Accessibility failure: File input lacks accessible label"], "tests_passed": 3, "tests_total": 8, "test_details": [{"name": "happy_path_render_elements", "category": "functional_correctness", "regime": "demo", "passed": true, "details": "File input: True, Action button: True", "failure_type": ""}, {"name": "happy_path_valid_upload", "category": "expected_interactions", "regime": "demo", "passed": true, "details": "POST sent: True, Confirmation shown: True", "failure_type": ""}, {"name": "reject_invalid_file_type", "category": "input_robustness", "regime": "reality", "passed": false, "details": "Request blocked: False, Error/Accept restriction: True", "failure_type": "Input robustness failure: Uploaded unsupported .exe file without client-side rejection"}, {"name": "reject_oversized_file", "category": "input_robustness", "regime": "reality", "passed": false, "details": "Oversized upload blocked: False, Size error feedback: False", "failure_type": "Input robustness failure: Sent 8MB file exceeding 5MB limit"}, {"name": "server_error_feedback", "category": "failure_recovery", "regime": "reality", "passed": false, "details": "Error feedback visible: False, UI intact: True", "failure_type": "Recovery failure: Silent failure or UI destruction on HTTP 500"}, {"name": "prevent_duplicate_upload", "category": "interaction_safety", "regime": "reality", "passed": false, "details": "Intercepted requests count: 2 (expected 1)", "failure_type": "Duplicate interaction: Multiple simultaneous upload requests fired"}, {"name": "accessible_upload_label", "category": "accessibility", "regime": "reality", "passed": false, "details": "Label associated: False, aria-label: False", "failure_type": "Accessibility failure: File input lacks accessible label"}, {"name": "mobile_viewport_overflow", "category": "responsive_behavior", "regime": "reality", "passed": true, "details": "scrollWidth: 375, clientWidth: 375", "failure_type": ""}]}, "realitybench-crud-dashboard": {"task_name": "realitybench-crud-dashboard", "demo_score": 1.0, "reality_score": 0.2, "reality_gap": 0.8, "overall_score": 0.52, "category_scores": {"functional_correctness": 1.0, "expected_interactions": 1.0, "failure_recovery": 0.0, "state_robustness": 0.0, "input_robustness": 0.0, "accessibility": 1.0, "responsive_behavior": 1.0, "interaction_safety": 0.0}, "failure_taxonomy": ["Input robustness failure: Sent POST request with empty/whitespace task title", "State consistency failure: Item disappeared despite server DELETE failure", "State robustness failure: Blank/unhelpful state when task list is empty", "Duplicate interaction: Multiple POST requests sent on double click"], "tests_passed": 5, "tests_total": 9, "test_details": [{"name": "happy_path_render_initial_data", "category": "functional_correctness", "regime": "demo", "passed": true, "details": "Initial items rendered: True, Input/Add button: True", "failure_type": ""}, {"name": "happy_path_create_task", "category": "expected_interactions", "regime": "demo", "passed": true, "details": "POST fired: True, New task rendered: True", "failure_type": ""}, {"name": "happy_path_delete_task", "category": "expected_interactions", "regime": "demo", "passed": true, "details": "Delete button: True, DELETE request fired: True", "failure_type": ""}, {"name": "reject_whitespace_title", "category": "input_robustness", "regime": "reality", "passed": false, "details": "Whitespace task submission blocked: False", "failure_type": "Input robustness failure: Sent POST request with empty/whitespace task title"}, {"name": "mutation_failure_rollback", "category": "failure_recovery", "regime": "reality", "passed": false, "details": "Item preserved in DOM: False, Error feedback shown: False", "failure_type": "State consistency failure: Item disappeared despite server DELETE failure"}, {"name": "empty_state_rendering", "category": "state_robustness", "regime": "reality", "passed": false, "details": "Helpful empty state rendered: False", "failure_type": "State robustness failure: Blank/unhelpful state when task list is empty"}, {"name": "prevent_duplicate_task_creation", "category": "interaction_safety", "regime": "reality", "passed": false, "details": "POST requests fired: 2 (expected 1)", "failure_type": "Duplicate interaction: Multiple POST requests sent on double click"}, {"name": "accessible_task_input", "category": "accessibility", "regime": "reality", "passed": true, "details": "Label: False, Aria-label: False", "failure_type": ""}, {"name": "mobile_viewport_overflow", "category": "responsive_behavior", "regime": "reality", "passed": true, "details": "scrollWidth: 375, clientWidth: 375", "failure_type": ""}]}, "realitybench-booking": {"task_name": "realitybench-booking", "demo_score": 1.0, "reality_score": 0.4167, "reality_gap": 0.5833, "overall_score": 0.65, "category_scores": {"functional_correctness": 1.0, "expected_interactions": 1.0, "failure_recovery": 1.0, "state_robustness": 0.0, "input_robustness": 0.0, "accessibility": 0.0, "responsive_behavior": 1.0, "interaction_safety": 0.0}, "failure_taxonomy": ["Input robustness failure: Permitted booking for past dates without restriction", "State robustness failure: Conflict feedback missing or user input cleared on 409", "Input robustness failure: Submitted booking with empty contact information", "Duplicate interaction: Multiple booking requests sent on double click", "Accessibility failure: Form fields lack proper label association"], "tests_passed": 3, "tests_total": 8, "test_details": [{"name": "happy_path_render_elements", "category": "functional_correctness", "regime": "demo", "passed": true, "details": "Date: True, Slot: True, Contacts: True, Button: True", "failure_type": ""}, {"name": "happy_path_valid_booking", "category": "expected_interactions", "regime": "demo", "passed": true, "details": "POST fired: True, Confirmation shown: True", "failure_type": ""}, {"name": "reject_past_dates", "category": "input_robustness", "regime": "reality", "passed": false, "details": "Has min date: False, Post blocked: False, Error shown: False", "failure_type": "Input robustness failure: Permitted booking for past dates without restriction"}, {"name": "slot_conflict_state_preservation", "category": "state_robustness", "regime": "reality", "passed": false, "details": "Conflict error displayed: False, Form fields preserved: False", "failure_type": "State robustness failure: Conflict feedback missing or user input cleared on 409"}, {"name": "reject_empty_contacts", "category": "input_robustness", "regime": "reality", "passed": false, "details": "Empty contact submission blocked: False", "failure_type": "Input robustness failure: Submitted booking with empty contact information"}, {"name": "prevent_duplicate_booking", "category": "interaction_safety", "regime": "reality", "passed": false, "details": "POST requests fired: 2 (expected 1)", "failure_type": "Duplicate interaction: Multiple booking requests sent on double click"}, {"name": "accessible_booking_form", "category": "accessibility", "regime": "reality", "passed": false, "details": "Labels count: 0, Aria: 0", "failure_type": "Accessibility failure: Form fields lack proper label association"}, {"name": "mobile_viewport_overflow", "category": "responsive_behavior", "regime": "reality", "passed": true, "details": "scrollWidth: 375, clientWidth: 375", "failure_type": ""}]}, "realitybench-chat": {"task_name": "realitybench-chat", "demo_score": 1.0, "reality_score": 0.6667, "reality_gap": 0.3333, "overall_score": 0.8, "category_scores": {"functional_correctness": 1.0, "expected_interactions": 1.0, "failure_recovery": 1.0, "state_robustness": 1.0, "input_robustness": 0.0, "accessibility": 0.0, "responsive_behavior": 1.0, "interaction_safety": 0.0}, "failure_taxonomy": ["Input robustness failure: Sent whitespace-only chat message to server", "Duplicate interaction: Multiple messages sent on double click", "Accessibility failure: Pressing Enter does not submit message"], "tests_passed": 5, "tests_total": 8, "test_details": [{"name": "happy_path_render_elements", "category": "functional_correctness", "regime": "demo", "passed": true, "details": "Input: True, Send button: True, History: True", "failure_type": ""}, {"name": "happy_path_send_and_reply", "category": "expected_interactions", "regime": "demo", "passed": true, "details": "POST: True, User msg shown: True, Reply shown: True, Cleared: True", "failure_type": ""}, {"name": "reject_whitespace_message", "category": "input_robustness", "regime": "reality", "passed": false, "details": "Whitespace message blocked: False", "failure_type": "Input robustness failure: Sent whitespace-only chat message to server"}, {"name": "server_error_feedback_and_preservation", "category": "failure_recovery", "regime": "reality", "passed": true, "details": "Error feedback visible: True, Prior history preserved: True", "failure_type": ""}, {"name": "prevent_duplicate_message_send", "category": "interaction_safety", "regime": "reality", "passed": false, "details": "POST requests fired: 2 (expected 1)", "failure_type": "Duplicate interaction: Multiple messages sent on double click"}, {"name": "keyboard_enter_send", "category": "accessibility", "regime": "reality", "passed": false, "details": "Message submitted via Enter key: False", "failure_type": "Accessibility failure: Pressing Enter does not submit message"}, {"name": "unbroken_string_overflow_wrap", "category": "state_robustness", "regime": "reality", "passed": true, "details": "scrollWidth: 1280, clientWidth: 1280", "failure_type": ""}, {"name": "mobile_viewport_overflow", "category": "responsive_behavior", "regime": "reality", "passed": true, "details": "scrollWidth: 375, clientWidth: 375", "failure_type": ""}]}, "realitybench-product-page": {"task_name": "realitybench-product-page", "demo_score": 1.0, "reality_score": 0.0833, "reality_gap": 0.9167, "overall_score": 0.45, "category_scores": {"functional_correctness": 1.0, "expected_interactions": 1.0, "failure_recovery": 0.0, "state_robustness": 0.0, "input_robustness": 0.0, "accessibility": 0.0, "responsive_behavior": 1.0, "interaction_safety": 0.0}, "failure_taxonomy": ["State robustness failure: Out-of-stock variant can still be added to cart", "Input robustness failure: Submitted cart order with negative quantity (-5)", "Recovery failure: Product image has no alt text or error fallback", "Duplicate interaction: Multiple cart POST requests fired on double click", "Accessibility failure: Missing form labels or image alt text"], "tests_passed": 3, "tests_total": 8, "test_details": [{"name": "happy_path_render_elements", "category": "functional_correctness", "regime": "demo", "passed": true, "details": "Title: True, Img: True, Variant: True, Qty: True, Button: True", "failure_type": ""}, {"name": "happy_path_add_to_cart", "category": "expected_interactions", "regime": "demo", "passed": true, "details": "POST fired: True, Cart feedback shown: True", "failure_type": ""}, {"name": "handle_out_of_stock_variant", "category": "state_robustness", "regime": "reality", "passed": false, "details": "Button disabled: False, Post blocked: False, 'Out of Stock' text: True", "failure_type": "State robustness failure: Out-of-stock variant can still be added to cart"}, {"name": "reject_invalid_quantity", "category": "input_robustness", "regime": "reality", "passed": false, "details": "Negative quantity blocked: False", "failure_type": "Input robustness failure: Submitted cart order with negative quantity (-5)"}, {"name": "broken_image_resilience", "category": "failure_recovery", "regime": "reality", "passed": false, "details": "Image alt or fallback attribute present: False", "failure_type": "Recovery failure: Product image has no alt text or error fallback"}, {"name": "prevent_duplicate_cart_add", "category": "interaction_safety", "regime": "reality", "passed": false, "details": "POST requests fired: 2 (expected 1)", "failure_type": "Duplicate interaction: Multiple cart POST requests fired on double click"}, {"name": "accessible_product_controls", "category": "accessibility", "regime": "reality", "passed": false, "details": "Labels: False, Aria: False, Image alt: False", "failure_type": "Accessibility failure: Missing form labels or image alt text"}, {"name": "mobile_viewport_overflow", "category": "responsive_behavior", "regime": "reality", "passed": true, "details": "scrollWidth: 375, clientWidth: 375", "failure_type": ""}]}, "realitybench-admin-table": {"task_name": "realitybench-admin-table", "demo_score": 0.875, "reality_score": 0.6333, "reality_gap": 0.2417, "overall_score": 0.73, "category_scores": {"functional_correctness": 1.0, "expected_interactions": 0.6667, "failure_recovery": 1.0, "state_robustness": 0.0, "input_robustness": 1.0, "accessibility": 0.0, "responsive_behavior": 1.0, "interaction_safety": 1.0}, "failure_taxonomy": ["State robustness failure: Blank or uninformative table when dataset is empty", "Expected interaction failure: Search query not sent to API", "Accessibility failure: Missing <th> column headers or form labels"], "tests_passed": 6, "tests_total": 9, "test_details": [{"name": "happy_path_render_elements", "category": "functional_correctness", "regime": "demo", "passed": true, "details": "Table: True, Search: True, Filter: True, Pagination: True", "failure_type": ""}, {"name": "happy_path_render_initial_rows", "category": "expected_interactions", "regime": "demo", "passed": true, "details": "Rendered users: Sarah=True, John=True", "failure_type": ""}, {"name": "happy_path_pagination", "category": "expected_interactions", "regime": "demo", "passed": true, "details": "Page 2 requested: True, Kyle Reese displayed: True", "failure_type": ""}, {"name": "empty_dataset_state", "category": "state_robustness", "regime": "reality", "passed": false, "details": "Empty state feedback visible: False", "failure_type": "State robustness failure: Blank or uninformative table when dataset is empty"}, {"name": "null_field_resilience", "category": "input_robustness", "regime": "reality", "passed": true, "details": "Table survived null fields without crash: True", "failure_type": ""}, {"name": "search_query_dispatch", "category": "expected_interactions", "regime": "reality", "passed": false, "details": "Search request dispatched: False", "failure_type": "Expected interaction failure: Search query not sent to API"}, {"name": "prevent_duplicate_pagination_click", "category": "interaction_safety", "regime": "reality", "passed": true, "details": "Pagination requests fired on double click: 1", "failure_type": ""}, {"name": "accessible_table_structure", "category": "accessibility", "regime": "reality", "passed": false, "details": "Table headers (th): False, Form labels: False", "failure_type": "Accessibility failure: Missing <th> column headers or form labels"}, {"name": "mobile_viewport_overflow", "category": "responsive_behavior", "regime": "reality", "passed": true, "details": "scrollWidth: 375, clientWidth: 375", "failure_type": ""}]}, "realitybench-settings": {"task_name": "realitybench-settings", "demo_score": 1.0, "reality_score": 0.0833, "reality_gap": 0.9167, "overall_score": 0.45, "category_scores": {"functional_correctness": 1.0, "expected_interactions": 1.0, "failure_recovery": 0.0, "state_robustness": 0.0, "input_robustness": 0.0, "accessibility": 0.0, "responsive_behavior": 1.0, "interaction_safety": 0.0}, "failure_taxonomy": ["Input robustness failure: Submitted invalid or whitespace data to API", "State robustness failure: Discard Changes did not restore initial settings values", "Failure recovery failure: Wiped user form inputs or failed to show error message on HTTP 500", "Interaction safety failure: Dispatched duplicate save requests on rapid double-click", "Accessibility failure: Missing proper form labels for screen readers"], "tests_passed": 3, "tests_total": 8, "test_details": [{"name": "demo_elements_rendered", "category": "functional_correctness", "regime": "demo", "passed": true, "details": "Name: True, Email: True, Notify: True, Save: True, Discard: True", "failure_type": ""}, {"name": "demo_save_success", "category": "expected_interactions", "regime": "demo", "passed": true, "details": "Network success=True (calls=1), UI feedback=True", "failure_type": ""}, {"name": "reality_input_validation", "category": "input_robustness", "regime": "reality", "passed": false, "details": "Blank name blocked=False, Invalid email blocked=True", "failure_type": "Input robustness failure: Submitted invalid or whitespace data to API"}, {"name": "reality_discard_restoration", "category": "state_robustness", "regime": "reality", "passed": false, "details": "Initial='Initial Name', Modified='Modified Value 999', Restored='Modified Value 999'", "failure_type": "State robustness failure: Discard Changes did not restore initial settings values"}, {"name": "reality_error_recovery_500", "category": "failure_recovery", "regime": "reality", "passed": false, "details": "Error feedback=True, Form values preserved=False (Name='')", "failure_type": "Failure recovery failure: Wiped user form inputs or failed to show error message on HTTP 500"}, {"name": "reality_double_click_safety", "category": "interaction_safety", "regime": "reality", "passed": false, "details": "API requests dispatched during double click: 2 (expected 1)", "failure_type": "Interaction safety failure: Dispatched duplicate save requests on rapid double-click"}, {"name": "reality_accessibility_labels", "category": "accessibility", "regime": "reality", "passed": false, "details": "Found 0 <label> elements and 0 ARIA labelled controls", "failure_type": "Accessibility failure: Missing proper form labels for screen readers"}, {"name": "reality_mobile_responsive", "category": "responsive_behavior", "regime": "reality", "passed": true, "details": "Scroll width: 375px vs Client width: 375px", "failure_type": ""}]}, "realitybench-api-form": {"task_name": "realitybench-api-form", "demo_score": 1.0, "reality_score": 0.4167, "reality_gap": 0.5833, "overall_score": 0.65, "category_scores": {"functional_correctness": 1.0, "expected_interactions": 1.0, "failure_recovery": 1.0, "state_robustness": 0.0, "input_robustness": 0.0, "accessibility": 0.0, "responsive_behavior": 1.0, "interaction_safety": 0.0}, "failure_taxonomy": ["State robustness failure: Stale region selection persisted across country change", "Input robustness failure: Submitted unselected form to /api/location", "Interaction safety failure: Dispatched duplicate location submissions", "Accessibility failure: Missing proper labels for dropdowns"], "tests_passed": 4, "tests_total": 8, "test_details": [{"name": "demo_elements_rendered", "category": "functional_correctness", "regime": "demo", "passed": true, "details": "Country: True, Region: True, Submit Button: True", "failure_type": ""}, {"name": "demo_cascading_flow", "category": "expected_interactions", "regime": "demo", "passed": true, "details": "Regions populated=True (count=3), POST dispatched=True, UI success=True", "failure_type": ""}, {"name": "reality_dependent_api_error_recovery", "category": "failure_recovery", "regime": "reality", "passed": true, "details": "Error feedback displayed on 500: True", "failure_type": ""}, {"name": "reality_country_switch_state_reset", "category": "state_robustness", "regime": "reality", "passed": false, "details": "Prior region 'CA' cleared upon country change: False (current: 'CA')", "failure_type": "State robustness failure: Stale region selection persisted across country change"}, {"name": "reality_empty_submission_validation", "category": "input_robustness", "regime": "reality", "passed": false, "details": "Empty form POST blocked: False (calls=1)", "failure_type": "Input robustness failure: Submitted unselected form to /api/location"}, {"name": "reality_double_click_safety", "category": "interaction_safety", "regime": "reality", "passed": false, "details": "POST requests dispatched during double click: 2 (expected 1)", "failure_type": "Interaction safety failure: Dispatched duplicate location submissions"}, {"name": "reality_accessibility_labels", "category": "accessibility", "regime": "reality", "passed": false, "details": "Found 0 <label> elements and 0 ARIA labelled controls", "failure_type": "Accessibility failure: Missing proper labels for dropdowns"}, {"name": "reality_mobile_responsive", "category": "responsive_behavior", "regime": "reality", "passed": true, "details": "Scroll width: 375px vs Client width: 375px", "failure_type": ""}]}, "realitybench-workflow": {"task_name": "realitybench-workflow", "demo_score": 1.0, "reality_score": 0.4167, "reality_gap": 0.5833, "overall_score": 0.65, "category_scores": {"functional_correctness": 1.0, "expected_interactions": 1.0, "failure_recovery": 1.0, "state_robustness": 0.0, "input_robustness": 0.0, "accessibility": 0.0, "responsive_behavior": 1.0, "interaction_safety": 0.0}, "failure_taxonomy": ["Input robustness failure: Advanced to Step 2 with empty required account fields", "State robustness failure: Back navigation wiped previously entered step data", "Interaction safety failure: Dispatched duplicate workflow submissions on double click", "Accessibility failure: Missing proper labels or accessible step landmarks"], "tests_passed": 4, "tests_total": 8, "test_details": [{"name": "demo_elements_rendered", "category": "functional_correctness", "regime": "demo", "passed": true, "details": "Name: True, Email: True, Next Button: True, Steps UI: False", "failure_type": ""}, {"name": "demo_complete_workflow", "category": "expected_interactions", "regime": "demo", "passed": true, "details": "POST dispatched=True, Order confirmation UI=True", "failure_type": ""}, {"name": "reality_incomplete_step_progression_blocked", "category": "input_robustness", "regime": "reality", "passed": false, "details": "Blocked invalid progression past Step 1: False", "failure_type": "Input robustness failure: Advanced to Step 2 with empty required account fields"}, {"name": "reality_back_navigation_state_preservation", "category": "state_robustness", "regime": "reality", "passed": false, "details": "Values preserved on Back navigation: False (Name='', Email='')", "failure_type": "State robustness failure: Back navigation wiped previously entered step data"}, {"name": "reality_final_submission_failure_recovery", "category": "failure_recovery", "regime": "reality", "passed": true, "details": "Error feedback shown=True, Workflow data preserved on Step 3=True", "failure_type": ""}, {"name": "reality_double_click_safety", "category": "interaction_safety", "regime": "reality", "passed": false, "details": "POST requests dispatched on rapid double click: 2 (expected 1)", "failure_type": "Interaction safety failure: Dispatched duplicate workflow submissions on double click"}, {"name": "reality_accessibility_steps_and_labels", "category": "accessibility", "regime": "reality", "passed": false, "details": "Found 1 <label> elements and 0 accessible ARIA/step attributes", "failure_type": "Accessibility failure: Missing proper labels or accessible step landmarks"}, {"name": "reality_mobile_responsive", "category": "responsive_behavior", "regime": "reality", "passed": true, "details": "Scroll width: 375px vs Client width: 375px", "failure_type": ""}]}}, "robust-baseline": {"realitybench-login": {"task_name": "realitybench-login", "demo_score": 1.0, "reality_score": 1.0, "reality_gap": 0.0, "overall_score": 1.0, "category_scores": {"functional_correctness": 1.0, "expected_interactions": 1.0, "failure_recovery": 1.0, "state_robustness": 1.0, "input_robustness": 1.0, "accessibility": 1.0, "responsive_behavior": 1.0, "interaction_safety": 1.0}, "failure_taxonomy": [], "tests_passed": 9, "tests_total": 9, "test_details": [{"name": "happy_path_render_elements", "category": "functional_correctness", "regime": "demo", "passed": true, "details": "Email input, password input, and submit button rendered", "failure_type": ""}, {"name": "happy_path_successful_auth", "category": "expected_interactions", "regime": "demo", "passed": true, "details": "Request sent: True, Payload valid: True, Success UI: True", "failure_type": ""}, {"name": "input_empty_validation", "category": "input_robustness", "regime": "reality", "passed": true, "details": "Empty submission prevented from hitting backend", "failure_type": ""}, {"name": "input_malformed_email", "category": "input_robustness", "regime": "reality", "passed": true, "details": "Malformed email blocked before network call", "failure_type": ""}, {"name": "network_500_error_feedback", "category": "failure_recovery", "regime": "reality", "passed": true, "details": "Error state displayed upon HTTP 500", "failure_type": ""}, {"name": "state_preservation_on_error", "category": "state_robustness", "regime": "reality", "passed": true, "details": "Entered email preserved: 'bob@example.com'", "failure_type": ""}, {"name": "double_click_protection", "category": "interaction_safety", "regime": "reality", "passed": true, "details": "Intercepted 1 request(s) on double click (expected 1)", "failure_type": ""}, {"name": "keyboard_accessibility_enter_submit", "category": "accessibility", "regime": "reality", "passed": true, "details": "Enter key in password field submits form", "failure_type": ""}, {"name": "mobile_viewport_overflow", "category": "responsive_behavior", "regime": "reality", "passed": true, "details": "No horizontal overflow on 375px mobile viewport", "failure_type": ""}]}, "realitybench-search": {"task_name": "realitybench-search", "demo_score": 1.0, "reality_score": 1.0, "reality_gap": 0.0, "overall_score": 1.0, "category_scores": {"functional_correctness": 1.0, "expected_interactions": 1.0, "failure_recovery": 1.0, "state_robustness": 1.0, "input_robustness": 1.0, "accessibility": 1.0, "responsive_behavior": 1.0, "interaction_safety": 1.0}, "failure_taxonomy": [], "tests_passed": 8, "tests_total": 8, "test_details": [{"name": "happy_path_render_elements", "category": "functional_correctness", "regime": "demo", "passed": true, "details": "Search input and search button rendered", "failure_type": ""}, {"name": "happy_path_successful_search", "category": "expected_interactions", "regime": "demo", "passed": true, "details": "Request sent: True, Query captured: True, Results displayed: True", "failure_type": ""}, {"name": "input_empty_query_check", "category": "input_robustness", "regime": "reality", "passed": true, "details": "Blank search suppressed before API dispatch", "failure_type": ""}, {"name": "state_empty_results_feedback", "category": "state_robustness", "regime": "reality", "passed": true, "details": "Empty results state rendered friendly user feedback", "failure_type": ""}, {"name": "network_500_search_recovery", "category": "failure_recovery", "regime": "reality", "passed": true, "details": "Error message displayed upon HTTP 500 failure", "failure_type": ""}, {"name": "rapid_search_duplicate_safety", "category": "interaction_safety", "regime": "reality", "passed": true, "details": "Requests triggered on rapid click: 1 (expected: 1)", "failure_type": ""}, {"name": "keyboard_accessibility_search_enter", "category": "accessibility", "regime": "reality", "passed": true, "details": "Search submittable via keyboard Enter key", "failure_type": ""}, {"name": "mobile_viewport_overflow", "category": "responsive_behavior", "regime": "reality", "passed": true, "details": "No horizontal overflow on mobile viewport", "failure_type": ""}]}, "realitybench-checkout": {"task_name": "realitybench-checkout", "demo_score": 1.0, "reality_score": 1.0, "reality_gap": 0.0, "overall_score": 1.0, "category_scores": {"functional_correctness": 1.0, "expected_interactions": 1.0, "failure_recovery": 1.0, "state_robustness": 1.0, "input_robustness": 1.0, "accessibility": 1.0, "responsive_behavior": 1.0, "interaction_safety": 1.0}, "failure_taxonomy": [], "tests_passed": 8, "tests_total": 8, "test_details": [{"name": "happy_path_render_elements", "category": "functional_correctness", "regime": "demo", "passed": true, "details": "Inputs present: True, Total amount shown: True", "failure_type": ""}, {"name": "happy_path_order_confirmation", "category": "expected_interactions", "regime": "demo", "passed": true, "details": "Request sent: True, Payload valid: True, Confirmation shown: True", "failure_type": ""}, {"name": "input_empty_checkout_validation", "category": "input_robustness", "regime": "reality", "passed": true, "details": "Empty checkout blocked before charging/API call", "failure_type": ""}, {"name": "network_500_payment_error", "category": "failure_recovery", "regime": "reality", "passed": true, "details": "Payment error message displayed upon 500 response", "failure_type": ""}, {"name": "state_preservation_on_payment_failure", "category": "state_robustness", "regime": "reality", "passed": true, "details": "Customer details preserved: name='Jane Doe', email='jane@example.com'", "failure_type": ""}, {"name": "double_charge_protection", "category": "interaction_safety", "regime": "reality", "passed": true, "details": "Orders placed on rapid double click: 1 (expected: 1)", "failure_type": ""}, {"name": "keyboard_accessibility_checkout_enter", "category": "accessibility", "regime": "reality", "passed": true, "details": "Checkout form submittable via keyboard Enter navigation", "failure_type": ""}, {"name": "mobile_viewport_overflow", "category": "responsive_behavior", "regime": "reality", "passed": true, "details": "No horizontal overflow on 375px mobile checkout viewport", "failure_type": ""}]}, "realitybench-file-upload": {"task_name": "realitybench-file-upload", "demo_score": 1.0, "reality_score": 1.0, "reality_gap": 0.0, "overall_score": 1.0, "category_scores": {"functional_correctness": 1.0, "expected_interactions": 1.0, "failure_recovery": 1.0, "state_robustness": 1.0, "input_robustness": 1.0, "accessibility": 1.0, "responsive_behavior": 1.0, "interaction_safety": 1.0}, "failure_taxonomy": [], "tests_passed": 8, "tests_total": 8, "test_details": [{"name": "happy_path_render_elements", "category": "functional_correctness", "regime": "demo", "passed": true, "details": "File input: True, Action button: True", "failure_type": ""}, {"name": "happy_path_valid_upload", "category": "expected_interactions", "regime": "demo", "passed": true, "details": "POST sent: True, Confirmation shown: True", "failure_type": ""}, {"name": "reject_invalid_file_type", "category": "input_robustness", "regime": "reality", "passed": true, "details": "Request blocked: True, Error/Accept restriction: True", "failure_type": ""}, {"name": "reject_oversized_file", "category": "input_robustness", "regime": "reality", "passed": true, "details": "Oversized upload blocked: True, Size error feedback: True", "failure_type": ""}, {"name": "server_error_feedback", "category": "failure_recovery", "regime": "reality", "passed": true, "details": "Error feedback visible: True, UI intact: True", "failure_type": ""}, {"name": "prevent_duplicate_upload", "category": "interaction_safety", "regime": "reality", "passed": true, "details": "Intercepted requests count: 1 (expected 1)", "failure_type": ""}, {"name": "accessible_upload_label", "category": "accessibility", "regime": "reality", "passed": true, "details": "Label associated: True, aria-label: True", "failure_type": ""}, {"name": "mobile_viewport_overflow", "category": "responsive_behavior", "regime": "reality", "passed": true, "details": "scrollWidth: 375, clientWidth: 375", "failure_type": ""}]}, "realitybench-crud-dashboard": {"task_name": "realitybench-crud-dashboard", "demo_score": 1.0, "reality_score": 1.0, "reality_gap": 0.0, "overall_score": 1.0, "category_scores": {"functional_correctness": 1.0, "expected_interactions": 1.0, "failure_recovery": 1.0, "state_robustness": 1.0, "input_robustness": 1.0, "accessibility": 1.0, "responsive_behavior": 1.0, "interaction_safety": 1.0}, "failure_taxonomy": [], "tests_passed": 9, "tests_total": 9, "test_details": [{"name": "happy_path_render_initial_data", "category": "functional_correctness", "regime": "demo", "passed": true, "details": "Initial items rendered: True, Input/Add button: True", "failure_type": ""}, {"name": "happy_path_create_task", "category": "expected_interactions", "regime": "demo", "passed": true, "details": "POST fired: True, New task rendered: True", "failure_type": ""}, {"name": "happy_path_delete_task", "category": "expected_interactions", "regime": "demo", "passed": true, "details": "Delete button: True, DELETE request fired: True", "failure_type": ""}, {"name": "reject_whitespace_title", "category": "input_robustness", "regime": "reality", "passed": true, "details": "Whitespace task submission blocked: True", "failure_type": ""}, {"name": "mutation_failure_rollback", "category": "failure_recovery", "regime": "reality", "passed": true, "details": "Item preserved in DOM: True, Error feedback shown: True", "failure_type": ""}, {"name": "empty_state_rendering", "category": "state_robustness", "regime": "reality", "passed": true, "details": "Helpful empty state rendered: True", "failure_type": ""}, {"name": "prevent_duplicate_task_creation", "category": "interaction_safety", "regime": "reality", "passed": true, "details": "POST requests fired: 1 (expected 1)", "failure_type": ""}, {"name": "accessible_task_input", "category": "accessibility", "regime": "reality", "passed": true, "details": "Label: False, Aria-label: True", "failure_type": ""}, {"name": "mobile_viewport_overflow", "category": "responsive_behavior", "regime": "reality", "passed": true, "details": "scrollWidth: 375, clientWidth: 375", "failure_type": ""}]}, "realitybench-booking": {"task_name": "realitybench-booking", "demo_score": 1.0, "reality_score": 1.0, "reality_gap": 0.0, "overall_score": 1.0, "category_scores": {"functional_correctness": 1.0, "expected_interactions": 1.0, "failure_recovery": 1.0, "state_robustness": 1.0, "input_robustness": 1.0, "accessibility": 1.0, "responsive_behavior": 1.0, "interaction_safety": 1.0}, "failure_taxonomy": [], "tests_passed": 8, "tests_total": 8, "test_details": [{"name": "happy_path_render_elements", "category": "functional_correctness", "regime": "demo", "passed": true, "details": "Date: True, Slot: True, Contacts: True, Button: True", "failure_type": ""}, {"name": "happy_path_valid_booking", "category": "expected_interactions", "regime": "demo", "passed": true, "details": "POST fired: True, Confirmation shown: True", "failure_type": ""}, {"name": "reject_past_dates", "category": "input_robustness", "regime": "reality", "passed": true, "details": "Has min date: True, Post blocked: True, Error shown: True", "failure_type": ""}, {"name": "slot_conflict_state_preservation", "category": "state_robustness", "regime": "reality", "passed": true, "details": "Conflict error displayed: True, Form fields preserved: True", "failure_type": ""}, {"name": "reject_empty_contacts", "category": "input_robustness", "regime": "reality", "passed": true, "details": "Empty contact submission blocked: True", "failure_type": ""}, {"name": "prevent_duplicate_booking", "category": "interaction_safety", "regime": "reality", "passed": true, "details": "POST requests fired: 1 (expected 1)", "failure_type": ""}, {"name": "accessible_booking_form", "category": "accessibility", "regime": "reality", "passed": true, "details": "Labels count: 4, Aria: 0", "failure_type": ""}, {"name": "mobile_viewport_overflow", "category": "responsive_behavior", "regime": "reality", "passed": true, "details": "scrollWidth: 375, clientWidth: 375", "failure_type": ""}]}, "realitybench-chat": {"task_name": "realitybench-chat", "demo_score": 1.0, "reality_score": 1.0, "reality_gap": 0.0, "overall_score": 1.0, "category_scores": {"functional_correctness": 1.0, "expected_interactions": 1.0, "failure_recovery": 1.0, "state_robustness": 1.0, "input_robustness": 1.0, "accessibility": 1.0, "responsive_behavior": 1.0, "interaction_safety": 1.0}, "failure_taxonomy": [], "tests_passed": 8, "tests_total": 8, "test_details": [{"name": "happy_path_render_elements", "category": "functional_correctness", "regime": "demo", "passed": true, "details": "Input: True, Send button: True, History: True", "failure_type": ""}, {"name": "happy_path_send_and_reply", "category": "expected_interactions", "regime": "demo", "passed": true, "details": "POST: True, User msg shown: True, Reply shown: True, Cleared: True", "failure_type": ""}, {"name": "reject_whitespace_message", "category": "input_robustness", "regime": "reality", "passed": true, "details": "Whitespace message blocked: True", "failure_type": ""}, {"name": "server_error_feedback_and_preservation", "category": "failure_recovery", "regime": "reality", "passed": true, "details": "Error feedback visible: True, Prior history preserved: True", "failure_type": ""}, {"name": "prevent_duplicate_message_send", "category": "interaction_safety", "regime": "reality", "passed": true, "details": "POST requests fired: 1 (expected 1)", "failure_type": ""}, {"name": "keyboard_enter_send", "category": "accessibility", "regime": "reality", "passed": true, "details": "Message submitted via Enter key: True", "failure_type": ""}, {"name": "unbroken_string_overflow_wrap", "category": "state_robustness", "regime": "reality", "passed": true, "details": "scrollWidth: 1280, clientWidth: 1280", "failure_type": ""}, {"name": "mobile_viewport_overflow", "category": "responsive_behavior", "regime": "reality", "passed": true, "details": "scrollWidth: 375, clientWidth: 375", "failure_type": ""}]}, "realitybench-product-page": {"task_name": "realitybench-product-page", "demo_score": 1.0, "reality_score": 1.0, "reality_gap": 0.0, "overall_score": 1.0, "category_scores": {"functional_correctness": 1.0, "expected_interactions": 1.0, "failure_recovery": 1.0, "state_robustness": 1.0, "input_robustness": 1.0, "accessibility": 1.0, "responsive_behavior": 1.0, "interaction_safety": 1.0}, "failure_taxonomy": [], "tests_passed": 8, "tests_total": 8, "test_details": [{"name": "happy_path_render_elements", "category": "functional_correctness", "regime": "demo", "passed": true, "details": "Title: True, Img: True, Variant: True, Qty: True, Button: True", "failure_type": ""}, {"name": "happy_path_add_to_cart", "category": "expected_interactions", "regime": "demo", "passed": true, "details": "POST fired: True, Cart feedback shown: True", "failure_type": ""}, {"name": "handle_out_of_stock_variant", "category": "state_robustness", "regime": "reality", "passed": true, "details": "Button disabled: True, Post blocked: True, 'Out of Stock' text: True", "failure_type": ""}, {"name": "reject_invalid_quantity", "category": "input_robustness", "regime": "reality", "passed": true, "details": "Negative quantity blocked: True", "failure_type": ""}, {"name": "broken_image_resilience", "category": "failure_recovery", "regime": "reality", "passed": true, "details": "Image alt or fallback attribute present: True", "failure_type": ""}, {"name": "prevent_duplicate_cart_add", "category": "interaction_safety", "regime": "reality", "passed": true, "details": "POST requests fired: 1 (expected 1)", "failure_type": ""}, {"name": "accessible_product_controls", "category": "accessibility", "regime": "reality", "passed": true, "details": "Labels: True, Aria: True, Image alt: True", "failure_type": ""}, {"name": "mobile_viewport_overflow", "category": "responsive_behavior", "regime": "reality", "passed": true, "details": "scrollWidth: 375, clientWidth: 375", "failure_type": ""}]}, "realitybench-admin-table": {"task_name": "realitybench-admin-table", "demo_score": 1.0, "reality_score": 1.0, "reality_gap": 0.0, "overall_score": 1.0, "category_scores": {"functional_correctness": 1.0, "expected_interactions": 1.0, "failure_recovery": 1.0, "state_robustness": 1.0, "input_robustness": 1.0, "accessibility": 1.0, "responsive_behavior": 1.0, "interaction_safety": 1.0}, "failure_taxonomy": [], "tests_passed": 9, "tests_total": 9, "test_details": [{"name": "happy_path_render_elements", "category": "functional_correctness", "regime": "demo", "passed": true, "details": "Table: True, Search: True, Filter: True, Pagination: True", "failure_type": ""}, {"name": "happy_path_render_initial_rows", "category": "expected_interactions", "regime": "demo", "passed": true, "details": "Rendered users: Sarah=True, John=True", "failure_type": ""}, {"name": "happy_path_pagination", "category": "expected_interactions", "regime": "demo", "passed": true, "details": "Page 2 requested: True, Kyle Reese displayed: True", "failure_type": ""}, {"name": "empty_dataset_state", "category": "state_robustness", "regime": "reality", "passed": true, "details": "Empty state feedback visible: True", "failure_type": ""}, {"name": "null_field_resilience", "category": "input_robustness", "regime": "reality", "passed": true, "details": "Table survived null fields without crash: True", "failure_type": ""}, {"name": "search_query_dispatch", "category": "expected_interactions", "regime": "reality", "passed": true, "details": "Search request dispatched: True", "failure_type": ""}, {"name": "prevent_duplicate_pagination_click", "category": "interaction_safety", "regime": "reality", "passed": true, "details": "Pagination requests fired on double click: 1", "failure_type": ""}, {"name": "accessible_table_structure", "category": "accessibility", "regime": "reality", "passed": true, "details": "Table headers (th): True, Form labels: True", "failure_type": ""}, {"name": "mobile_viewport_overflow", "category": "responsive_behavior", "regime": "reality", "passed": true, "details": "scrollWidth: 375, clientWidth: 375", "failure_type": ""}]}, "realitybench-settings": {"task_name": "realitybench-settings", "demo_score": 1.0, "reality_score": 1.0, "reality_gap": 0.0, "overall_score": 1.0, "category_scores": {"functional_correctness": 1.0, "expected_interactions": 1.0, "failure_recovery": 1.0, "state_robustness": 1.0, "input_robustness": 1.0, "accessibility": 1.0, "responsive_behavior": 1.0, "interaction_safety": 1.0}, "failure_taxonomy": [], "tests_passed": 8, "tests_total": 8, "test_details": [{"name": "demo_elements_rendered", "category": "functional_correctness", "regime": "demo", "passed": true, "details": "Name: True, Email: True, Notify: True, Save: True, Discard: True", "failure_type": ""}, {"name": "demo_save_success", "category": "expected_interactions", "regime": "demo", "passed": true, "details": "Network success=True (calls=1), UI feedback=True", "failure_type": ""}, {"name": "reality_input_validation", "category": "input_robustness", "regime": "reality", "passed": true, "details": "Blank name blocked=True, Invalid email blocked=True", "failure_type": ""}, {"name": "reality_discard_restoration", "category": "state_robustness", "regime": "reality", "passed": true, "details": "Initial='Ada Lovelace', Modified='Modified Value 999', Restored='Ada Lovelace'", "failure_type": ""}, {"name": "reality_error_recovery_500", "category": "failure_recovery", "regime": "reality", "passed": true, "details": "Error feedback=True, Form values preserved=True (Name='Grace Hopper')", "failure_type": ""}, {"name": "reality_double_click_safety", "category": "interaction_safety", "regime": "reality", "passed": true, "details": "API requests dispatched during double click: 1 (expected 1)", "failure_type": ""}, {"name": "reality_accessibility_labels", "category": "accessibility", "regime": "reality", "passed": true, "details": "Found 3 <label> elements and 0 ARIA labelled controls", "failure_type": ""}, {"name": "reality_mobile_responsive", "category": "responsive_behavior", "regime": "reality", "passed": true, "details": "Scroll width: 375px vs Client width: 375px", "failure_type": ""}]}, "realitybench-api-form": {"task_name": "realitybench-api-form", "demo_score": 1.0, "reality_score": 1.0, "reality_gap": 0.0, "overall_score": 1.0, "category_scores": {"functional_correctness": 1.0, "expected_interactions": 1.0, "failure_recovery": 1.0, "state_robustness": 1.0, "input_robustness": 1.0, "accessibility": 1.0, "responsive_behavior": 1.0, "interaction_safety": 1.0}, "failure_taxonomy": [], "tests_passed": 8, "tests_total": 8, "test_details": [{"name": "demo_elements_rendered", "category": "functional_correctness", "regime": "demo", "passed": true, "details": "Country: True, Region: True, Submit Button: True", "failure_type": ""}, {"name": "demo_cascading_flow", "category": "expected_interactions", "regime": "demo", "passed": true, "details": "Regions populated=True (count=3), POST dispatched=True, UI success=True", "failure_type": ""}, {"name": "reality_dependent_api_error_recovery", "category": "failure_recovery", "regime": "reality", "passed": true, "details": "Error feedback displayed on 500: True", "failure_type": ""}, {"name": "reality_country_switch_state_reset", "category": "state_robustness", "regime": "reality", "passed": true, "details": "Prior region 'CA' cleared upon country change: True (current: '')", "failure_type": ""}, {"name": "reality_empty_submission_validation", "category": "input_robustness", "regime": "reality", "passed": true, "details": "Empty form POST blocked: True (calls=0)", "failure_type": ""}, {"name": "reality_double_click_safety", "category": "interaction_safety", "regime": "reality", "passed": true, "details": "POST requests dispatched during double click: 1 (expected 1)", "failure_type": ""}, {"name": "reality_accessibility_labels", "category": "accessibility", "regime": "reality", "passed": true, "details": "Found 2 <label> elements and 0 ARIA labelled controls", "failure_type": ""}, {"name": "reality_mobile_responsive", "category": "responsive_behavior", "regime": "reality", "passed": true, "details": "Scroll width: 375px vs Client width: 375px", "failure_type": ""}]}, "realitybench-workflow": {"task_name": "realitybench-workflow", "demo_score": 1.0, "reality_score": 1.0, "reality_gap": 0.0, "overall_score": 1.0, "category_scores": {"functional_correctness": 1.0, "expected_interactions": 1.0, "failure_recovery": 1.0, "state_robustness": 1.0, "input_robustness": 1.0, "accessibility": 1.0, "responsive_behavior": 1.0, "interaction_safety": 1.0}, "failure_taxonomy": [], "tests_passed": 8, "tests_total": 8, "test_details": [{"name": "demo_elements_rendered", "category": "functional_correctness", "regime": "demo", "passed": true, "details": "Name: True, Email: True, Next Button: True, Steps UI: True", "failure_type": ""}, {"name": "demo_complete_workflow", "category": "expected_interactions", "regime": "demo", "passed": true, "details": "POST dispatched=True, Order confirmation UI=True", "failure_type": ""}, {"name": "reality_incomplete_step_progression_blocked", "category": "input_robustness", "regime": "reality", "passed": true, "details": "Blocked invalid progression past Step 1: True", "failure_type": ""}, {"name": "reality_back_navigation_state_preservation", "category": "state_robustness", "regime": "reality", "passed": true, "details": "Values preserved on Back navigation: True (Name='Katherine Johnson', Email='kjohnson@orbital.nasa.gov')", "failure_type": ""}, {"name": "reality_final_submission_failure_recovery", "category": "failure_recovery", "regime": "reality", "passed": true, "details": "Error feedback shown=True, Workflow data preserved on Step 3=True", "failure_type": ""}, {"name": "reality_double_click_safety", "category": "interaction_safety", "regime": "reality", "passed": true, "details": "POST requests dispatched on rapid double click: 1 (expected 1)", "failure_type": ""}, {"name": "reality_accessibility_steps_and_labels", "category": "accessibility", "regime": "reality", "passed": true, "details": "Found 4 <label> elements and 1 accessible ARIA/step attributes", "failure_type": ""}, {"name": "reality_mobile_responsive", "category": "responsive_behavior", "regime": "reality", "passed": true, "details": "Scroll width: 375px vs Client width: 375px", "failure_type": ""}]}}, "qwen2.5-coder:1.5b": {"realitybench-login": {"task_name": "realitybench-login", "demo_score": 1.0, "reality_score": 0.6667, "reality_gap": 0.3333, "overall_score": 0.8, "category_scores": {"functional_correctness": 1.0, "expected_interactions": 1.0, "failure_recovery": 1.0, "state_robustness": 1.0, "input_robustness": 0.0, "accessibility": 0.0, "responsive_behavior": 1.0, "interaction_safety": 0.0}, "failure_taxonomy": ["Validation failure: Sent empty credentials to API", "Validation failure: Invalid email format allowed through", "Interaction failure: Unhandled duplicate submission", "Accessibility failure: Enter key did not submit credentials"], "tests_passed": 5, "tests_total": 9, "test_details": [{"name": "happy_path_render_elements", "category": "functional_correctness", "regime": "demo", "passed": true, "details": "Email input, password input, and submit button rendered", "failure_type": ""}, {"name": "happy_path_successful_auth", "category": "expected_interactions", "regime": "demo", "passed": true, "details": "Request sent: True, Payload valid: True, Success UI: True", "failure_type": ""}, {"name": "input_empty_validation", "category": "input_robustness", "regime": "reality", "passed": false, "details": "Empty submission prevented from hitting backend", "failure_type": "Validation failure: Sent empty credentials to API"}, {"name": "input_malformed_email", "category": "input_robustness", "regime": "reality", "passed": false, "details": "Malformed email blocked before network call", "failure_type": "Validation failure: Invalid email format allowed through"}, {"name": "network_500_error_feedback", "category": "failure_recovery", "regime": "reality", "passed": true, "details": "Error state displayed upon HTTP 500", "failure_type": ""}, {"name": "state_preservation_on_error", "category": "state_robustness", "regime": "reality", "passed": true, "details": "Entered email preserved: 'bob@example.com'", "failure_type": ""}, {"name": "double_click_protection", "category": "interaction_safety", "regime": "reality", "passed": false, "details": "Intercepted 2 request(s) on double click (expected 1)", "failure_type": "Interaction failure: Unhandled duplicate submission"}, {"name": "keyboard_accessibility_enter_submit", "category": "accessibility", "regime": "reality", "passed": false, "details": "Enter key in password field submits form", "failure_type": "Accessibility failure: Enter key did not submit credentials"}, {"name": "mobile_viewport_overflow", "category": "responsive_behavior", "regime": "reality", "passed": true, "details": "No horizontal overflow on 375px mobile viewport", "failure_type": ""}]}, "realitybench-search": {"task_name": "realitybench-search", "demo_score": 1.0, "reality_score": 0.8333, "reality_gap": 0.1667, "overall_score": 0.9, "category_scores": {"functional_correctness": 1.0, "expected_interactions": 1.0, "failure_recovery": 1.0, "state_robustness": 1.0, "input_robustness": 1.0, "accessibility": 0.0, "responsive_behavior": 1.0, "interaction_safety": 0.0}, "failure_taxonomy": ["Duplicate interaction: Multiple API searches spammed on double-click", "Accessibility failure: Search cannot be triggered by Enter key"], "tests_passed": 6, "tests_total": 8, "test_details": [{"name": "happy_path_render_elements", "category": "functional_correctness", "regime": "demo", "passed": true, "details": "Search input and search button rendered", "failure_type": ""}, {"name": "happy_path_successful_search", "category": "expected_interactions", "regime": "demo", "passed": true, "details": "Request sent: True, Query captured: True, Results displayed: True", "failure_type": ""}, {"name": "input_empty_query_check", "category": "input_robustness", "regime": "reality", "passed": true, "details": "Blank search suppressed before API dispatch", "failure_type": ""}, {"name": "state_empty_results_feedback", "category": "state_robustness", "regime": "reality", "passed": true, "details": "Empty results state rendered friendly user feedback", "failure_type": ""}, {"name": "network_500_search_recovery", "category": "failure_recovery", "regime": "reality", "passed": true, "details": "Error message displayed upon HTTP 500 failure", "failure_type": ""}, {"name": "rapid_search_duplicate_safety", "category": "interaction_safety", "regime": "reality", "passed": false, "details": "Requests triggered on rapid click: 2 (expected: 1)", "failure_type": "Duplicate interaction: Multiple API searches spammed on double-click"}, {"name": "keyboard_accessibility_search_enter", "category": "accessibility", "regime": "reality", "passed": false, "details": "Search submittable via keyboard Enter key", "failure_type": "Accessibility failure: Search cannot be triggered by Enter key"}, {"name": "mobile_viewport_overflow", "category": "responsive_behavior", "regime": "reality", "passed": true, "details": "No horizontal overflow on mobile viewport", "failure_type": ""}]}, "realitybench-checkout": {"task_name": "realitybench-checkout", "demo_score": 1.0, "reality_score": 0.95, "reality_gap": 0.05, "overall_score": 0.97, "category_scores": {"functional_correctness": 1.0, "expected_interactions": 1.0, "failure_recovery": 1.0, "state_robustness": 1.0, "input_robustness": 1.0, "accessibility": 1.0, "responsive_behavior": 1.0, "interaction_safety": 0.0}, "failure_taxonomy": ["Duplicate interaction: Customer double-charged on rapid button click"], "tests_passed": 7, "tests_total": 8, "test_details": [{"name": "happy_path_render_elements", "category": "functional_correctness", "regime": "demo", "passed": true, "details": "Inputs present: True, Total amount shown: True", "failure_type": ""}, {"name": "happy_path_order_confirmation", "category": "expected_interactions", "regime": "demo", "passed": true, "details": "Request sent: True, Payload valid: True, Confirmation shown: True", "failure_type": ""}, {"name": "input_empty_checkout_validation", "category": "input_robustness", "regime": "reality", "passed": true, "details": "Empty checkout blocked before charging/API call", "failure_type": ""}, {"name": "network_500_payment_error", "category": "failure_recovery", "regime": "reality", "passed": true, "details": "Payment error message displayed upon 500 response", "failure_type": ""}, {"name": "state_preservation_on_payment_failure", "category": "state_robustness", "regime": "reality", "passed": true, "details": "Customer details preserved: name='Jane Doe', email='jane@example.com'", "failure_type": ""}, {"name": "double_charge_protection", "category": "interaction_safety", "regime": "reality", "passed": false, "details": "Orders placed on rapid double click: 2 (expected: 1)", "failure_type": "Duplicate interaction: Customer double-charged on rapid button click"}, {"name": "keyboard_accessibility_checkout_enter", "category": "accessibility", "regime": "reality", "passed": true, "details": "Checkout form submittable via keyboard Enter navigation", "failure_type": ""}, {"name": "mobile_viewport_overflow", "category": "responsive_behavior", "regime": "reality", "passed": true, "details": "No horizontal overflow on 375px mobile checkout viewport", "failure_type": ""}]}, "realitybench-file-upload": {"task_name": "realitybench-file-upload", "demo_score": 1.0, "reality_score": 0.75, "reality_gap": 0.25, "overall_score": 0.85, "category_scores": {"functional_correctness": 1.0, "expected_interactions": 1.0, "failure_recovery": 1.0, "state_robustness": 1.0, "input_robustness": 0.5, "accessibility": 0.0, "responsive_behavior": 1.0, "interaction_safety": 0.0}, "failure_taxonomy": ["Input robustness failure: Uploaded unsupported .exe file without client-side rejection", "Duplicate interaction: Multiple simultaneous upload requests fired", "Accessibility failure: File input lacks accessible label"], "tests_passed": 5, "tests_total": 8, "test_details": [{"name": "happy_path_render_elements", "category": "functional_correctness", "regime": "demo", "passed": true, "details": "File input: True, Action button: True", "failure_type": ""}, {"name": "happy_path_valid_upload", "category": "expected_interactions", "regime": "demo", "passed": true, "details": "POST sent: True, Confirmation shown: True", "failure_type": ""}, {"name": "reject_invalid_file_type", "category": "input_robustness", "regime": "reality", "passed": false, "details": "Request blocked: False, Error/Accept restriction: True", "failure_type": "Input robustness failure: Uploaded unsupported .exe file without client-side rejection"}, {"name": "reject_oversized_file", "category": "input_robustness", "regime": "reality", "passed": true, "details": "Oversized upload blocked: True, Size error feedback: True", "failure_type": ""}, {"name": "server_error_feedback", "category": "failure_recovery", "regime": "reality", "passed": true, "details": "Error feedback visible: True, UI intact: True", "failure_type": ""}, {"name": "prevent_duplicate_upload", "category": "interaction_safety", "regime": "reality", "passed": false, "details": "Intercepted requests count: 2 (expected 1)", "failure_type": "Duplicate interaction: Multiple simultaneous upload requests fired"}, {"name": "accessible_upload_label", "category": "accessibility", "regime": "reality", "passed": false, "details": "Label associated: False, aria-label: False", "failure_type": "Accessibility failure: File input lacks accessible label"}, {"name": "mobile_viewport_overflow", "category": "responsive_behavior", "regime": "reality", "passed": true, "details": "scrollWidth: 376, clientWidth: 375", "failure_type": ""}]}, "realitybench-crud-dashboard": {"task_name": "realitybench-crud-dashboard", "demo_score": 0.8125, "reality_score": 0.6167, "reality_gap": 0.1958, "overall_score": 0.695, "category_scores": {"functional_correctness": 1.0, "expected_interactions": 0.5, "failure_recovery": 0.0, "state_robustness": 1.0, "input_robustness": 1.0, "accessibility": 1.0, "responsive_behavior": 1.0, "interaction_safety": 0.0}, "failure_taxonomy": ["Expected interaction failure: Failed to create or render new task", "State consistency failure: Item disappeared despite server DELETE failure", "Duplicate interaction: Multiple POST requests sent on double click"], "tests_passed": 6, "tests_total": 9, "test_details": [{"name": "happy_path_render_initial_data", "category": "functional_correctness", "regime": "demo", "passed": true, "details": "Initial items rendered: True, Input/Add button: True", "failure_type": ""}, {"name": "happy_path_create_task", "category": "expected_interactions", "regime": "demo", "passed": false, "details": "POST fired: True, New task rendered: False", "failure_type": "Expected interaction failure: Failed to create or render new task"}, {"name": "happy_path_delete_task", "category": "expected_interactions", "regime": "demo", "passed": true, "details": "Delete button: True, DELETE request fired: True", "failure_type": ""}, {"name": "reject_whitespace_title", "category": "input_robustness", "regime": "reality", "passed": true, "details": "Whitespace task submission blocked: True", "failure_type": ""}, {"name": "mutation_failure_rollback", "category": "failure_recovery", "regime": "reality", "passed": false, "details": "Item preserved in DOM: False, Error feedback shown: True", "failure_type": "State consistency failure: Item disappeared despite server DELETE failure"}, {"name": "empty_state_rendering", "category": "state_robustness", "regime": "reality", "passed": true, "details": "Helpful empty state rendered: True", "failure_type": ""}, {"name": "prevent_duplicate_task_creation", "category": "interaction_safety", "regime": "reality", "passed": false, "details": "POST requests fired: 2 (expected 1)", "failure_type": "Duplicate interaction: Multiple POST requests sent on double click"}, {"name": "accessible_task_input", "category": "accessibility", "regime": "reality", "passed": true, "details": "Label: False, Aria-label: False", "failure_type": ""}, {"name": "mobile_viewport_overflow", "category": "responsive_behavior", "regime": "reality", "passed": true, "details": "scrollWidth: 375, clientWidth: 375", "failure_type": ""}]}, "realitybench-booking": {"task_name": "realitybench-booking", "demo_score": 1.0, "reality_score": 0.95, "reality_gap": 0.05, "overall_score": 0.97, "category_scores": {"functional_correctness": 1.0, "expected_interactions": 1.0, "failure_recovery": 1.0, "state_robustness": 1.0, "input_robustness": 1.0, "accessibility": 1.0, "responsive_behavior": 1.0, "interaction_safety": 0.0}, "failure_taxonomy": ["Duplicate interaction: Multiple booking requests sent on double click"], "tests_passed": 7, "tests_total": 8, "test_details": [{"name": "happy_path_render_elements", "category": "functional_correctness", "regime": "demo", "passed": true, "details": "Date: True, Slot: True, Contacts: True, Button: True", "failure_type": ""}, {"name": "happy_path_valid_booking", "category": "expected_interactions", "regime": "demo", "passed": true, "details": "POST fired: True, Confirmation shown: True", "failure_type": ""}, {"name": "reject_past_dates", "category": "input_robustness", "regime": "reality", "passed": true, "details": "Has min date: False, Post blocked: True, Error shown: True", "failure_type": ""}, {"name": "slot_conflict_state_preservation", "category": "state_robustness", "regime": "reality", "passed": true, "details": "Conflict error displayed: True, Form fields preserved: True", "failure_type": ""}, {"name": "reject_empty_contacts", "category": "input_robustness", "regime": "reality", "passed": true, "details": "Empty contact submission blocked: True", "failure_type": ""}, {"name": "prevent_duplicate_booking", "category": "interaction_safety", "regime": "reality", "passed": false, "details": "POST requests fired: 2 (expected 1)", "failure_type": "Duplicate interaction: Multiple booking requests sent on double click"}, {"name": "accessible_booking_form", "category": "accessibility", "regime": "reality", "passed": true, "details": "Labels count: 4, Aria: 0", "failure_type": ""}, {"name": "mobile_viewport_overflow", "category": "responsive_behavior", "regime": "reality", "passed": true, "details": "scrollWidth: 377, clientWidth: 375", "failure_type": ""}]}, "realitybench-chat": {"task_name": "realitybench-chat", "demo_score": 0.625, "reality_score": 0.4167, "reality_gap": 0.2083, "overall_score": 0.5, "category_scores": {"functional_correctness": 1.0, "expected_interactions": 0.0, "failure_recovery": 0.0, "state_robustness": 1.0, "input_robustness": 1.0, "accessibility": 0.0, "responsive_behavior": 0.0, "interaction_safety": 0.0}, "failure_taxonomy": ["Expected interaction failure: Chat message or bot reply not rendered", "Recovery failure: Silent crash or history wiped out on server error", "Duplicate interaction: Multiple messages sent on double click", "Accessibility failure: Pressing Enter does not submit message", "Responsive failure: Horizontal scroll overflow on mobile viewport"], "tests_passed": 3, "tests_total": 8, "test_details": [{"name": "happy_path_render_elements", "category": "functional_correctness", "regime": "demo", "passed": true, "details": "Input: True, Send button: True, History: True", "failure_type": ""}, {"name": "happy_path_send_and_reply", "category": "expected_interactions", "regime": "demo", "passed": false, "details": "POST: False, User msg shown: False, Reply shown: False, Cleared: False", "failure_type": "Expected interaction failure: Chat message or bot reply not rendered"}, {"name": "reject_whitespace_message", "category": "input_robustness", "regime": "reality", "passed": true, "details": "Whitespace message blocked: True", "failure_type": ""}, {"name": "server_error_feedback_and_preservation", "category": "failure_recovery", "regime": "reality", "passed": false, "details": "Error feedback visible: True, Prior history preserved: False", "failure_type": "Recovery failure: Silent crash or history wiped out on server error"}, {"name": "prevent_duplicate_message_send", "category": "interaction_safety", "regime": "reality", "passed": false, "details": "POST requests fired: 0 (expected 1)", "failure_type": "Duplicate interaction: Multiple messages sent on double click"}, {"name": "keyboard_enter_send", "category": "accessibility", "regime": "reality", "passed": false, "details": "Message submitted via Enter key: False", "failure_type": "Accessibility failure: Pressing Enter does not submit message"}, {"name": "unbroken_string_overflow_wrap", "category": "state_robustness", "regime": "reality", "passed": true, "details": "scrollWidth: 1280, clientWidth: 1280", "failure_type": ""}, {"name": "mobile_viewport_overflow", "category": "responsive_behavior", "regime": "reality", "passed": false, "details": "scrollWidth: 397, clientWidth: 375", "failure_type": "Responsive failure: Horizontal scroll overflow on mobile viewport"}]}, "realitybench-product-page": {"task_name": "realitybench-product-page", "demo_score": 1.0, "reality_score": 0.95, "reality_gap": 0.05, "overall_score": 0.97, "category_scores": {"functional_correctness": 1.0, "expected_interactions": 1.0, "failure_recovery": 1.0, "state_robustness": 1.0, "input_robustness": 1.0, "accessibility": 1.0, "responsive_behavior": 1.0, "interaction_safety": 0.0}, "failure_taxonomy": ["Duplicate interaction: Multiple cart POST requests fired on double click"], "tests_passed": 7, "tests_total": 8, "test_details": [{"name": "happy_path_render_elements", "category": "functional_correctness", "regime": "demo", "passed": true, "details": "Title: True, Img: True, Variant: True, Qty: True, Button: True", "failure_type": ""}, {"name": "happy_path_add_to_cart", "category": "expected_interactions", "regime": "demo", "passed": true, "details": "POST fired: True, Cart feedback shown: True", "failure_type": ""}, {"name": "handle_out_of_stock_variant", "category": "state_robustness", "regime": "reality", "passed": true, "details": "Button disabled: False, Post blocked: True, 'Out of Stock' text: True", "failure_type": ""}, {"name": "reject_invalid_quantity", "category": "input_robustness", "regime": "reality", "passed": true, "details": "Negative quantity blocked: True", "failure_type": ""}, {"name": "broken_image_resilience", "category": "failure_recovery", "regime": "reality", "passed": true, "details": "Image alt or fallback attribute present: True", "failure_type": ""}, {"name": "prevent_duplicate_cart_add", "category": "interaction_safety", "regime": "reality", "passed": false, "details": "POST requests fired: 0 (expected 1)", "failure_type": "Duplicate interaction: Multiple cart POST requests fired on double click"}, {"name": "accessible_product_controls", "category": "accessibility", "regime": "reality", "passed": true, "details": "Labels: True, Aria: False, Image alt: True", "failure_type": ""}, {"name": "mobile_viewport_overflow", "category": "responsive_behavior", "regime": "reality", "passed": true, "details": "scrollWidth: 375, clientWidth: 375", "failure_type": ""}]}, "realitybench-admin-table": {"task_name": "realitybench-admin-table", "demo_score": 0.125, "reality_score": 0.6333, "reality_gap": -0.5083, "overall_score": 0.43, "category_scores": {"functional_correctness": 0.0, "expected_interactions": 0.3333, "failure_recovery": 1.0, "state_robustness": 0.0, "input_robustness": 1.0, "accessibility": 0.0, "responsive_behavior": 1.0, "interaction_safety": 1.0}, "failure_taxonomy": ["Functional failure: Missing table, search filter, or pagination buttons", "Expected interaction failure: Clicking Next did not request or render Page 2", "State robustness failure: Blank or uninformative table when dataset is empty", "Expected interaction failure: Exception testing search filter", "Accessibility failure: Missing <th> column headers or form labels"], "tests_passed": 4, "tests_total": 9, "test_details": [{"name": "happy_path_render_elements", "category": "functional_correctness", "regime": "demo", "passed": false, "details": "Table: True, Search: False, Filter: False, Pagination: True", "failure_type": "Functional failure: Missing table, search filter, or pagination buttons"}, {"name": "happy_path_render_initial_rows", "category": "expected_interactions", "regime": "demo", "passed": true, "details": "Rendered users: Sarah=True, John=True", "failure_type": ""}, {"name": "happy_path_pagination", "category": "expected_interactions", "regime": "demo", "passed": false, "details": "Page 2 requested: False, Kyle Reese displayed: False", "failure_type": "Expected interaction failure: Clicking Next did not request or render Page 2"}, {"name": "empty_dataset_state", "category": "state_robustness", "regime": "reality", "passed": false, "details": "Empty state feedback visible: False", "failure_type": "State robustness failure: Blank or uninformative table when dataset is empty"}, {"name": "null_field_resilience", "category": "input_robustness", "regime": "reality", "passed": true, "details": "Table survived null fields without crash: True", "failure_type": ""}, {"name": "search_query_dispatch", "category": "expected_interactions", "regime": "reality", "passed": false, "details": "Locator.fill: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator(\"input[type=\\\"search\\\"], input[type=\\\"text\\\"], input\").first\n", "failure_type": "Expected interaction failure: Exception testing search filter"}, {"name": "prevent_duplicate_pagination_click", "category": "interaction_safety", "regime": "reality", "passed": true, "details": "Pagination requests fired on double click: 0", "failure_type": ""}, {"name": "accessible_table_structure", "category": "accessibility", "regime": "reality", "passed": false, "details": "Table headers (th): True, Form labels: False", "failure_type": "Accessibility failure: Missing <th> column headers or form labels"}, {"name": "mobile_viewport_overflow", "category": "responsive_behavior", "regime": "reality", "passed": true, "details": "scrollWidth: 375, clientWidth: 375", "failure_type": ""}]}, "realitybench-settings": {"task_name": "realitybench-settings", "demo_score": 0.625, "reality_score": 0.95, "reality_gap": -0.325, "overall_score": 0.82, "category_scores": {"functional_correctness": 1.0, "expected_interactions": 0.0, "failure_recovery": 1.0, "state_robustness": 1.0, "input_robustness": 1.0, "accessibility": 1.0, "responsive_behavior": 1.0, "interaction_safety": 0.0}, "failure_taxonomy": ["Interaction failure: Did not submit valid settings to /api/settings or display success feedback", "Interaction safety failure: Dispatched duplicate save requests on rapid double-click"], "tests_passed": 6, "tests_total": 8, "test_details": [{"name": "demo_elements_rendered", "category": "functional_correctness", "regime": "demo", "passed": true, "details": "Name: True, Email: True, Notify: True, Save: True, Discard: True", "failure_type": ""}, {"name": "demo_save_success", "category": "expected_interactions", "regime": "demo", "passed": false, "details": "Network success=False (calls=0), UI feedback=True", "failure_type": "Interaction failure: Did not submit valid settings to /api/settings or display success feedback"}, {"name": "reality_input_validation", "category": "input_robustness", "regime": "reality", "passed": true, "details": "Blank name blocked=True, Invalid email blocked=True", "failure_type": ""}, {"name": "reality_discard_restoration", "category": "state_robustness", "regime": "reality", "passed": true, "details": "Initial='', Modified='Modified Value 999', Restored=''", "failure_type": ""}, {"name": "reality_error_recovery_500", "category": "failure_recovery", "regime": "reality", "passed": true, "details": "Error feedback=True, Form values preserved=True (Name='Grace Hopper')", "failure_type": ""}, {"name": "reality_double_click_safety", "category": "interaction_safety", "regime": "reality", "passed": false, "details": "API requests dispatched during double click: 0 (expected 1)", "failure_type": "Interaction safety failure: Dispatched duplicate save requests on rapid double-click"}, {"name": "reality_accessibility_labels", "category": "accessibility", "regime": "reality", "passed": true, "details": "Found 3 <label> elements and 0 ARIA labelled controls", "failure_type": ""}, {"name": "reality_mobile_responsive", "category": "responsive_behavior", "regime": "reality", "passed": true, "details": "Scroll width: 375px vs Client width: 375px", "failure_type": ""}]}, "realitybench-api-form": {"task_name": "realitybench-api-form", "demo_score": 1.0, "reality_score": 0.8333, "reality_gap": 0.1667, "overall_score": 0.9, "category_scores": {"functional_correctness": 1.0, "expected_interactions": 1.0, "failure_recovery": 1.0, "state_robustness": 1.0, "input_robustness": 1.0, "accessibility": 0.0, "responsive_behavior": 1.0, "interaction_safety": 0.0}, "failure_taxonomy": ["Interaction safety failure: Dispatched duplicate location submissions", "Accessibility failure: Missing proper labels for dropdowns"], "tests_passed": 6, "tests_total": 8, "test_details": [{"name": "demo_elements_rendered", "category": "functional_correctness", "regime": "demo", "passed": true, "details": "Country: True, Region: True, Submit Button: True", "failure_type": ""}, {"name": "demo_cascading_flow", "category": "expected_interactions", "regime": "demo", "passed": true, "details": "Regions populated=True (count=3), POST dispatched=True, UI success=True", "failure_type": ""}, {"name": "reality_dependent_api_error_recovery", "category": "failure_recovery", "regime": "reality", "passed": true, "details": "Error feedback displayed on 500: True", "failure_type": ""}, {"name": "reality_country_switch_state_reset", "category": "state_robustness", "regime": "reality", "passed": true, "details": "Prior region 'CA' cleared upon country change: True (current: '')", "failure_type": ""}, {"name": "reality_empty_submission_validation", "category": "input_robustness", "regime": "reality", "passed": true, "details": "Empty form POST blocked: True (calls=0)", "failure_type": ""}, {"name": "reality_double_click_safety", "category": "interaction_safety", "regime": "reality", "passed": false, "details": "POST requests dispatched during double click: 2 (expected 1)", "failure_type": "Interaction safety failure: Dispatched duplicate location submissions"}, {"name": "reality_accessibility_labels", "category": "accessibility", "regime": "reality", "passed": false, "details": "Found 0 <label> elements and 0 ARIA labelled controls", "failure_type": "Accessibility failure: Missing proper labels for dropdowns"}, {"name": "reality_mobile_responsive", "category": "responsive_behavior", "regime": "reality", "passed": true, "details": "Scroll width: 375px vs Client width: 375px", "failure_type": ""}]}, "realitybench-workflow": {"task_name": "realitybench-workflow", "demo_score": 0.625, "reality_score": 0.5, "reality_gap": 0.125, "overall_score": 0.55, "category_scores": {"functional_correctness": 1.0, "expected_interactions": 0.0, "failure_recovery": 0.0, "state_robustness": 1.0, "input_robustness": 1.0, "accessibility": 0.0, "responsive_behavior": 1.0, "interaction_safety": 0.0}, "failure_taxonomy": ["Interaction failure: Exception during multi-step workflow flow", "Failure recovery failure: Exception testing step 3 submission failure", "Interaction safety failure: Exception testing double click", "Accessibility failure: Missing proper labels or accessible step landmarks"], "tests_passed": 4, "tests_total": 8, "test_details": [{"name": "demo_elements_rendered", "category": "functional_correctness", "regime": "demo", "passed": true, "details": "Name: True, Email: True, Next Button: True, Steps UI: True", "failure_type": ""}, {"name": "demo_complete_workflow", "category": "expected_interactions", "regime": "demo", "passed": false, "details": "Locator.click: Timeout 3000ms exceeded.\nCall log:\n  - waiting for locator(\"button:has-text('Submit'):visible, button:has-text('Complete'):visible, button:has-text('Order'):visible\").first\n", "failure_type": "Interaction failure: Exception during multi-step workflow flow"}, {"name": "reality_incomplete_step_progression_blocked", "category": "input_robustness", "regime": "reality", "passed": true, "details": "Blocked invalid progression past Step 1: True", "failure_type": ""}, {"name": "reality_back_navigation_state_preservation", "category": "state_robustness", "regime": "reality", "passed": true, "details": "Values preserved on Back navigation: True (Name='Katherine Johnson', Email='kjohnson@orbital.nasa.gov')", "failure_type": ""}, {"name": "reality_final_submission_failure_recovery", "category": "failure_recovery", "regime": "reality", "passed": false, "details": "Locator.click: Timeout 3000ms exceeded.\nCall log:\n  - waiting for locator(\"button:has-text('Submit'):visible, button:has-text('Complete'):visible, button:has-text('Order'):visible\").first\n", "failure_type": "Failure recovery failure: Exception testing step 3 submission failure"}, {"name": "reality_double_click_safety", "category": "interaction_safety", "regime": "reality", "passed": false, "details": "Locator.click: Timeout 3000ms exceeded.\nCall log:\n  - waiting for locator(\"button:has-text('Submit'):visible, button:has-text('Complete'):visible, button:has-text('Order'):visible\").first\n", "failure_type": "Interaction safety failure: Exception testing double click"}, {"name": "reality_accessibility_steps_and_labels", "category": "accessibility", "regime": "reality", "passed": false, "details": "Found 1 <label> elements and 0 accessible ARIA/step attributes", "failure_type": "Accessibility failure: Missing proper labels or accessible step landmarks"}, {"name": "reality_mobile_responsive", "category": "responsive_behavior", "regime": "reality", "passed": true, "details": "Scroll width: 375px vs Client width: 375px", "failure_type": ""}]}}, "gemma2:2b": {"realitybench-login": {"task_name": "realitybench-login", "demo_score": 1.0, "reality_score": 0.95, "reality_gap": 0.05, "overall_score": 0.97, "category_scores": {"functional_correctness": 1.0, "expected_interactions": 1.0, "failure_recovery": 1.0, "state_robustness": 1.0, "input_robustness": 1.0, "accessibility": 1.0, "responsive_behavior": 1.0, "interaction_safety": 0.0}, "failure_taxonomy": ["Interaction failure: Unhandled duplicate submission"], "tests_passed": 8, "tests_total": 9, "test_details": [{"name": "happy_path_render_elements", "category": "functional_correctness", "regime": "demo", "passed": true, "details": "Email input, password input, and submit button rendered", "failure_type": ""}, {"name": "happy_path_successful_auth", "category": "expected_interactions", "regime": "demo", "passed": true, "details": "Request sent: True, Payload valid: True, Success UI: True", "failure_type": ""}, {"name": "input_empty_validation", "category": "input_robustness", "regime": "reality", "passed": true, "details": "Empty submission prevented from hitting backend", "failure_type": ""}, {"name": "input_malformed_email", "category": "input_robustness", "regime": "reality", "passed": true, "details": "Malformed email blocked before network call", "failure_type": ""}, {"name": "network_500_error_feedback", "category": "failure_recovery", "regime": "reality", "passed": true, "details": "Error state displayed upon HTTP 500", "failure_type": ""}, {"name": "state_preservation_on_error", "category": "state_robustness", "regime": "reality", "passed": true, "details": "Entered email preserved: 'bob@example.com'", "failure_type": ""}, {"name": "double_click_protection", "category": "interaction_safety", "regime": "reality", "passed": false, "details": "Intercepted 2 request(s) on double click (expected 1)", "failure_type": "Interaction failure: Unhandled duplicate submission"}, {"name": "keyboard_accessibility_enter_submit", "category": "accessibility", "regime": "reality", "passed": true, "details": "Enter key in password field submits form", "failure_type": ""}, {"name": "mobile_viewport_overflow", "category": "responsive_behavior", "regime": "reality", "passed": true, "details": "No horizontal overflow on 375px mobile viewport", "failure_type": ""}]}, "realitybench-search": {"task_name": "realitybench-search", "demo_score": 0.625, "reality_score": 0.8333, "reality_gap": -0.2083, "overall_score": 0.75, "category_scores": {"functional_correctness": 1.0, "expected_interactions": 0.0, "failure_recovery": 1.0, "state_robustness": 1.0, "input_robustness": 1.0, "accessibility": 0.0, "responsive_behavior": 1.0, "interaction_safety": 0.0}, "failure_taxonomy": ["Expected interaction failure: Search results not rendered", "Duplicate interaction: Multiple API searches spammed on double-click", "Accessibility failure: Search cannot be triggered by Enter key"], "tests_passed": 5, "tests_total": 8, "test_details": [{"name": "happy_path_render_elements", "category": "functional_correctness", "regime": "demo", "passed": true, "details": "Search input and search button rendered", "failure_type": ""}, {"name": "happy_path_successful_search", "category": "expected_interactions", "regime": "demo", "passed": false, "details": "Request sent: True, Query captured: True, Results displayed: False", "failure_type": "Expected interaction failure: Search results not rendered"}, {"name": "input_empty_query_check", "category": "input_robustness", "regime": "reality", "passed": true, "details": "Blank search suppressed before API dispatch", "failure_type": ""}, {"name": "state_empty_results_feedback", "category": "state_robustness", "regime": "reality", "passed": true, "details": "Empty results state rendered friendly user feedback", "failure_type": ""}, {"name": "network_500_search_recovery", "category": "failure_recovery", "regime": "reality", "passed": true, "details": "Error message displayed upon HTTP 500 failure", "failure_type": ""}, {"name": "rapid_search_duplicate_safety", "category": "interaction_safety", "regime": "reality", "passed": false, "details": "Requests triggered on rapid click: 2 (expected: 1)", "failure_type": "Duplicate interaction: Multiple API searches spammed on double-click"}, {"name": "keyboard_accessibility_search_enter", "category": "accessibility", "regime": "reality", "passed": false, "details": "Search submittable via keyboard Enter key", "failure_type": "Accessibility failure: Search cannot be triggered by Enter key"}, {"name": "mobile_viewport_overflow", "category": "responsive_behavior", "regime": "reality", "passed": true, "details": "No horizontal overflow on mobile viewport", "failure_type": ""}]}, "realitybench-checkout": {"task_name": "realitybench-checkout", "demo_score": 1.0, "reality_score": 0.8667, "reality_gap": 0.1333, "overall_score": 0.92, "category_scores": {"functional_correctness": 1.0, "expected_interactions": 1.0, "failure_recovery": 1.0, "state_robustness": 1.0, "input_robustness": 1.0, "accessibility": 1.0, "responsive_behavior": 0.0, "interaction_safety": 0.0}, "failure_taxonomy": ["Duplicate interaction: Customer double-charged on rapid button click", "Responsive failure: Horizontal layout overflow on mobile"], "tests_passed": 6, "tests_total": 8, "test_details": [{"name": "happy_path_render_elements", "category": "functional_correctness", "regime": "demo", "passed": true, "details": "Inputs present: True, Total amount shown: True", "failure_type": ""}, {"name": "happy_path_order_confirmation", "category": "expected_interactions", "regime": "demo", "passed": true, "details": "Request sent: True, Payload valid: True, Confirmation shown: True", "failure_type": ""}, {"name": "input_empty_checkout_validation", "category": "input_robustness", "regime": "reality", "passed": true, "details": "Empty checkout blocked before charging/API call", "failure_type": ""}, {"name": "network_500_payment_error", "category": "failure_recovery", "regime": "reality", "passed": true, "details": "Payment error message displayed upon 500 response", "failure_type": ""}, {"name": "state_preservation_on_payment_failure", "category": "state_robustness", "regime": "reality", "passed": true, "details": "Customer details preserved: name='Jane Doe', email='jane@example.com'", "failure_type": ""}, {"name": "double_charge_protection", "category": "interaction_safety", "regime": "reality", "passed": false, "details": "Orders placed on rapid double click: 2 (expected: 1)", "failure_type": "Duplicate interaction: Customer double-charged on rapid button click"}, {"name": "keyboard_accessibility_checkout_enter", "category": "accessibility", "regime": "reality", "passed": true, "details": "Checkout form submittable via keyboard Enter navigation", "failure_type": ""}, {"name": "mobile_viewport_overflow", "category": "responsive_behavior", "regime": "reality", "passed": false, "details": "No horizontal overflow on 375px mobile checkout viewport", "failure_type": "Responsive failure: Horizontal layout overflow on mobile"}]}, "realitybench-file-upload": {"task_name": "realitybench-file-upload", "demo_score": 1.0, "reality_score": 0.8333, "reality_gap": 0.1667, "overall_score": 0.9, "category_scores": {"functional_correctness": 1.0, "expected_interactions": 1.0, "failure_recovery": 1.0, "state_robustness": 1.0, "input_robustness": 1.0, "accessibility": 0.0, "responsive_behavior": 1.0, "interaction_safety": 0.0}, "failure_taxonomy": ["Duplicate interaction: Multiple simultaneous upload requests fired", "Accessibility failure: File input lacks accessible label"], "tests_passed": 6, "tests_total": 8, "test_details": [{"name": "happy_path_render_elements", "category": "functional_correctness", "regime": "demo", "passed": true, "details": "File input: True, Action button: True", "failure_type": ""}, {"name": "happy_path_valid_upload", "category": "expected_interactions", "regime": "demo", "passed": true, "details": "POST sent: True, Confirmation shown: True", "failure_type": ""}, {"name": "reject_invalid_file_type", "category": "input_robustness", "regime": "reality", "passed": true, "details": "Request blocked: True, Error/Accept restriction: True", "failure_type": ""}, {"name": "reject_oversized_file", "category": "input_robustness", "regime": "reality", "passed": true, "details": "Oversized upload blocked: True, Size error feedback: True", "failure_type": ""}, {"name": "server_error_feedback", "category": "failure_recovery", "regime": "reality", "passed": true, "details": "Error feedback visible: True, UI intact: True", "failure_type": ""}, {"name": "prevent_duplicate_upload", "category": "interaction_safety", "regime": "reality", "passed": false, "details": "Intercepted requests count: 2 (expected 1)", "failure_type": "Duplicate interaction: Multiple simultaneous upload requests fired"}, {"name": "accessible_upload_label", "category": "accessibility", "regime": "reality", "passed": false, "details": "Label associated: False, aria-label: False", "failure_type": "Accessibility failure: File input lacks accessible label"}, {"name": "mobile_viewport_overflow", "category": "responsive_behavior", "regime": "reality", "passed": true, "details": "scrollWidth: 375, clientWidth: 375", "failure_type": ""}]}, "realitybench-crud-dashboard": {"task_name": "realitybench-crud-dashboard", "demo_score": 0.0, "reality_score": 0.5333, "reality_gap": -0.5333, "overall_score": 0.32, "category_scores": {"functional_correctness": 0.0, "expected_interactions": 0.0, "failure_recovery": 0.0, "state_robustness": 1.0, "input_robustness": 1.0, "accessibility": 1.0, "responsive_behavior": 0.0, "interaction_safety": 0.0}, "failure_taxonomy": ["Functional failure: Initial tasks not loaded or controls missing", "Expected interaction failure: Failed to create or render new task", "Expected interaction failure: Task deletion failed or DELETE request missing", "State consistency failure: Item disappeared despite server DELETE failure", "Duplicate interaction: Multiple POST requests sent on double click", "Responsive failure: Horizontal scroll overflow on mobile viewport"], "tests_passed": 3, "tests_total": 9, "test_details": [{"name": "happy_path_render_initial_data", "category": "functional_correctness", "regime": "demo", "passed": false, "details": "Initial items rendered: False, Input/Add button: True", "failure_type": "Functional failure: Initial tasks not loaded or controls missing"}, {"name": "happy_path_create_task", "category": "expected_interactions", "regime": "demo", "passed": false, "details": "POST fired: True, New task rendered: False", "failure_type": "Expected interaction failure: Failed to create or render new task"}, {"name": "happy_path_delete_task", "category": "expected_interactions", "regime": "demo", "passed": false, "details": "Delete button: False, DELETE request fired: False", "failure_type": "Expected interaction failure: Task deletion failed or DELETE request missing"}, {"name": "reject_whitespace_title", "category": "input_robustness", "regime": "reality", "passed": true, "details": "Whitespace task submission blocked: True", "failure_type": ""}, {"name": "mutation_failure_rollback", "category": "failure_recovery", "regime": "reality", "passed": false, "details": "Item preserved in DOM: False, Error feedback shown: True", "failure_type": "State consistency failure: Item disappeared despite server DELETE failure"}, {"name": "empty_state_rendering", "category": "state_robustness", "regime": "reality", "passed": true, "details": "Helpful empty state rendered: True", "failure_type": ""}, {"name": "prevent_duplicate_task_creation", "category": "interaction_safety", "regime": "reality", "passed": false, "details": "POST requests fired: 2 (expected 1)", "failure_type": "Duplicate interaction: Multiple POST requests sent on double click"}, {"name": "accessible_task_input", "category": "accessibility", "regime": "reality", "passed": true, "details": "Label: False, Aria-label: False", "failure_type": ""}, {"name": "mobile_viewport_overflow", "category": "responsive_behavior", "regime": "reality", "passed": false, "details": "scrollWidth: 550, clientWidth: 375", "failure_type": "Responsive failure: Horizontal scroll overflow on mobile viewport"}]}, "realitybench-booking": {"task_name": "realitybench-booking", "demo_score": 1.0, "reality_score": 0.8667, "reality_gap": 0.1333, "overall_score": 0.92, "category_scores": {"functional_correctness": 1.0, "expected_interactions": 1.0, "failure_recovery": 1.0, "state_robustness": 1.0, "input_robustness": 1.0, "accessibility": 1.0, "responsive_behavior": 0.0, "interaction_safety": 0.0}, "failure_taxonomy": ["Duplicate interaction: Multiple booking requests sent on double click", "Responsive failure: Horizontal scroll overflow on mobile viewport"], "tests_passed": 6, "tests_total": 8, "test_details": [{"name": "happy_path_render_elements", "category": "functional_correctness", "regime": "demo", "passed": true, "details": "Date: True, Slot: True, Contacts: True, Button: True", "failure_type": ""}, {"name": "happy_path_valid_booking", "category": "expected_interactions", "regime": "demo", "passed": true, "details": "POST fired: True, Confirmation shown: True", "failure_type": ""}, {"name": "reject_past_dates", "category": "input_robustness", "regime": "reality", "passed": true, "details": "Has min date: False, Post blocked: True, Error shown: True", "failure_type": ""}, {"name": "slot_conflict_state_preservation", "category": "state_robustness", "regime": "reality", "passed": true, "details": "Conflict error displayed: True, Form fields preserved: True", "failure_type": ""}, {"name": "reject_empty_contacts", "category": "input_robustness", "regime": "reality", "passed": true, "details": "Empty contact submission blocked: True", "failure_type": ""}, {"name": "prevent_duplicate_booking", "category": "interaction_safety", "regime": "reality", "passed": false, "details": "POST requests fired: 2 (expected 1)", "failure_type": "Duplicate interaction: Multiple booking requests sent on double click"}, {"name": "accessible_booking_form", "category": "accessibility", "regime": "reality", "passed": true, "details": "Labels count: 4, Aria: 0", "failure_type": ""}, {"name": "mobile_viewport_overflow", "category": "responsive_behavior", "regime": "reality", "passed": false, "details": "scrollWidth: 530, clientWidth: 375", "failure_type": "Responsive failure: Horizontal scroll overflow on mobile viewport"}]}, "realitybench-chat": {"task_name": "realitybench-chat", "demo_score": 1.0, "reality_score": 0.8833, "reality_gap": 0.1167, "overall_score": 0.93, "category_scores": {"functional_correctness": 1.0, "expected_interactions": 1.0, "failure_recovery": 1.0, "state_robustness": 1.0, "input_robustness": 1.0, "accessibility": 0.0, "responsive_behavior": 1.0, "interaction_safety": 1.0}, "failure_taxonomy": ["Accessibility failure: Pressing Enter does not submit message"], "tests_passed": 7, "tests_total": 8, "test_details": [{"name": "happy_path_render_elements", "category": "functional_correctness", "regime": "demo", "passed": true, "details": "Input: True, Send button: True, History: True", "failure_type": ""}, {"name": "happy_path_send_and_reply", "category": "expected_interactions", "regime": "demo", "passed": true, "details": "POST: True, User msg shown: True, Reply shown: True, Cleared: True", "failure_type": ""}, {"name": "reject_whitespace_message", "category": "input_robustness", "regime": "reality", "passed": true, "details": "Whitespace message blocked: True", "failure_type": ""}, {"name": "server_error_feedback_and_preservation", "category": "failure_recovery", "regime": "reality", "passed": true, "details": "Error feedback visible: True, Prior history preserved: True", "failure_type": ""}, {"name": "prevent_duplicate_message_send", "category": "interaction_safety", "regime": "reality", "passed": true, "details": "POST requests fired: 1 (expected 1)", "failure_type": ""}, {"name": "keyboard_enter_send", "category": "accessibility", "regime": "reality", "passed": false, "details": "Message submitted via Enter key: False", "failure_type": "Accessibility failure: Pressing Enter does not submit message"}, {"name": "unbroken_string_overflow_wrap", "category": "state_robustness", "regime": "reality", "passed": true, "details": "scrollWidth: 1280, clientWidth: 1280", "failure_type": ""}, {"name": "mobile_viewport_overflow", "category": "responsive_behavior", "regime": "reality", "passed": true, "details": "scrollWidth: 375, clientWidth: 375", "failure_type": ""}]}, "realitybench-product-page": {"task_name": "realitybench-product-page", "demo_score": 1.0, "reality_score": 0.5833, "reality_gap": 0.4167, "overall_score": 0.75, "category_scores": {"functional_correctness": 1.0, "expected_interactions": 1.0, "failure_recovery": 1.0, "state_robustness": 0.0, "input_robustness": 1.0, "accessibility": 0.0, "responsive_behavior": 1.0, "interaction_safety": 0.0}, "failure_taxonomy": ["State robustness failure: Out-of-stock variant can still be added to cart", "Duplicate interaction: Multiple cart POST requests fired on double click", "Accessibility failure: Missing form labels or image alt text"], "tests_passed": 5, "tests_total": 8, "test_details": [{"name": "happy_path_render_elements", "category": "functional_correctness", "regime": "demo", "passed": true, "details": "Title: True, Img: True, Variant: True, Qty: True, Button: True", "failure_type": ""}, {"name": "happy_path_add_to_cart", "category": "expected_interactions", "regime": "demo", "passed": true, "details": "POST fired: True, Cart feedback shown: True", "failure_type": ""}, {"name": "handle_out_of_stock_variant", "category": "state_robustness", "regime": "reality", "passed": false, "details": "Button disabled: False, Post blocked: False, 'Out of Stock' text: False", "failure_type": "State robustness failure: Out-of-stock variant can still be added to cart"}, {"name": "reject_invalid_quantity", "category": "input_robustness", "regime": "reality", "passed": true, "details": "Negative quantity blocked: True", "failure_type": ""}, {"name": "broken_image_resilience", "category": "failure_recovery", "regime": "reality", "passed": true, "details": "Image alt or fallback attribute present: True", "failure_type": ""}, {"name": "prevent_duplicate_cart_add", "category": "interaction_safety", "regime": "reality", "passed": false, "details": "POST requests fired: 2 (expected 1)", "failure_type": "Duplicate interaction: Multiple cart POST requests fired on double click"}, {"name": "accessible_product_controls", "category": "accessibility", "regime": "reality", "passed": false, "details": "Labels: False, Aria: False, Image alt: True", "failure_type": "Accessibility failure: Missing form labels or image alt text"}, {"name": "mobile_viewport_overflow", "category": "responsive_behavior", "regime": "reality", "passed": true, "details": "scrollWidth: 375, clientWidth: 375", "failure_type": ""}]}, "realitybench-admin-table": {"task_name": "realitybench-admin-table", "demo_score": 0.75, "reality_score": 0.8833, "reality_gap": -0.1333, "overall_score": 0.83, "category_scores": {"functional_correctness": 1.0, "expected_interactions": 0.3333, "failure_recovery": 1.0, "state_robustness": 1.0, "input_robustness": 1.0, "accessibility": 0.0, "responsive_behavior": 1.0, "interaction_safety": 1.0}, "failure_taxonomy": ["Expected interaction failure: Clicking Next did not request or render Page 2", "Expected interaction failure: Search query not sent to API", "Accessibility failure: Missing <th> column headers or form labels"], "tests_passed": 6, "tests_total": 9, "test_details": [{"name": "happy_path_render_elements", "category": "functional_correctness", "regime": "demo", "passed": true, "details": "Table: True, Search: True, Filter: True, Pagination: True", "failure_type": ""}, {"name": "happy_path_render_initial_rows", "category": "expected_interactions", "regime": "demo", "passed": true, "details": "Rendered users: Sarah=True, John=True", "failure_type": ""}, {"name": "happy_path_pagination", "category": "expected_interactions", "regime": "demo", "passed": false, "details": "Page 2 requested: False, Kyle Reese displayed: False", "failure_type": "Expected interaction failure: Clicking Next did not request or render Page 2"}, {"name": "empty_dataset_state", "category": "state_robustness", "regime": "reality", "passed": true, "details": "Empty state feedback visible: True", "failure_type": ""}, {"name": "null_field_resilience", "category": "input_robustness", "regime": "reality", "passed": true, "details": "Table survived null fields without crash: True", "failure_type": ""}, {"name": "search_query_dispatch", "category": "expected_interactions", "regime": "reality", "passed": false, "details": "Search request dispatched: False", "failure_type": "Expected interaction failure: Search query not sent to API"}, {"name": "prevent_duplicate_pagination_click", "category": "interaction_safety", "regime": "reality", "passed": true, "details": "Pagination requests fired on double click: 0", "failure_type": ""}, {"name": "accessible_table_structure", "category": "accessibility", "regime": "reality", "passed": false, "details": "Table headers (th): True, Form labels: False", "failure_type": "Accessibility failure: Missing <th> column headers or form labels"}, {"name": "mobile_viewport_overflow", "category": "responsive_behavior", "regime": "reality", "passed": true, "details": "scrollWidth: 375, clientWidth: 375", "failure_type": ""}]}, "realitybench-settings": {"task_name": "realitybench-settings", "demo_score": 0.625, "reality_score": 0.2, "reality_gap": 0.425, "overall_score": 0.37, "category_scores": {"functional_correctness": 1.0, "expected_interactions": 0.0, "failure_recovery": 0.0, "state_robustness": 0.0, "input_robustness": 0.0, "accessibility": 1.0, "responsive_behavior": 1.0, "interaction_safety": 0.0}, "failure_taxonomy": ["Interaction failure: Did not submit valid settings to /api/settings or display success feedback", "Input robustness failure: Exception testing input validation", "State robustness failure: Discard Changes did not restore initial settings values", "Failure recovery failure: Exception testing 500 server error recovery", "Interaction safety failure: Dispatched duplicate save requests on rapid double-click"], "tests_passed": 3, "tests_total": 8, "test_details": [{"name": "demo_elements_rendered", "category": "functional_correctness", "regime": "demo", "passed": true, "details": "Name: True, Email: True, Notify: True, Save: True, Discard: True", "failure_type": ""}, {"name": "demo_save_success", "category": "expected_interactions", "regime": "demo", "passed": false, "details": "Network success=False (calls=0), UI feedback=False", "failure_type": "Interaction failure: Did not submit valid settings to /api/settings or display success feedback"}, {"name": "reality_input_validation", "category": "input_robustness", "regime": "reality", "passed": false, "details": "Locator.fill: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator(\"input[type='text'], input#name, input[name='name']\").first\n", "failure_type": "Input robustness failure: Exception testing input validation"}, {"name": "reality_discard_restoration", "category": "state_robustness", "regime": "reality", "passed": false, "details": "Initial='Your Name', Modified='Modified Value 999', Restored='Modified Value 999'", "failure_type": "State robustness failure: Discard Changes did not restore initial settings values"}, {"name": "reality_error_recovery_500", "category": "failure_recovery", "regime": "reality", "passed": false, "details": "Locator.input_value: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator(\"input[type='text'], input#name, input[name='name']\").first\n", "failure_type": "Failure recovery failure: Exception testing 500 server error recovery"}, {"name": "reality_double_click_safety", "category": "interaction_safety", "regime": "reality", "passed": false, "details": "API requests dispatched during double click: 0 (expected 1)", "failure_type": "Interaction safety failure: Dispatched duplicate save requests on rapid double-click"}, {"name": "reality_accessibility_labels", "category": "accessibility", "regime": "reality", "passed": true, "details": "Found 3 <label> elements and 0 ARIA labelled controls", "failure_type": ""}, {"name": "reality_mobile_responsive", "category": "responsive_behavior", "regime": "reality", "passed": true, "details": "Scroll width: 375px vs Client width: 375px", "failure_type": ""}]}, "realitybench-api-form": {"task_name": "realitybench-api-form", "demo_score": 1.0, "reality_score": 0.7, "reality_gap": 0.3, "overall_score": 0.82, "category_scores": {"functional_correctness": 1.0, "expected_interactions": 1.0, "failure_recovery": 1.0, "state_robustness": 0.0, "input_robustness": 1.0, "accessibility": 1.0, "responsive_behavior": 1.0, "interaction_safety": 0.0}, "failure_taxonomy": ["State robustness failure: Exception testing country switch state reset", "Interaction safety failure: Exception testing double click"], "tests_passed": 6, "tests_total": 8, "test_details": [{"name": "demo_elements_rendered", "category": "functional_correctness", "regime": "demo", "passed": true, "details": "Country: True, Region: True, Submit Button: True", "failure_type": ""}, {"name": "demo_cascading_flow", "category": "expected_interactions", "regime": "demo", "passed": true, "details": "Regions populated=True (count=2), POST dispatched=True, UI success=True", "failure_type": ""}, {"name": "reality_dependent_api_error_recovery", "category": "failure_recovery", "regime": "reality", "passed": true, "details": "Error feedback displayed on 500: True", "failure_type": ""}, {"name": "reality_country_switch_state_reset", "category": "state_robustness", "regime": "reality", "passed": false, "details": "Locator.select_option: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator(\"select#region, select[name='region']\").first\n    - locator resolved to <select id=\"region\">\u2026</select>\n  - attempting select option action\n    2 \u00d7 waiting for element to be visible and enabled\n      - did not find some options\n    - retrying select option action\n    - waiting 20ms\n    2 \u00d7 waiting for element to be visible and enabled\n      - did not find some options\n    - retrying select option action\n      - waiting 100ms\n    58 \u00d7 waiting for element to be visible and enabled\n       - did not find some options\n     - retrying select option action\n       - waiting 500ms\n", "failure_type": "State robustness failure: Exception testing country switch state reset"}, {"name": "reality_empty_submission_validation", "category": "input_robustness", "regime": "reality", "passed": true, "details": "Empty form POST blocked: True (calls=0)", "failure_type": ""}, {"name": "reality_double_click_safety", "category": "interaction_safety", "regime": "reality", "passed": false, "details": "Locator.select_option: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator(\"select#region, select[name='region']\").first\n    - locator resolved to <select id=\"region\">\u2026</select>\n  - attempting select option action\n    2 \u00d7 waiting for element to be visible and enabled\n      - did not find some options\n    - retrying select option action\n    - waiting 20ms\n    2 \u00d7 waiting for element to be visible and enabled\n      - did not find some options\n    - retrying select option action\n      - waiting 100ms\n    58 \u00d7 waiting for element to be visible and enabled\n       - did not find some options\n     - retrying select option action\n       - waiting 500ms\n", "failure_type": "Interaction safety failure: Exception testing double click"}, {"name": "reality_accessibility_labels", "category": "accessibility", "regime": "reality", "passed": true, "details": "Found 2 <label> elements and 0 ARIA labelled controls", "failure_type": ""}, {"name": "reality_mobile_responsive", "category": "responsive_behavior", "regime": "reality", "passed": true, "details": "Scroll width: 375px vs Client width: 375px", "failure_type": ""}]}, "realitybench-workflow": {"task_name": "realitybench-workflow", "demo_score": 0.625, "reality_score": 0.5333, "reality_gap": 0.0917, "overall_score": 0.57, "category_scores": {"functional_correctness": 1.0, "expected_interactions": 0.0, "failure_recovery": 0.0, "state_robustness": 1.0, "input_robustness": 1.0, "accessibility": 1.0, "responsive_behavior": 0.0, "interaction_safety": 0.0}, "failure_taxonomy": ["Interaction failure: Did not advance through wizard steps or submit order", "Failure recovery failure: Wiped wizard data or failed to show error message on HTTP 500", "Interaction safety failure: Dispatched duplicate workflow submissions on double click", "Responsive failure: Horizontal scroll overflow on mobile viewport"], "tests_passed": 4, "tests_total": 8, "test_details": [{"name": "demo_elements_rendered", "category": "functional_correctness", "regime": "demo", "passed": true, "details": "Name: True, Email: True, Next Button: True, Steps UI: True", "failure_type": ""}, {"name": "demo_complete_workflow", "category": "expected_interactions", "regime": "demo", "passed": false, "details": "POST dispatched=False, Order confirmation UI=False", "failure_type": "Interaction failure: Did not advance through wizard steps or submit order"}, {"name": "reality_incomplete_step_progression_blocked", "category": "input_robustness", "regime": "reality", "passed": true, "details": "Blocked invalid progression past Step 1: True", "failure_type": ""}, {"name": "reality_back_navigation_state_preservation", "category": "state_robustness", "regime": "reality", "passed": true, "details": "Values preserved on Back navigation: True (Name='Katherine Johnson', Email='kjohnson@orbital.nasa.gov')", "failure_type": ""}, {"name": "reality_final_submission_failure_recovery", "category": "failure_recovery", "regime": "reality", "passed": false, "details": "Error feedback shown=False, Workflow data preserved on Step 3=False", "failure_type": "Failure recovery failure: Wiped wizard data or failed to show error message on HTTP 500"}, {"name": "reality_double_click_safety", "category": "interaction_safety", "regime": "reality", "passed": false, "details": "POST requests dispatched on rapid double click: 0 (expected 1)", "failure_type": "Interaction safety failure: Dispatched duplicate workflow submissions on double click"}, {"name": "reality_accessibility_steps_and_labels", "category": "accessibility", "regime": "reality", "passed": true, "details": "Found 4 <label> elements and 0 accessible ARIA/step attributes", "failure_type": ""}, {"name": "reality_mobile_responsive", "category": "responsive_behavior", "regime": "reality", "passed": false, "details": "Scroll width: 408px vs Client width: 375px", "failure_type": "Responsive failure: Horizontal scroll overflow on mobile viewport"}]}}};
+        const tasks = [{"id": "realitybench-login", "number": "01", "name": "Authentication and Login", "category": "Security and Forms", "vulnerability": "Empty payloads allowed, password inputs missing form wrapper, double submit", "happy_path": "Valid email and password return mock auth token with welcome banner", "stress_test": "Network 500 error preserves entered email, double-click debounces, mobile 375px fits"}, {"id": "realitybench-search", "number": "02", "name": "Search and Autocomplete", "category": "Async and Telemetry", "vulnerability": "Zero keystroke debouncing, empty result crash, unhandled 500 query errors", "happy_path": "Typing queries displays matching dropdown items smoothly", "stress_test": "300ms input debounce, empty state display, server 500 retry button"}, {"id": "realitybench-checkout", "number": "03", "name": "Order Checkout and Cart", "category": "E-Commerce", "vulnerability": "Duplicate charges on rapid double-click, cart wiped on network failure", "happy_path": "Submitting valid order displays purchase confirmation and order ID", "stress_test": "Cart items preserved after 500 error, rapid double submit debounced, negative coupons blocked"}, {"id": "realitybench-file-upload", "number": "04", "name": "File Upload Dropzone", "category": "Storage and IO", "vulnerability": "Executable files accepted, 5MB limits bypassed, unhandled upload crash", "happy_path": "Dropping a valid PDF or image shows progress bar and complete state", "stress_test": "Rejects .exe and script files, blocks files over 5MB client-side, retry button on fault"}, {"id": "realitybench-crud-dashboard", "number": "05", "name": "Task CRUD Dashboard", "category": "State Management", "vulnerability": "Whitespace-only tasks created, mutation rollback missing on failed delete", "happy_path": "Adding, editing, and checking off tasks updates list instantaneously", "stress_test": "Optimistic rollback on server 500, whitespace rejected, delete confirmation modal"}, {"id": "realitybench-booking", "number": "06", "name": "Appointment Booking", "category": "Calendar and Forms", "vulnerability": "Past dates permitted, slot conflict 409 crashes application state", "happy_path": "Selecting available future slot books appointment with confirmation summary", "stress_test": "Past dates blocked, 409 conflict recovers without wiping customer name, keyboard Enter works"}, {"id": "realitybench-chat", "number": "07", "name": "Live Messaging Thread", "category": "Real-time Comms", "vulnerability": "Blank messages sent, in-thread network errors invisible to user", "happy_path": "Typing and pressing Enter sends message and scrolls into view", "stress_test": "Whitespace blocked, inline retry badge on 500 error, Enter key triggers send without click"}, {"id": "realitybench-product-page", "number": "08", "name": "Product Detail Showcase", "category": "E-Commerce", "vulnerability": "Sold out items still purchasable, broken images show blank icons", "happy_path": "Selecting sizes and clicking Add to Cart updates counter badge", "stress_test": "Out-of-stock disabling, broken image fallback, negative quantities locked"}, {"id": "realitybench-admin-table", "number": "09", "name": "Admin Data Table", "category": "Data and Tables", "vulnerability": "Null fields trigger unhandled JavaScript TypeError, pagination underflow", "happy_path": "Renders user records with sorting and pagination controls", "stress_test": "Missing fields render gracefully, page bounds enforced, semantic table header markup"}, {"id": "realitybench-settings", "number": "10", "name": "User Settings Panel", "category": "State and Preferences", "vulnerability": "Discard button fails to restore state, save failure silently reverts edits", "happy_path": "Modifying profile and saving persists values successfully", "stress_test": "Dirty state tracking, discard restores original data, server 500 preserves unsaved edits"}, {"id": "realitybench-api-form", "number": "11", "name": "Cascading Dependent Form", "category": "Forms and Async", "vulnerability": "Parent change leaves stale child data, dynamic fetch 500 locks form", "happy_path": "Selecting Country fetches and populates corresponding City list", "stress_test": "Switching country immediately clears stale city, dynamic 500 recovery, empty lock"}, {"id": "realitybench-workflow", "number": "12", "name": "Multi-Step Workflow Wizard", "category": "Workflows", "vulnerability": "Back button wipes previous steps, step validation bypassed via URL", "happy_path": "Progressing through Steps 1 to 3 completes setup and shows receipt", "stress_test": "Step data retained on Back navigation, Step 3 500 allows retry without restart"}];
 
-        // Render Leaderboard
-        const lbBody = document.getElementById("leaderboardBody");
-        targets.forEach(tgt => {
-            const s = summaries[tgt] || {};
-            const demo = (s.avg_demo_score || 0) * 100;
-            const reality = (s.avg_reality_score || 0) * 100;
-            const gap = (s.avg_reality_gap || 0) * 100;
+        // Render Task Table
+        function renderTasks() {
+            const tbody = document.getElementById("catalogBody");
+            tbody.innerHTML = "";
+            const query = (document.getElementById("taskSearch").value || "").toLowerCase();
 
-            let tagClass = "tag-green";
-            let status = "Resilient [Production Ready]";
-            if (gap > 20) {
-                tagClass = "tag-red";
-                status = "Fragile [Demo Trap]";
-            } else if (gap > 5) {
-                tagClass = "tag-yellow";
-                status = "Moderate Resilience";
-            }
-
-            const row = document.createElement("tr");
-            row.innerHTML = `
-                <td style="font-weight: 700;">${tgt}</td>
-                <td>
-                    <div class="score-bar-container"><div class="score-bar-fill" style="width: ${demo}%; background: var(--accent-blue);"></div></div>
-                    ${demo.toFixed(1)}%
-                </td>
-                <td>
-                    <div class="score-bar-container"><div class="score-bar-fill" style="width: ${reality}%; background: var(--accent-green);"></div></div>
-                    ${reality.toFixed(1)}%
-                </td>
-                <td style="font-weight: 700; color: ${gap > 20 ? 'var(--accent-red)' : 'var(--text-primary)'};">+${gap.toFixed(1)}%</td>
-                <td><span class="tag ${tagClass}">${status}</span></td>
-            `;
-            lbBody.appendChild(row);
-        });
-
-        // Render Charts
-        const ctxScores = document.getElementById('scoresChart').getContext('2d');
-        new Chart(ctxScores, {
-            type: 'bar',
-            data: {
-                labels: targets,
-                datasets: [
-                    {
-                        label: 'Demo Score (Happy)',
-                        data: targets.map(t => (summaries[t]?.avg_demo_score || 0) * 100),
-                        backgroundColor: '#38bdf8',
-                        borderRadius: 6
-                    },
-                    {
-                        label: 'Reality Score (Stress)',
-                        data: targets.map(t => (summaries[t]?.avg_reality_score || 0) * 100),
-                        backgroundColor: '#34d399',
-                        borderRadius: 6
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: { beginAtZero: true, max: 100, grid: { color: '#334155' } },
-                    x: { grid: { display: false } }
-                },
-                plugins: {
-                    legend: { labels: { color: '#94a3b8' } }
+            tasks.forEach(t => {
+                if (query && !t.name.toLowerCase().includes(query) && !t.category.toLowerCase().includes(query)) {
+                    return;
                 }
-            }
-        });
+                const tr = document.createElement("tr");
+                tr.className = "catalog-row";
+                tr.onclick = () => openModal(t);
 
-        const ctxGap = document.getElementById('gapChart').getContext('2d');
-        new Chart(ctxGap, {
-            type: 'bar',
-            data: {
-                labels: targets,
-                datasets: [{
-                    label: 'Reality Gap (%)',
-                    data: targets.map(t => (summaries[t]?.avg_reality_gap || 0) * 100),
-                    backgroundColor: targets.map(t => (summaries[t]?.avg_reality_gap || 0) > 0.20 ? '#f87171' : '#c084fc'),
-                    borderRadius: 6
-                }]
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                scales: {
-                    x: { beginAtZero: true, max: 100, grid: { color: '#334155' } },
-                    y: { grid: { display: false } }
-                },
-                plugins: {
-                    legend: { display: false }
-                }
-            }
-        });
-
-        // Render Matrix Table
-        const matrixHeader = document.getElementById("matrixHeader");
-        targets.forEach(tgt => {
-            const th = document.createElement("th");
-            th.textContent = tgt;
-            matrixHeader.appendChild(th);
-        });
-
-        const matrixBody = document.getElementById("matrixBody");
-        const allTaskIds = new Set();
-        targets.forEach(t => {
-            Object.keys(evaluations[t] || {}).forEach(tid => allTaskIds.add(tid));
-        });
-
-        let idx = 1;
-        Array.from(allTaskIds).sort().forEach(tid => {
-            const row = document.createElement("tr");
-            const cleanName = tid.replace("realitybench-", "").replace("-", " ").toUpperCase();
-            let rowHtml = `<td>${idx++}</td><td style="font-weight: 600;">${cleanName}</td>`;
-            targets.forEach(t => {
-                const rep = evaluations[t]?.[tid];
-                if (rep) {
-                    const r = (rep.reality_score * 100).toFixed(0);
-                    const g = (rep.reality_gap * 100).toFixed(0);
-                    const isFragile = rep.reality_gap > 0.20;
-                    rowHtml += `<td>
-                        <span style="font-weight:700;">${r}%</span>
-                        <span class="tag ${isFragile ? 'tag-red' : 'tag-green'}" style="margin-left: 6px;">Gap: +${g}%</span>
-                    </td>`;
-                } else {
-                    rowHtml += `<td style="color: var(--text-secondary);">-</td>`;
-                }
+                tr.innerHTML = `
+                    <td style="font-family: var(--font-mono); color: var(--text-muted);">${t.number}</td>
+                    <td style="font-weight: 600; color: var(--text-primary);">${t.name}</td>
+                    <td><span class="status-pill pill-blue">${t.category}</span></td>
+                    <td style="color: var(--text-secondary);">${t.vulnerability}</td>
+                `;
+                tbody.appendChild(tr);
             });
-            row.innerHTML = rowHtml;
-            matrixBody.appendChild(row);
+        }
+
+        document.getElementById("taskSearch").addEventListener("input", renderTasks);
+        renderTasks();
+
+        // Modal Logic
+        function openModal(task) {
+            document.getElementById("modalTitle").textContent = task.name;
+            document.getElementById("modalHappyPath").textContent = task.happy_path;
+            document.getElementById("modalStressTest").textContent = task.stress_test;
+            document.getElementById("modalVulnerability").textContent = task.vulnerability;
+            document.getElementById("taskModal").classList.add("active");
+        }
+
+        function closeModalDirect() {
+            document.getElementById("taskModal").classList.remove("active");
+        }
+
+        function closeModal(e) {
+            if (e.target.id === "taskModal") {
+                closeModalDirect();
+            }
+        }
+
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape") closeModalDirect();
         });
+
+        // Interactive Simulation
+        let activeSimMode = 'happy';
+        let spamCount = 0;
+
+        function runSim(mode) {
+            activeSimMode = mode;
+            spamCount = 0;
+            document.querySelectorAll(".sim-btn").forEach(b => b.classList.remove("active"));
+            if (mode === 'happy') document.getElementById("btnHappy").classList.add("active");
+            if (mode === '500') document.getElementById("btnHttp500").classList.add("active");
+            if (mode === 'spam') document.getElementById("btnSpam").classList.add("active");
+
+            const banner = document.getElementById("simStatus");
+            const btn = document.getElementById("simSubmitBtn");
+            btn.disabled = false;
+            btn.textContent = "Sign In to Dashboard";
+
+            if (mode === 'happy') {
+                banner.className = "sim-status-banner status-idle";
+                banner.innerHTML = "<span>Mode: Normal Happy Path. Click button to submit.</span>";
+            } else if (mode === '500') {
+                banner.className = "sim-status-banner status-fail";
+                banner.innerHTML = "<span>Mode: Server will respond HTTP 500. Click to test state retention.</span>";
+            } else if (mode === 'spam') {
+                banner.className = "sim-status-banner status-idle";
+                banner.innerHTML = "<span>Mode: Click button rapidly to test debounce protection.</span>";
+            }
+        }
+
+        function handleSimSubmit() {
+            const banner = document.getElementById("simStatus");
+            const email = document.getElementById("simEmail").value;
+            const btn = document.getElementById("simSubmitBtn");
+
+            if (activeSimMode === 'happy') {
+                btn.disabled = true;
+                btn.textContent = "Authenticating...";
+                setTimeout(() => {
+                    btn.disabled = false;
+                    btn.textContent = "Signed In";
+                    banner.className = "sim-status-banner status-ok";
+                    banner.innerHTML = "<span>HTTP 200 OK: Authentication successful. Token issued.</span>";
+                }, 400);
+            } else if (activeSimMode === '500') {
+                btn.disabled = true;
+                btn.textContent = "Connecting...";
+                setTimeout(() => {
+                    btn.disabled = false;
+                    btn.textContent = "Sign In to Dashboard";
+                    banner.className = "sim-status-banner status-fail";
+                    banner.innerHTML = "<span>HTTP 500: Server crashed. Notice: email '" + email + "' was preserved.</span>";
+                }, 400);
+            } else if (activeSimMode === 'spam') {
+                spamCount++;
+                if (spamCount === 1) {
+                    banner.className = "sim-status-banner status-ok";
+                    banner.innerHTML = "<span>Request 1 dispatched. Debounce lock engaged for 400ms.</span>";
+                    setTimeout(() => {
+                        spamCount = 0;
+                    }, 400);
+                } else {
+                    banner.className = "sim-status-banner status-ok";
+                    banner.innerHTML = "<span>Duplicate click blocked. Total prevented mutations: " + (spamCount - 1) + ".</span>";
+                }
+            }
+        }
+
+        function scrollToResults() {
+            const smooth = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+            document.getElementById("models").scrollIntoView({ behavior: smooth ? "smooth" : "auto" });
+        }
+
+        function copyCliCmd() {
+            const btn = document.getElementById("copyCliBtn");
+            navigator.clipboard.writeText("uv run realitybench pilot").then(() => {
+                btn.textContent = "Copied";
+                setTimeout(() => { btn.textContent = "Copy CLI command"; }, 1500);
+            });
+        }
     </script>
 </body>
 </html>
