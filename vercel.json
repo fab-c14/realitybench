@@ -1,18 +1,5 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "cleanUrls": true,
-  "rewrites": [
-    {
-      "source": "/",
-      "destination": "/results/dashboard.html"
-    },
-    {
-      "source": "/realitybench",
-      "destination": "/results/dashboard.html"
-    },
-    {
-      "source": "/data/(.*)",
-      "destination": "/results/$1"
-    }
-  ]
+  "buildCommand": "",
+  "outputDirectory": "site"
 }

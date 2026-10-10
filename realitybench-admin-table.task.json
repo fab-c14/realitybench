@@ -1,6 +1,0 @@
-{
-  "versionNumber": 1,
-  "name": "realitybench-admin-table",
-  "description": "Evaluates LLM on Admin Table software generation.",
-  "definition": "@kbench.task(name=\"realitybench-admin-table\")\ndef realitybench_admin_table(llm) -> dict:\n    \"\"\"\n    Evaluates LLM on Admin Table software generation.\n    \"\"\"\n    response = llm.prompt(ADMIN_TABLE_TASK_PROMPT)\n    code = extract_html_code(response)\n    report = grade_admin_table_implementation(code)\n    kbench.assertions.assert_true(\n        report.demo_score > 0.0,\n        expectation=\"Model should produce a functional admin table on happy path\"\n    )\n    return report.to_dict()\n"
-}

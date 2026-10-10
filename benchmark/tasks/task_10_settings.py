@@ -698,15 +698,6 @@ if __name__ == "__main__":
     if should_run_kbench():
         realitybench_settings.run(kbench.llm)
     else:
-
-        from ui import console, test_results_table, task_result_panel
-
-        console.print("[bold cyan]Running local self-test for Task 10: Settings Panel...[/bold cyan]")
-        report = grade_settings_implementation(NAIVE_SETTINGS_CODE)
-        console.print(task_result_panel(
-            "Settings Panel (Naive Baseline)",
-            report.demo_score,
-            report.reality_score,
-            report.reality_gap
-        ))
-        console.print(test_results_table(report.test_results, "Task 10: Settings Assertions"))
+        for label, code in (("naive", NAIVE_SETTINGS_CODE), ("robust", ROBUST_SETTINGS_CODE)):
+            r = grade_settings_implementation(code)
+            print(f"{label:6} demo={r.demo_score:.2f} reality={r.reality_score:.2f} gap={r.reality_gap:+.2f}")

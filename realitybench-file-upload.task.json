@@ -1,6 +1,0 @@
-{
-  "versionNumber": 1,
-  "name": "realitybench-file-upload",
-  "description": "Evaluates LLM on File Upload software generation.",
-  "definition": "@kbench.task(name=\"realitybench-file-upload\")\ndef realitybench_file_upload(llm) -> dict:\n    \"\"\"\n    Evaluates LLM on File Upload software generation.\n    \"\"\"\n    response = llm.prompt(FILE_UPLOAD_TASK_PROMPT)\n    code = extract_html_code(response)\n    report = grade_file_upload_implementation(code)\n    kbench.assertions.assert_true(\n        report.demo_score > 0.0,\n        expectation=\"Model should produce a functional file upload component on happy path\"\n    )\n    return report.to_dict()\n"
-}

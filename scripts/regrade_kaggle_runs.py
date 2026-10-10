@@ -60,7 +60,10 @@ def main() -> None:
     out = ROOT / "results" / "kaggle" / "regrade.json"
     out.write_text(json.dumps([
         {"model": m, "task": t, "old": {k: o[k] for k in ("demo_score", "reality_score", "reality_gap")},
-         "new": {"demo_score": n.demo_score, "reality_score": n.reality_score, "reality_gap": n.reality_gap}}
+         "new": {**{k: v for k, v in n.to_dict().items() if k != "test_details"},
+                 "failures": n.failure_taxonomy,
+                 "tests": [{"name": t.test_name, "regime": t.regime, "passed": t.passed, "details": t.details}
+                           for t in n.test_results]}}
         for m, t, o, n in rows
     ], indent=2), encoding="utf-8")
     print(f"Wrote {out.relative_to(ROOT)}")

@@ -481,15 +481,6 @@ if __name__ == "__main__":
     if should_run_kbench():
         realitybench_login.run(kbench.llm)
     else:
-
-        from ui import console, test_results_table, task_result_panel
-
-        console.print("[bold cyan]Running local self-test for Task 01: Authentication & Login...[/bold cyan]")
-        report = grade_login_implementation(NAIVE_LOGIN_CODE)
-        console.print(task_result_panel(
-            "Authentication & Login (Naive Baseline)",
-            report.demo_score,
-            report.reality_score,
-            report.reality_gap
-        ))
-        console.print(test_results_table(report.test_results, "Task 01: Login Assertions"))
+        for label, code in (("naive", NAIVE_LOGIN_CODE), ("robust", ROBUST_LOGIN_CODE)):
+            r = grade_login_implementation(code)
+            print(f"{label:6} demo={r.demo_score:.2f} reality={r.reality_score:.2f} gap={r.reality_gap:+.2f}")

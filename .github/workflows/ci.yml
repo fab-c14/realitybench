@@ -1,131 +1,31 @@
-name: CI & Deployment
+name: CI
 
 on:
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-  workflow_dispatch:
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: false
-
-permissions:
-  contents: write
-  pages: write
-  id-token: write
 
 jobs:
-  lint:
-    name: Code Quality & Linting
+  check:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v5
+      - uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-          version: "latest"
 
-      - name: Set up Python 3.11
-        run: uv python install 3.11
-
-      - name: Install dependencies
-        run: uv sync --all-extras
-
-      - name: Run Ruff Lint Check
-        run: uv run ruff check ui/ cli.py analysis/ tests/
-
-      - name: Run Pylint
-        run: uv run pylint benchmark/ ui/ cli.py analysis/ tests/
-
-  test:
-    name: Test Suite & Calibration
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v5
-        with:
-          enable-cache: true
-          version: "latest"
-
-      - name: Set up Python 3.11
-        run: uv python install 3.11
-
-      - name: Install dependencies
-        run: uv sync --all-extras
-
-      - name: Install Playwright Chromium with system dependencies
-        run: uv run playwright install --with-deps chromium
-
-      - name: Run Unit Tests
-        run: uv run pytest -v
-
-      - name: Run Pilot Benchmark Calibration Test
-        run: uv run realitybench pilot --target naive-baseline --no-animation --no-color
-
-  deploy-pages:
-    name: Deploy Interactive Dashboard to GitHub Pages
-    runs-on: ubuntu-latest
-    needs: [lint, test]
-    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-    permissions:
-      contents: write
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v5
-        with:
-          enable-cache: true
-          version: "latest"
-
-      - name: Set up Python 3.11
-        run: uv python install 3.11
-
-      - name: Install dependencies
-        run: uv sync --all-extras
-
-      - name: Generate HTML Dashboard
+      - name: Install
         run: |
-          uv run python -c "from analysis.generate_html_dashboard import generate_and_open_dashboard; generate_and_open_dashboard(open_browser=False)"
+          uv python install 3.11
+          uv sync --all-extras
+          uv run playwright install --with-deps chromium
 
-      - name: Prepare Site Artifacts
+      - name: Lint
         run: |
-          mkdir -p _site/data
-          cp results/dashboard.html _site/index.html
-          cp results/full_benchmark_results.json _site/data/
-          cp results/pilot_benchmark_results.json _site/data/
+          uv run ruff check cli.py tests/ scripts/
+          uv run pylint benchmark/ cli.py tests/
 
-      - name: Deploy to gh-pages Branch (Resilient Branch Hosting)
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./_site
-
-      - name: Setup GitHub Pages (Actions-based Hosting)
-        uses: actions/configure-pages@v5
-        continue-on-error: true
-
-      - name: Upload Pages Artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: '_site'
-        continue-on-error: true
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
-        continue-on-error: true
+      - name: Test (includes grader calibration on all 12 tasks)
+        run: uv run pytest -q

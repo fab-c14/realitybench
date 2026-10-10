@@ -425,15 +425,6 @@ if __name__ == "__main__":
     if should_run_kbench():
         realitybench_search.run(kbench.llm)
     else:
-
-        from ui import console, test_results_table, task_result_panel
-
-        console.print("[bold cyan]Running local self-test for Task 02: Search & Autocomplete...[/bold cyan]")
-        report = grade_search_implementation(NAIVE_SEARCH_CODE)
-        console.print(task_result_panel(
-            "Search & Autocomplete (Naive Baseline)",
-            report.demo_score,
-            report.reality_score,
-            report.reality_gap
-        ))
-        console.print(test_results_table(report.test_results, "Task 02: Search Assertions"))
+        for label, code in (("naive", NAIVE_SEARCH_CODE), ("robust", ROBUST_SEARCH_CODE)):
+            r = grade_search_implementation(code)
+            print(f"{label:6} demo={r.demo_score:.2f} reality={r.reality_score:.2f} gap={r.reality_gap:+.2f}")

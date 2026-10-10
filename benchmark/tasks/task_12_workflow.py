@@ -41,7 +41,6 @@ import kaggle_benchmarks as kbench
 from benchmark.kaggle_runtime import should_run_kbench
 from benchmark.graders.scoring import calculate_scores, TestResult, EvaluationReport
 from benchmark.graders.browser_runner import HeadlessHarness, extract_html_code
-from ui import console, task_result_panel, test_results_table, print_banner
 
 
 # =============================================================================
@@ -858,14 +857,6 @@ if __name__ == "__main__":
     if should_run_kbench():
         realitybench_workflow.run(kbench.llm)
     else:
-
-        print_banner()
-        console.print("[task]Evaluating Task 12: Multi-Step Workflow Wizard[/task]\n")
-
-        r1 = grade_workflow_implementation(NAIVE_WORKFLOW_CODE)
-        console.print(task_result_panel("Task 12: Workflow (Naive Baseline)", r1.demo_score, r1.reality_score, r1.reality_gap))
-        console.print(test_results_table(r1.test_results))
-
-        r2 = grade_workflow_implementation(ROBUST_WORKFLOW_CODE)
-        console.print(task_result_panel("Task 12: Workflow (Robust Baseline)", r2.demo_score, r2.reality_score, r2.reality_gap))
-        console.print(test_results_table(r2.test_results))
+        for label, code in (("naive", NAIVE_WORKFLOW_CODE), ("robust", ROBUST_WORKFLOW_CODE)):
+            r = grade_workflow_implementation(code)
+            print(f"{label:6} demo={r.demo_score:.2f} reality={r.reality_score:.2f} gap={r.reality_gap:+.2f}")

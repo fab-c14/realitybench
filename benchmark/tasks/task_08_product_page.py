@@ -547,15 +547,6 @@ if __name__ == "__main__":
     if should_run_kbench():
         realitybench_product_page.run(kbench.llm)
     else:
-
-        from ui import console, test_results_table, task_result_panel
-
-        console.print("[bold cyan]Running local self-test for Task 08: Product Page...[/bold cyan]")
-        report = grade_product_page_implementation(NAIVE_PRODUCT_PAGE_CODE)
-        console.print(task_result_panel(
-            "Product Page (Naive Baseline)",
-            report.demo_score,
-            report.reality_score,
-            report.reality_gap
-        ))
-        console.print(test_results_table(report.test_results, "Task 08: Product Page Assertions"))
+        for label, code in (("naive", NAIVE_PRODUCT_PAGE_CODE), ("robust", ROBUST_PRODUCT_PAGE_CODE)):
+            r = grade_product_page_implementation(code)
+            print(f"{label:6} demo={r.demo_score:.2f} reality={r.reality_score:.2f} gap={r.reality_gap:+.2f}")

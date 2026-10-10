@@ -486,15 +486,6 @@ if __name__ == "__main__":
     if should_run_kbench():
         realitybench_chat.run(kbench.llm)
     else:
-
-        from ui import console, test_results_table, task_result_panel
-
-        console.print("[bold cyan]Running local self-test for Task 07: Chat Component...[/bold cyan]")
-        report = grade_chat_implementation(NAIVE_CHAT_CODE)
-        console.print(task_result_panel(
-            "Chat Component (Naive Baseline)",
-            report.demo_score,
-            report.reality_score,
-            report.reality_gap
-        ))
-        console.print(test_results_table(report.test_results, "Task 07: Chat Assertions"))
+        for label, code in (("naive", NAIVE_CHAT_CODE), ("robust", ROBUST_CHAT_CODE)):
+            r = grade_chat_implementation(code)
+            print(f"{label:6} demo={r.demo_score:.2f} reality={r.reality_score:.2f} gap={r.reality_gap:+.2f}")

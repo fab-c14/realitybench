@@ -8,6 +8,8 @@ dist/
 build/
 *.egg-info/
 *.run.json
+*.task.json
+docs/superpowers/
 kaggle_benchmarks_reference.md
 example_task.py
 results/kaggle/

@@ -577,15 +577,6 @@ if __name__ == "__main__":
     if should_run_kbench():
         realitybench_crud_dashboard.run(kbench.llm)
     else:
-
-        from ui import console, test_results_table, task_result_panel
-
-        console.print("[bold cyan]Running local self-test for Task 05: CRUD Dashboard...[/bold cyan]")
-        report = grade_crud_dashboard_implementation(NAIVE_CRUD_CODE)
-        console.print(task_result_panel(
-            "CRUD Dashboard (Naive Baseline)",
-            report.demo_score,
-            report.reality_score,
-            report.reality_gap
-        ))
-        console.print(test_results_table(report.test_results, "Task 05: CRUD Dashboard Assertions"))
+        for label, code in (("naive", NAIVE_CRUD_CODE), ("robust", ROBUST_CRUD_CODE)):
+            r = grade_crud_dashboard_implementation(code)
+            print(f"{label:6} demo={r.demo_score:.2f} reality={r.reality_score:.2f} gap={r.reality_gap:+.2f}")

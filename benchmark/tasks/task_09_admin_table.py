@@ -592,15 +592,6 @@ if __name__ == "__main__":
     if should_run_kbench():
         realitybench_admin_table.run(kbench.llm)
     else:
-
-        from ui import console, test_results_table, task_result_panel
-
-        console.print("[bold cyan]Running local self-test for Task 09: Admin Table...[/bold cyan]")
-        report = grade_admin_table_implementation(NAIVE_ADMIN_TABLE_CODE)
-        console.print(task_result_panel(
-            "Admin Table (Naive Baseline)",
-            report.demo_score,
-            report.reality_score,
-            report.reality_gap
-        ))
-        console.print(test_results_table(report.test_results, "Task 09: Admin Table Assertions"))
+        for label, code in (("naive", NAIVE_ADMIN_TABLE_CODE), ("robust", ROBUST_ADMIN_TABLE_CODE)):
+            r = grade_admin_table_implementation(code)
+            print(f"{label:6} demo={r.demo_score:.2f} reality={r.reality_score:.2f} gap={r.reality_gap:+.2f}")
