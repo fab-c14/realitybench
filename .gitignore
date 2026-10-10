@@ -7,3 +7,8 @@ __pycache__/
 dist/
 build/
 *.egg-info/
+*.run.json
+kaggle_benchmarks_reference.md
+example_task.py
+results/kaggle/
+kaggle_tasks/

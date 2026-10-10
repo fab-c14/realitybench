@@ -37,6 +37,7 @@ if bench_root not in sys.path:
     sys.path.insert(0, bench_root)
 
 import kaggle_benchmarks as kbench
+from benchmark.kaggle_runtime import should_run_kbench
 from benchmark.graders.scoring import calculate_scores, TestResult, EvaluationReport
 from benchmark.graders.browser_runner import HeadlessHarness, extract_html_code
 
@@ -588,14 +589,18 @@ def realitybench_admin_table(llm) -> dict:
 
 # %%
 if __name__ == "__main__":
-    from ui import console, test_results_table, task_result_panel
+    if should_run_kbench():
+        realitybench_admin_table.run(kbench.llm)
+    else:
 
-    console.print("[bold cyan]Running local self-test for Task 09: Admin Table...[/bold cyan]")
-    report = grade_admin_table_implementation(NAIVE_ADMIN_TABLE_CODE)
-    console.print(task_result_panel(
-        "Admin Table (Naive Baseline)",
-        report.demo_score,
-        report.reality_score,
-        report.reality_gap
-    ))
-    console.print(test_results_table(report.test_results, "Task 09: Admin Table Assertions"))
+        from ui import console, test_results_table, task_result_panel
+
+        console.print("[bold cyan]Running local self-test for Task 09: Admin Table...[/bold cyan]")
+        report = grade_admin_table_implementation(NAIVE_ADMIN_TABLE_CODE)
+        console.print(task_result_panel(
+            "Admin Table (Naive Baseline)",
+            report.demo_score,
+            report.reality_score,
+            report.reality_gap
+        ))
+        console.print(test_results_table(report.test_results, "Task 09: Admin Table Assertions"))

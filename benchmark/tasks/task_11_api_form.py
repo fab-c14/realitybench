@@ -37,6 +37,7 @@ if bench_root not in sys.path:
     sys.path.insert(0, bench_root)
 
 import kaggle_benchmarks as kbench
+from benchmark.kaggle_runtime import should_run_kbench
 from benchmark.graders.scoring import calculate_scores, TestResult, EvaluationReport
 from benchmark.graders.browser_runner import HeadlessHarness, extract_html_code
 from ui import console, task_result_panel, test_results_table, print_banner
@@ -686,13 +687,17 @@ def realitybench_api_form(llm) -> dict:
 
 
 if __name__ == "__main__":
-    print_banner()
-    console.print("[task]Evaluating Task 11: Dependent Dynamic API Form[/task]\n")
+    if should_run_kbench():
+        realitybench_api_form.run(kbench.llm)
+    else:
 
-    r1 = grade_api_form_implementation(NAIVE_API_FORM_CODE)
-    console.print(task_result_panel("Task 11: API Form (Naive Baseline)", r1.demo_score, r1.reality_score, r1.reality_gap))
-    console.print(test_results_table(r1.test_results))
+        print_banner()
+        console.print("[task]Evaluating Task 11: Dependent Dynamic API Form[/task]\n")
 
-    r2 = grade_api_form_implementation(ROBUST_API_FORM_CODE)
-    console.print(task_result_panel("Task 11: API Form (Robust Baseline)", r2.demo_score, r2.reality_score, r2.reality_gap))
-    console.print(test_results_table(r2.test_results))
+        r1 = grade_api_form_implementation(NAIVE_API_FORM_CODE)
+        console.print(task_result_panel("Task 11: API Form (Naive Baseline)", r1.demo_score, r1.reality_score, r1.reality_gap))
+        console.print(test_results_table(r1.test_results))
+
+        r2 = grade_api_form_implementation(ROBUST_API_FORM_CODE)
+        console.print(task_result_panel("Task 11: API Form (Robust Baseline)", r2.demo_score, r2.reality_score, r2.reality_gap))
+        console.print(test_results_table(r2.test_results))

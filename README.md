@@ -285,15 +285,55 @@ realitybench/
 
 ---
 
+## 📍 Where Results Show Up
+
+| Where | What you see | Updated by |
+|------|------|------|
+| [fabsfolio.me/realitybench](https://fabsfolio.me/realitybench) | Public results page (score cards per model) | Every push to `main` (GitHub Actions) |
+| `results/full_benchmark_results.json` | Local runs: baselines and local models | `uv run realitybench run` |
+| `results/kaggle_results.json` | Kaggle runs, merged into the score cards automatically | Kaggle downloads (same `target_summaries` schema) |
+| `kaggle.com/benchmarks/tasks/<you>/realitybench-*` | Official Kaggle task pages and per-model runs | `kaggle b t run` |
+
+Regenerate the page locally with `uv run python analysis/generate_html_dashboard.py`, then `uv run python scripts/check_dashboard.py` for screenshots and a mobile overflow check.
+
+---
+
 ## 🛠️ Official Kaggle Benchmarks SDK Usage
 
-Every task in RealityBench is decorated with `@kbench.task`:
+Every task is decorated with `@kbench.task` and calls `.run(kbench.llm)` when executed as a Kaggle kernel (or when `REALITYBENCH_KBENCH_RUN=1`). Importing tasks into the CLI/registry does **not** spend model calls.
+
+### Local → Kaggle workflow
+
+Kaggle uploads a single file per task, so `scripts/build_kaggle_tasks.py` generates self-contained bundles in `kaggle_tasks/<slug>.py` (graders inlined, Chromium auto-installed, final `.run(kbench.llm)` cell). The Kaggle account must be phone-verified, or pushes fail to create the backing notebook.
+
+```bash
+# 1. Log in and fetch Model Proxy credentials
+uv run kaggle auth login
+uv run kaggle b init -y
+
+# 2. Build bundles and verify they grade identically to the source tasks (no model calls)
+uv run python scripts/build_kaggle_tasks.py
+uv run python scripts/check_kaggle_tasks.py
+
+# 3. Push all 12 tasks (PowerShell)
+./scripts/push_all_tasks.ps1
+
+# 4. Run against a model
+uv run kaggle b t run realitybench-login -m claude-opus-5-5-default --wait
+
+# 5. Download / publish
+uv run kaggle b t download realitybench-login -o ./results/kaggle
+uv run kaggle b t publish realitybench-login
+```
+
+Bundles are generated from `benchmark/tasks/task_XX_*.py`; edit the source tasks, never the bundles.
+
+Programmatic run (explicit only):
 
 ```python
 import kaggle_benchmarks as kbench
 from benchmark.tasks.registry import ALL_TASKS
 
-# Run tasks directly with the Kaggle Benchmarks SDK
 for task in ALL_TASKS:
     task.kbench_task.run(kbench.llm)
 ```

@@ -10,6 +10,7 @@ authors = [
 ]
 dependencies = [
     "kaggle-benchmarks>=0.6.0",
+    "kaggle>=2.2.0",
     "playwright>=1.40.0",
     "rich>=13.7.0",
     "typer>=0.9.0",
@@ -91,6 +92,7 @@ disable = [
     "unused-argument",
     "trailing-whitespace",
     "consider-using-dict-items",
+    "too-many-lines",
 ]
 
 [tool.pylint.format]
