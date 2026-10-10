@@ -32,6 +32,9 @@ def _print_report(report: EvaluationReport) -> None:
     typer.echo(f"  Demo score     {report.demo_score:6.0%}   (happy path)")
     typer.echo(f"  Reality score  {report.reality_score:6.0%}   (errors, bad input, double clicks, mobile)")
     typer.echo(f"  Reality gap    {report.reality_gap:+6.0%}\n")
+    if report.fake_backend:
+        typer.echo("  WARNING  The page replaces fetch/XMLHttpRequest: it answers its own requests")
+        typer.echo("           with a built-in fake server instead of calling the real API.\n")
     for t in report.test_results:
         mark = "PASS" if t.passed else "FAIL"
         typer.echo(f"  {mark}  [{t.regime:7}] {t.test_name}")

@@ -10,6 +10,7 @@ Usage:
 
 from __future__ import annotations
 
+import argparse
 import json
 import sys
 from pathlib import Path
@@ -40,23 +41,45 @@ def _result(run: dict) -> dict | None:
     return next((e.get("dictResult") for e in entries if e.get("dictResult")), None)
 
 
-def main() -> None:
-    graders = {t.task_id: t.grader for t in TASK_MAP.values()}
-    rows = []
-    for path in sorted(DOWNLOAD_DIR.rglob("*.run.json")):
+def latest_outputs() -> dict[tuple[str, str], tuple[dict, str, str]]:
+    """Newest (result, html, endTime) per (model, task)."""
+    latest: dict[tuple[str, str], tuple[dict, str, str]] = {}
+    for path in DOWNLOAD_DIR.rglob("*.run.json"):
         run = json.loads(path.read_text(encoding="utf-8"))
         old = _result(run)
-        if not old or old.get("task_name") not in graders:
-            continue
         responses = [s for s in _strings(run.get("conversations", [])) if "<html" in s.lower() or "<body" in s.lower()]
-        if not responses:
+        if not old or not responses:
             continue
-        new = graders[old["task_name"]](extract_html_code(responses[-1]))
-        model = path.parent.parent.name
-        rows.append((model, old["task_name"], old, new))
+        key = (path.parent.parent.name, old["task_name"])
+        end = run.get("endTime", "")
+        if key not in latest or end > latest[key][2]:
+            latest[key] = (old, extract_html_code(responses[-1]), end)
+    return latest
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--task", help="Only re-grade this task id, e.g. realitybench-booking")
+    parser.add_argument("--dump", action="store_true", help="Write each model page to results/kaggle/html/")
+    args = parser.parse_args()
+
+    graders = {t.task_id: t.grader for t in TASK_MAP.values()}
+    rows = []
+    for (model, task), (old, html, _) in sorted(latest_outputs().items()):
+        if task not in graders or (args.task and task != args.task):
+            continue
+        if args.dump:
+            out_html = DOWNLOAD_DIR / "html" / model / f"{task}.html"
+            out_html.parent.mkdir(parents=True, exist_ok=True)
+            out_html.write_text(html, encoding="utf-8")
+            continue
+        new = graders[task](html)
+        rows.append((model, task, old, new))
         print(f"{model:32} {old['task_name']:28} demo {old['demo_score']:.2f}->{new.demo_score:.2f}  "
               f"reality {old['reality_score']:.2f}->{new.reality_score:.2f}", flush=True)
 
+    if args.dump or args.task:
+        return
     out = ROOT / "results" / "kaggle" / "regrade.json"
     out.write_text(json.dumps([
         {"model": m, "task": t, "old": {k: o[k] for k in ("demo_score", "reality_score", "reality_gap")},

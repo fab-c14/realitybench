@@ -207,7 +207,7 @@ def run_happy_path(harness: HeadlessHarness, html_code: str) -> List[TestResult]
         send_btn = session.primary_button("Send", "Submit")
 
         input_el.fill("Hello RealityBench")
-        send_btn.click()
+        session.click(send_btn)
         session.page.wait_for_timeout(400)
 
         post_requests = [r for r in session.intercepted_requests if r["method"] == "POST"]
@@ -254,7 +254,7 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
         send_btn = session.primary_button("Send", "Submit")
 
         input_el.fill("    ")
-        send_btn.click()
+        session.click(send_btn)
         session.page.wait_for_timeout(300)
 
         post_requests = [r for r in session.intercepted_requests if r["method"] == "POST"]
@@ -288,12 +288,12 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
         send_btn = session.primary_button("Send", "Submit")
 
         input_el.fill("First question")
-        send_btn.click()
+        session.click(send_btn)
         session.page.wait_for_timeout(400)
 
         session.mock_route("**/api/chat", status=500, json_body={"error": "Chat service overloaded"})
         input_el.fill("Second question causing error")
-        send_btn.click()
+        session.click(send_btn)
         session.page.wait_for_timeout(400)
 
         content_lower = session.visible_text()
@@ -328,10 +328,7 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
         input_el = session.page.locator('input[type="text"], textarea, input').first
         input_el.fill("Rapid double click test")
 
-        session.page.evaluate("""() => {
-            const b = document.querySelector('button, input[type="submit"]');
-            if (b) { b.click(); b.click(); }
-        }""")
+        session.double_click(session.primary_button("Send", "Submit"))
         session.page.wait_for_timeout(400)
 
         post_count = len([r for r in session.intercepted_requests if r["method"] == "POST"])
@@ -398,7 +395,7 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
         input_el = session.page.locator('input[type="text"], textarea, input').first
         send_btn = session.primary_button("Send", "Submit")
         input_el.fill(long_word)
-        send_btn.click()
+        session.click(send_btn)
         session.page.wait_for_timeout(300)
 
         scroll_width = session.page.evaluate("document.documentElement.scrollWidth")
@@ -462,7 +459,9 @@ def grade_chat_implementation(html_code: str) -> EvaluationReport:
         demo_results = run_happy_path(harness, html_code)
         reality_results = run_reality_tests(harness, html_code)
 
-    return calculate_scores("realitybench-chat", demo_results + reality_results)
+    report = calculate_scores("realitybench-chat", demo_results + reality_results)
+    report.fake_backend = harness.fake_backend
+    return report
 
 
 # %%

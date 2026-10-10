@@ -166,7 +166,7 @@ def run_happy_path(harness: HeadlessHarness, html_code: str) -> List[TestResult]
         btn_el = session.primary_button("Search", "Go", "Submit")
 
         input_el.fill("principles")
-        btn_el.click()
+        session.click(btn_el)
         session.page.wait_for_timeout(400)
 
         req_sent = len(session.intercepted_requests) > 0
@@ -209,7 +209,7 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
         session.mock_route("**/api/search*", status=200, json_body=SAMPLE_RESULTS)
         session.load_html(html_code)
         btn_el = session.primary_button("Search", "Go", "Submit")
-        btn_el.click()
+        session.click(btn_el)
         session.page.wait_for_timeout(300)
 
         reqs = session.intercepted_requests
@@ -241,7 +241,7 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
         btn_el = session.primary_button("Search", "Go", "Submit")
 
         input_el.fill("nonexistentquery")
-        btn_el.click()
+        session.click(btn_el)
         session.page.wait_for_timeout(400)
 
         content_lower = session.visible_text()
@@ -273,7 +273,7 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
         btn_el = session.primary_button("Search", "Go", "Submit")
 
         input_el.fill("algorithms")
-        btn_el.click()
+        session.click(btn_el)
         session.page.wait_for_timeout(500)
 
         content_lower = session.visible_text()
@@ -303,21 +303,21 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
         session.load_html(html_code)
         input_el = session.page.locator('input[type="search"], input[type="text"], input').first
         input_el.fill("react")
+        # Let any type-ahead request settle first; only the double click is under test.
+        session.page.wait_for_timeout(1000)
+        before = len(session.intercepted_requests)
 
-        session.page.evaluate("""() => {
-            const b = document.querySelector('button[type="submit"], button');
-            if (b) { b.click(); b.click(); }
-        }""")
+        session.double_click(session.primary_button("Search", "Go", "Submit"))
         session.page.wait_for_timeout(600)
 
-        req_count = len(session.intercepted_requests)
-        is_debounced = (req_count == 1)
+        req_count = len(session.intercepted_requests) - before
+        is_debounced = (req_count <= 1)
         results.append(TestResult(
             test_name="rapid_search_duplicate_safety",
             category="interaction_safety",
             regime="reality",
             passed=is_debounced,
-            details=f"Requests triggered on rapid click: {req_count} (expected: 1)",
+            details=f"Requests triggered by the double click: {req_count} (expected at most 1)",
             failure_type="Duplicate interaction: Multiple API searches spammed on double-click" if not is_debounced else ""
         ))
     except Exception as e:
@@ -398,7 +398,9 @@ def grade_search_implementation(html_code: str) -> EvaluationReport:
         demo_results = run_happy_path(harness, html_code)
         reality_results = run_reality_tests(harness, html_code)
 
-    return calculate_scores("realitybench-search", demo_results + reality_results)
+    report = calculate_scores("realitybench-search", demo_results + reality_results)
+    report.fake_backend = harness.fake_backend
+    return report
 
 
 # %%

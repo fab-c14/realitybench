@@ -264,11 +264,11 @@ def run_happy_path(harness: HeadlessHarness, html_code: str) -> List[TestResult]
 
         session.mock_route("**/api/tasks", status=201, json_body={"task": {"id": 3, "title": "Deploy to Kaggle"}})
 
-        input_el = session.page.locator('input[type="text"], input').first
-        add_btn = session.page.locator('button:has-text("Add"), input[value*="Add" i], button').first
+        input_el = session.page.locator('input[type="text"]:visible, input:not([type]):visible').first
+        add_btn = session.primary_button("Add", "Create", "Save")
 
         input_el.fill("Deploy to Kaggle")
-        add_btn.click()
+        session.click(add_btn)
         session.page.wait_for_timeout(400)
 
         post_requests = [r for r in session.intercepted_requests if r["method"] == "POST"]
@@ -306,7 +306,7 @@ def run_happy_path(harness: HeadlessHarness, html_code: str) -> List[TestResult]
         del_btn = session.page.locator('button:has-text("Delete"), button:has-text("Remove"), .delete-btn').first
         has_del = del_btn.count() > 0
         if has_del:
-            del_btn.click()
+            session.click(del_btn)
             session.page.wait_for_timeout(400)
 
         delete_requests = [r for r in session.intercepted_requests if r["method"] == "DELETE"]
@@ -346,11 +346,11 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
         session.page.wait_for_timeout(300)
 
         initial_reqs = len(session.intercepted_requests)
-        input_el = session.page.locator('input[type="text"], input').first
-        add_btn = session.page.locator('button:has-text("Add"), button').first
+        input_el = session.page.locator('input[type="text"]:visible, input:not([type]):visible').first
+        add_btn = session.primary_button("Add", "Create", "Save")
 
         input_el.fill("    ")
-        add_btn.click()
+        session.click(add_btn)
         session.page.wait_for_timeout(300)
 
         new_posts = [r for r in session.intercepted_requests[initial_reqs:] if r["method"] == "POST"]
@@ -385,7 +385,7 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
 
         del_btn = session.page.locator('button:has-text("Delete"), button:has-text("Remove"), .delete-btn').first
         if del_btn.count() > 0:
-            del_btn.click()
+            session.click(del_btn)
         session.page.wait_for_timeout(400)
 
         content_lower = session.visible_text()
@@ -448,15 +448,12 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
 
         session.mock_route("**/api/tasks", status=201, json_body={"task": {"id": 99, "title": "Double Click"}}, delay_ms=800)
 
-        input_el = session.page.locator('input[type="text"], input').first
+        input_el = session.page.locator('input[type="text"]:visible, input:not([type]):visible').first
         input_el.fill("Double Click Task")
 
         initial_posts = len([r for r in session.intercepted_requests if r["method"] == "POST"])
 
-        session.page.evaluate("""() => {
-            const b = document.querySelector('button, input[type="submit"]');
-            if (b) { b.click(); b.click(); }
-        }""")
+        session.double_click(session.primary_button("Add", "Create", "Save"))
         session.page.wait_for_timeout(400)
 
         new_posts = len([r for r in session.intercepted_requests if r["method"] == "POST"]) - initial_posts
@@ -487,7 +484,7 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
         session.load_html(html_code)
         session.page.wait_for_timeout(300)
 
-        input_el = session.page.locator('input[type="text"], input').first
+        input_el = session.page.locator('input[type="text"]:visible, input:not([type]):visible').first
         has_aria = bool(input_el.get_attribute("aria-label"))
         input_id = input_el.get_attribute("id")
         has_label = False
@@ -553,7 +550,9 @@ def grade_crud_dashboard_implementation(html_code: str) -> EvaluationReport:
         demo_results = run_happy_path(harness, html_code)
         reality_results = run_reality_tests(harness, html_code)
 
-    return calculate_scores("realitybench-crud-dashboard", demo_results + reality_results)
+    report = calculate_scores("realitybench-crud-dashboard", demo_results + reality_results)
+    report.fake_backend = harness.fake_backend
+    return report
 
 
 # %%

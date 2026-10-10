@@ -141,7 +141,7 @@ def run_happy_path(harness: HeadlessHarness, html_code: str) -> List[TestResult]
         name_el = session.page.locator('input[name*="name" i], input[placeholder*="name" i], input[id*="name" i]').first
         email_el = session.page.locator('input[type="email"], input[name*="email" i], input[placeholder*="email" i]').first
         addr_el = session.page.locator('input[name*="addr" i], textarea[name*="addr" i], input[placeholder*="addr" i], textarea').first
-        btn_el = session.page.locator('button[type="submit"], input[type="submit"], button:has-text("Order"), button:has-text("Pay"), button').first
+        btn_el = session.primary_button("Pay", "Place", "Order", "Checkout", "Complete", "Submit")
 
         content_lower = session.visible_text()
         has_amount = ("49" in content_lower or "$49" in content_lower)
@@ -175,13 +175,13 @@ def run_happy_path(harness: HeadlessHarness, html_code: str) -> List[TestResult]
         name_el = session.page.locator('input[name*="name" i], input[placeholder*="name" i], input[id*="name" i]').first
         email_el = session.page.locator('input[type="email"], input[name*="email" i], input[placeholder*="email" i]').first
         addr_el = session.page.locator('input[name*="addr" i], textarea[name*="addr" i], input[placeholder*="addr" i], textarea').first
-        btn_el = session.page.locator('button[type="submit"], input[type="submit"], button:has-text("Order"), button:has-text("Pay"), button').first
+        btn_el = session.primary_button("Pay", "Place", "Order", "Checkout", "Complete", "Submit")
 
         name_el.fill("Jane Doe")
         email_el.fill("jane@example.com")
         if addr_el.count() > 0:
             addr_el.fill("123 Maple Street")
-        btn_el.click()
+        session.click(btn_el)
         session.page.wait_for_timeout(400)
 
         req_sent = len(session.intercepted_requests) > 0
@@ -230,8 +230,8 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
     try:
         session.mock_route("**/api/checkout", status=200, json_body={"order_id": "ORD-BAD"})
         session.load_html(html_code)
-        btn_el = session.page.locator('button[type="submit"], input[type="submit"], button:has-text("Order"), button:has-text("Pay"), button').first
-        btn_el.click()
+        btn_el = session.primary_button("Pay", "Place", "Order", "Checkout", "Complete", "Submit")
+        session.click(btn_el)
         session.page.wait_for_timeout(300)
 
         blocked = len(session.intercepted_requests) == 0
@@ -261,13 +261,13 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
         name_el = session.page.locator('input[name*="name" i], input[placeholder*="name" i], input[id*="name" i]').first
         email_el = session.page.locator('input[type="email"], input[name*="email" i], input[placeholder*="email" i]').first
         addr_el = session.page.locator('input[name*="addr" i], textarea[name*="addr" i], input[placeholder*="addr" i], textarea').first
-        btn_el = session.page.locator('button[type="submit"], input[type="submit"], button:has-text("Order"), button:has-text("Pay"), button').first
+        btn_el = session.primary_button("Pay", "Place", "Order", "Checkout", "Complete", "Submit")
 
         name_el.fill("Jane Doe")
         email_el.fill("jane@example.com")
         if addr_el.count() > 0:
             addr_el.fill("123 Maple Street")
-        btn_el.click()
+        session.click(btn_el)
         session.page.wait_for_timeout(500)
 
         content_lower = session.visible_text()
@@ -327,10 +327,7 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
         if addr_el.count() > 0:
             addr_el.fill("123 Maple Street")
 
-        session.page.evaluate("""() => {
-            const b = document.querySelector('button[type="submit"], input[type="submit"], button');
-            if (b) { b.click(); b.click(); }
-        }""")
+        session.double_click(session.primary_button("Pay", "Place", "Checkout", "Complete", "Submit"))
         session.page.wait_for_timeout(600)
 
         charge_count = len(session.intercepted_requests)
@@ -428,7 +425,9 @@ def grade_checkout_implementation(html_code: str) -> EvaluationReport:
         demo_results = run_happy_path(harness, html_code)
         reality_results = run_reality_tests(harness, html_code)
 
-    return calculate_scores("realitybench-checkout", demo_results + reality_results)
+    report = calculate_scores("realitybench-checkout", demo_results + reality_results)
+    report.fake_backend = harness.fake_backend
+    return report
 
 
 # %%

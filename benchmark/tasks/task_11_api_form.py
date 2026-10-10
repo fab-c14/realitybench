@@ -410,7 +410,7 @@ def run_happy_path(harness: HeadlessHarness, html_code: str) -> List[TestResult]
         session.page.wait_for_timeout(200)
 
         # Submit location
-        submit_btn.click()
+        session.click(submit_btn)
         session.page.wait_for_timeout(500)
 
         post_requests = [r for r in session.intercepted_requests if r["method"] == "POST"]
@@ -532,7 +532,7 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
         submit_btn = session.page.locator("button:has-text('Save'), button:has-text('Submit'), input[type='submit']").first
 
         # Submit without selecting country or region
-        submit_btn.click()
+        session.click(submit_btn)
         session.page.wait_for_timeout(300)
 
         post_requests = [r for r in session.intercepted_requests if r["method"] == "POST"]
@@ -668,7 +668,9 @@ def grade_api_form_implementation(html_code: str) -> EvaluationReport:
         results.extend(run_happy_path(harness, html_code))
         results.extend(run_reality_tests(harness, html_code))
 
-    return calculate_scores("realitybench-api-form", results)
+    report = calculate_scores("realitybench-api-form", results)
+    report.fake_backend = harness.fake_backend
+    return report
 
 
 # %%

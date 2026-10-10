@@ -211,7 +211,7 @@ def run_happy_path(harness: HeadlessHarness, html_code: str) -> List[TestResult]
 
         btn = session.primary_button("Upload", "Submit")
         if btn.count() > 0 and btn.is_visible():
-            btn.click()
+            session.click(btn)
         session.page.wait_for_timeout(500)
 
         req_sent = len(session.intercepted_requests) > 0
@@ -264,7 +264,7 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
 
         btn = session.primary_button("Upload", "Submit")
         if btn.count() > 0 and btn.is_visible():
-            btn.click()
+            session.click(btn)
         session.page.wait_for_timeout(300)
 
         request_blocked = (len(session.intercepted_requests) == 0)
@@ -309,7 +309,7 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
 
         btn = session.primary_button("Upload", "Submit")
         if btn.count() > 0 and btn.is_visible():
-            btn.click()
+            session.click(btn)
         session.page.wait_for_timeout(300)
 
         request_blocked = (len(session.intercepted_requests) == 0)
@@ -351,7 +351,7 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
 
         btn = session.primary_button("Upload", "Submit")
         if btn.count() > 0 and btn.is_visible():
-            btn.click()
+            session.click(btn)
         session.page.wait_for_timeout(400)
 
         content_lower = session.visible_text()
@@ -391,10 +391,7 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
         })
         session.page.wait_for_timeout(200)
 
-        session.page.evaluate("""() => {
-            const b = document.querySelector('button, input[type="submit"]');
-            if (b) { b.click(); b.click(); }
-        }""")
+        session.double_click(session.primary_button("Upload", "Submit"))
         session.page.wait_for_timeout(400)
 
         req_count = len(session.intercepted_requests)
@@ -488,7 +485,9 @@ def grade_file_upload_implementation(html_code: str) -> EvaluationReport:
         demo_results = run_happy_path(harness, html_code)
         reality_results = run_reality_tests(harness, html_code)
 
-    return calculate_scores("realitybench-file-upload", demo_results + reality_results)
+    report = calculate_scores("realitybench-file-upload", demo_results + reality_results)
+    report.fake_backend = harness.fake_backend
+    return report
 
 
 # %%

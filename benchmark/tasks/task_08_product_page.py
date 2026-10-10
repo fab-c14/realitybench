@@ -254,21 +254,14 @@ def run_happy_path(harness: HeadlessHarness, html_code: str) -> List[TestResult]
         })
         session.load_html(html_code)
 
-        variant_el = session.page.locator('select, input[type="radio"]').first
-        if variant_el.count() > 0:
-            if variant_el.evaluate("el => el.tagName.toLowerCase()") == "select":
-                opts = variant_el.locator('option')
-                if opts.count() > 0:
-                    variant_el.select_option(index=0)
-            else:
-                variant_el.check()
+        session.choose_option("Midnight Blue")
 
         qty_el = session.page.locator('input[type="number"], input[name*="qty" i]').first
         if qty_el.count() > 0:
             qty_el.fill("1")
 
-        btn = session.page.locator('button:has-text("Add"), button').first
-        btn.click()
+        btn = session.primary_button("Add to Cart", "Add", "Buy")
+        session.click(btn)
         session.page.wait_for_timeout(400)
 
         post_requests = [r for r in session.intercepted_requests if r["method"] == "POST"]
@@ -308,33 +301,15 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
         session.mock_route("**/api/cart", status=200, json_body={"status": "unexpected_success"})
         session.load_html(html_code)
 
-        session.page.evaluate("""() => {
-            const select = document.querySelector('select');
-            if (select) {
-                for (let i = 0; i < select.options.length; i++) {
-                    if (select.options[i].text.toLowerCase().includes('out of stock') || select.options[i].text.toLowerCase().includes('lunar')) {
-                        select.selectedIndex = i;
-                        select.dispatchEvent(new Event('change'));
-                        break;
-                    }
-                }
-            }
-            const radios = document.querySelectorAll('input[type="radio"]');
-            radios.forEach(r => {
-                const label = r.closest('label')?.innerText || '';
-                if (label.toLowerCase().includes('out of stock') || label.toLowerCase().includes('lunar')) {
-                    r.checked = true;
-                    r.dispatchEvent(new Event('change'));
-                }
-            });
-        }""")
+        # A page may refuse the selection outright (disabled option): that also counts as handled.
+        session.choose_option("Lunar Silver")
         session.page.wait_for_timeout(300)
 
-        btn = session.page.locator('button:has-text("Add"), button:has-text("Out"), button').first
-        is_disabled = btn.is_disabled() or ("out of stock" in btn.text_content().lower())
+        btn = session.primary_button("Add to Cart", "Out of Stock", "Add", "Buy")
+        is_disabled = btn.count() == 0 or btn.is_disabled() or ("out of stock" in btn.text_content().lower())
 
         if btn.count() > 0 and not is_disabled:
-            btn.click()
+            session.click(btn)
         session.page.wait_for_timeout(300)
 
         no_post_sent = len([r for r in session.intercepted_requests if r["method"] == "POST"]) == 0
@@ -370,8 +345,8 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
         if qty_el.count() > 0:
             qty_el.fill("-5")
 
-        btn = session.page.locator('button:has-text("Add"), button').first
-        btn.click()
+        btn = session.primary_button("Add to Cart", "Add", "Buy")
+        session.click(btn)
         session.page.wait_for_timeout(300)
 
         post_count = len([r for r in session.intercepted_requests if r["method"] == "POST"])
@@ -430,10 +405,7 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
         session.mock_route("**/api/cart", status=200, json_body={"status": "added", "cart_count": 1}, delay_ms=800)
         session.load_html(html_code)
 
-        session.page.evaluate("""() => {
-            const b = document.querySelector('button, input[type="submit"]');
-            if (b) { b.click(); b.click(); }
-        }""")
+        session.double_click(session.primary_button("Add to cart", "Add", "Buy"))
         session.page.wait_for_timeout(400)
 
         post_count = len([r for r in session.intercepted_requests if r["method"] == "POST"])
@@ -523,7 +495,9 @@ def grade_product_page_implementation(html_code: str) -> EvaluationReport:
         demo_results = run_happy_path(harness, html_code)
         reality_results = run_reality_tests(harness, html_code)
 
-    return calculate_scores("realitybench-product-page", demo_results + reality_results)
+    report = calculate_scores("realitybench-product-page", demo_results + reality_results)
+    report.fake_backend = harness.fake_backend
+    return report
 
 
 # %%

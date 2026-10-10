@@ -70,6 +70,7 @@ class BrowserSession:
     def __init__(self, page: Page):
         self.page = page
         self.intercepted_requests: list[dict[str, Any]] = []
+        self.fake_backend = False
 
     def load_html(self, html_code: str, viewport: dict[str, int] = None):
         """Loads HTML content into page with optional viewport."""
@@ -87,6 +88,12 @@ class BrowserSession:
             
         self.page.set_content(full_doc, wait_until="domcontentloaded")
         self.page.wait_for_timeout(100)
+        # A page that swaps out the browser's network API answers its own requests
+        # and never talks to the server it was asked to call.
+        self.fake_backend = self.page.evaluate(
+            "() => !String(window.fetch).includes('[native code]')"
+            " || !String(window.XMLHttpRequest).includes('[native code]')"
+        )
 
     def visible_text(self) -> str:
         """
@@ -102,6 +109,48 @@ class BrowserSession:
                 return body + '\\n' + fields.join('\\n');
             }"""
         ).lower()
+
+    def choose_option(self, *texts: str) -> bool:
+        """
+        Pick the first available choice whose visible text matches one of `texts`,
+        whether the page renders it as a <select> option, a radio button or a button.
+        """
+        page = self.page
+        for text in texts:
+            for select in page.locator("select").all():
+                labels = [o.strip() for o in select.locator("option").all_inner_texts()]
+                match = next((label for label in labels if text.lower() in label.lower()), None)
+                if match and select.is_enabled():
+                    select.select_option(label=match)
+                    return True
+            radio = page.get_by_label(text, exact=False)
+            for i in range(radio.count()):
+                el = radio.nth(i)
+                if el.get_attribute("type") in ("radio", "checkbox") and el.is_enabled():
+                    # Custom-styled radios are often visually hidden; click like the label would.
+                    el.evaluate("e => e.click()")
+                    return True
+            button = page.get_by_role("button", name=text, exact=False)
+            for i in range(button.count()):
+                if button.nth(i).is_visible() and button.nth(i).is_enabled():
+                    button.nth(i).click()
+                    return True
+        return False
+
+    def click(self, control) -> bool:
+        """
+        Click like a user: a missing, hidden or disabled control can't be pressed.
+        Returns whether the click happened.
+        """
+        if control.count() == 0 or not control.is_visible() or not control.is_enabled():
+            return False
+        control.click(timeout=5000)
+        return True
+
+    def double_click(self, control) -> None:
+        """Two clicks in the same event-loop tick, faster than any debounce a human could trigger."""
+        if control.count() > 0:
+            control.evaluate("b => { b.click(); b.click(); }")
 
     def primary_button(self, *labels: str):
         """
@@ -168,6 +217,12 @@ class HeadlessHarness:
     def __init__(self):
         self.playwright: Playwright | None = None
         self.browser: Browser | None = None
+        self.sessions: list[BrowserSession] = []
+
+    @property
+    def fake_backend(self) -> bool:
+        """True if the page replaced fetch/XMLHttpRequest in any session."""
+        return any(s.fake_backend for s in self.sessions)
 
     def __enter__(self):
         self.playwright = sync_playwright().start()
@@ -183,4 +238,6 @@ class HeadlessHarness:
     def new_session(self) -> BrowserSession:
         context = self.browser.new_context()
         page = context.new_page()
-        return BrowserSession(page)
+        session = BrowserSession(page)
+        self.sessions.append(session)
+        return session

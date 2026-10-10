@@ -54,6 +54,7 @@ The application should validate all inputs, handle unavailable slots (HTTP 409 C
 Provide all code in a single self-contained HTML document without external libraries."""
 
 TASK_SPEC = BOOKING_TASK_PROMPT
+SLOT_LABELS = ("09:00 AM", "11:00 AM", "02:00 PM", "04:00 PM")
 
 NAIVE_BOOKING_CODE = """
 <!DOCTYPE html>
@@ -247,11 +248,7 @@ def run_happy_path(harness: HeadlessHarness, html_code: str) -> List[TestResult]
         if date_el.count() > 0:
             date_el.fill(tomorrow_str)
 
-        select_el = session.page.locator('select').first
-        if select_el.count() > 0:
-            opts = select_el.locator('option')
-            if opts.count() > 1:
-                select_el.select_option(index=1)
+        session.choose_option(*SLOT_LABELS)
 
         name_el = session.page.locator('input[name*="name" i], input[placeholder*="name" i], input[type="text"]').first
         if name_el.count() > 0:
@@ -262,7 +259,7 @@ def run_happy_path(harness: HeadlessHarness, html_code: str) -> List[TestResult]
             phone_el.fill("5551230199")
 
         btn = session.primary_button("Book", "Confirm", "Reserve", "Submit")
-        btn.click()
+        session.click(btn)
         session.page.wait_for_timeout(400)
 
         post_requests = [r for r in session.intercepted_requests if r["method"] == "POST"]
@@ -314,7 +311,7 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
         if name_el.count() > 0:
             name_el.fill("Past Person")
         btn = session.primary_button("Book", "Confirm", "Reserve", "Submit")
-        btn.click()
+        session.click(btn)
         session.page.wait_for_timeout(300)
 
         post_requests = [r for r in session.intercepted_requests if r["method"] == "POST"]
@@ -350,9 +347,7 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
         date_el = session.page.locator('input[type="date"], input[name*="date" i]').first
         date_el.fill(tomorrow_str)
 
-        select_el = session.page.locator('select').first
-        if select_el.count() > 0 and select_el.locator('option').count() > 1:
-            select_el.select_option(index=1)
+        session.choose_option(*SLOT_LABELS)
 
         name_el = session.page.locator('input[name*="name" i], input[type="text"]').first
         test_name = "Preserved Client Name"
@@ -364,7 +359,7 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
             phone_el.fill(test_phone)
 
         btn = session.primary_button("Book", "Confirm", "Reserve", "Submit")
-        btn.click()
+        session.click(btn)
         session.page.wait_for_timeout(400)
 
         content_lower = session.visible_text()
@@ -402,7 +397,7 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
         date_el.fill(tomorrow_str)
 
         btn = session.primary_button("Book", "Confirm", "Reserve", "Submit")
-        btn.click()
+        session.click(btn)
         session.page.wait_for_timeout(300)
 
         post_requests = [r for r in session.intercepted_requests if r["method"] == "POST"]
@@ -434,21 +429,14 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
 
         date_el = session.page.locator('input[type="date"], input[name*="date" i]').first
         date_el.fill(tomorrow_str)
-        select_el = session.page.locator('select').first
-        if select_el.count() > 0:
-            opts = select_el.locator('option')
-            if opts.count() > 1:
-                select_el.select_option(index=1)
+        session.choose_option(*SLOT_LABELS)
         name_el = session.page.locator('input[name*="name" i], input[type="text"]').first
         name_el.fill("Speedy Clicks")
         phone_el = session.page.locator('input[type="tel"], input[name*="phone" i]').first
         if phone_el.count() > 0:
             phone_el.fill("5551231234")
 
-        session.page.evaluate("""() => {
-            const b = document.querySelector('button, input[type="submit"]');
-            if (b) { b.click(); b.click(); }
-        }""")
+        session.double_click(session.primary_button("Book", "Confirm", "Reserve", "Submit"))
         session.page.wait_for_timeout(400)
 
         post_count = len([r for r in session.intercepted_requests if r["method"] == "POST"])
@@ -537,7 +525,9 @@ def grade_booking_implementation(html_code: str) -> EvaluationReport:
         demo_results = run_happy_path(harness, html_code)
         reality_results = run_reality_tests(harness, html_code)
 
-    return calculate_scores("realitybench-booking", demo_results + reality_results)
+    report = calculate_scores("realitybench-booking", demo_results + reality_results)
+    report.fake_backend = harness.fake_backend
+    return report
 
 
 # %%

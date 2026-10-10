@@ -73,7 +73,8 @@ def build() -> str:
     summary_rows = "\n".join(
         f"<tr><td>{escape(MODEL_NAMES.get(m, m))}</td><td>{s['tasks_run']} / {len(ALL_TASKS)}</td>"
         f"<td>{_pct(s['avg_demo_score'])}</td><td class='{_cls(s['avg_reality_score'])}'>"
-        f"{_pct(s['avg_reality_score'])}</td><td>{s['avg_reality_gap'] * 100:+.0f}</td></tr>"
+        f"{_pct(s['avg_reality_score'])}</td><td>{s['avg_reality_gap'] * 100:+.0f}</td>"
+        f"<td class='{'bad' if s.get('fake_backend_pages') else ''}'>{s.get('fake_backend_pages', 0)}</td></tr>"
         for m, s in models
     )
 
@@ -83,8 +84,11 @@ def build() -> str:
         cells = []
         for _, s in models:
             r = s.get("per_task", {}).get(t.task_id)
-            cells.append(f"<td class='{_cls(r['reality_score'])}'>{_pct(r['reality_score'])}</td>" if r
-                         else "<td class='none'>&middot;</td>")
+            if r:
+                mark = "*" if r.get("fake_backend") else ""
+                cells.append(f"<td class='{_cls(r['reality_score'])}'>{_pct(r['reality_score'])}{mark}</td>")
+            else:
+                cells.append("<td class='none'>&middot;</td>")
         task_rows.append(f"<tr><td>{escape(t.name)}</td>{''.join(cells)}</tr>")
 
     return f"""<!DOCTYPE html>
@@ -112,16 +116,19 @@ and does what users do: the server fails, they double-click, they type nonsense,
 
 <h2>Results</h2>
 <div class="wrap"><table>
-<thead><tr><th>Model</th><th>Tasks run</th><th>Demo</th><th>Reality</th><th>Gap</th></tr></thead>
+<thead><tr><th>Model</th><th>Tasks run</th><th>Demo</th><th>Reality</th><th>Gap</th><th>Fake server</th></tr></thead>
 <tbody>{summary_rows}</tbody>
 </table></div>
-<p class="muted">Scores out of 100, from runs on Kaggle Benchmarks. Updated {escape(data["timestamp"][:10])}.</p>
+<p class="muted">Scores out of 100, from runs on Kaggle Benchmarks. Fake server counts pages that replace
+<code>fetch</code> when they load, so they answer their own requests instead of calling the API.
+Updated {escape(data["timestamp"][:10])}.</p>
 
 <h2>Reality score by task</h2>
 <div class="wrap"><table>
 <thead><tr><th>Task</th>{head}</tr></thead>
 <tbody>{''.join(task_rows)}</tbody>
 </table></div>
+<p class="muted">* The page shipped its own fake server.</p>
 
 <h2>Grade your own page</h2>
 <pre>uv sync &amp;&amp; uv run playwright install chromium

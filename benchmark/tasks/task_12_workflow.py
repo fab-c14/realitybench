@@ -836,7 +836,9 @@ def grade_workflow_implementation(html_code: str) -> EvaluationReport:
         results.extend(run_happy_path(harness, html_code))
         results.extend(run_reality_tests(harness, html_code))
 
-    return calculate_scores("realitybench-workflow", results)
+    report = calculate_scores("realitybench-workflow", results)
+    report.fake_backend = harness.fake_backend
+    return report
 
 
 # %%

@@ -152,7 +152,7 @@ def run_happy_path(harness: HeadlessHarness, html_code: str) -> List[TestResult]
         session.load_html(html_code)
         email_el = session.page.locator('input[type="email"], input[name*="email" i], input[placeholder*="email" i]').first
         pass_el = session.page.locator('input[type="password"]').first
-        btn_el = session.page.locator('button[type="submit"], input[type="submit"], button:has-text("Login"), button:has-text("Sign in"), button').first
+        btn_el = session.primary_button("Log in", "Login", "Sign in", "Submit")
 
         has_elements = (email_el.count() > 0 and pass_el.count() > 0 and btn_el.count() > 0)
         results.append(TestResult(
@@ -181,11 +181,11 @@ def run_happy_path(harness: HeadlessHarness, html_code: str) -> List[TestResult]
 
         email_el = session.page.locator('input[type="email"], input[name*="email" i], input[placeholder*="email" i]').first
         pass_el = session.page.locator('input[type="password"]').first
-        btn_el = session.page.locator('button[type="submit"], input[type="submit"], button:has-text("Login"), button:has-text("Sign in"), button').first
+        btn_el = session.primary_button("Log in", "Login", "Sign in", "Submit")
 
         email_el.fill("alice@example.com")
         pass_el.fill("Secret123!")
-        btn_el.click()
+        session.click(btn_el)
         session.page.wait_for_timeout(400)
 
         req_sent = len(session.intercepted_requests) > 0
@@ -234,8 +234,8 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
     try:
         session.mock_route("**/api/login", status=200, json_body={"token": "tok_123"})
         session.load_html(html_code)
-        btn_el = session.page.locator('button[type="submit"], input[type="submit"], button:has-text("Login"), button:has-text("Sign in"), button').first
-        btn_el.click()
+        btn_el = session.primary_button("Log in", "Login", "Sign in", "Submit")
+        session.click(btn_el)
         session.page.wait_for_timeout(300)
 
         blocked_request = len(session.intercepted_requests) == 0
@@ -264,11 +264,11 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
         session.load_html(html_code)
         email_el = session.page.locator('input[type="email"], input[name*="email" i], input[placeholder*="email" i]').first
         pass_el = session.page.locator('input[type="password"]').first
-        btn_el = session.page.locator('button[type="submit"], input[type="submit"], button:has-text("Login"), button:has-text("Sign in"), button').first
+        btn_el = session.primary_button("Log in", "Login", "Sign in", "Submit")
 
         email_el.fill("not-a-valid-email")
         pass_el.fill("ValidPass123!")
-        btn_el.click()
+        session.click(btn_el)
         session.page.wait_for_timeout(300)
 
         blocked_invalid = len(session.intercepted_requests) == 0
@@ -297,11 +297,11 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
         session.load_html(html_code)
         email_el = session.page.locator('input[type="email"], input[name*="email" i], input[placeholder*="email" i]').first
         pass_el = session.page.locator('input[type="password"]').first
-        btn_el = session.page.locator('button[type="submit"], input[type="submit"], button:has-text("Login"), button:has-text("Sign in"), button').first
+        btn_el = session.primary_button("Log in", "Login", "Sign in", "Submit")
 
         email_el.fill("bob@example.com")
         pass_el.fill("Secret123!")
-        btn_el.click()
+        session.click(btn_el)
         session.page.wait_for_timeout(500)
 
         content_lower = session.visible_text()
@@ -358,10 +358,7 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
         email_el.fill("fastclick@example.com")
         pass_el.fill("Pass123!")
 
-        session.page.evaluate("""() => {
-            const b = document.querySelector('button[type="submit"], input[type="submit"], button');
-            if (b) { b.click(); b.click(); }
-        }""")
+        session.double_click(session.primary_button("Log in", "Login", "Sign in", "Submit"))
         session.page.wait_for_timeout(600)
 
         req_count = len(session.intercepted_requests)
@@ -454,7 +451,9 @@ def grade_login_implementation(html_code: str) -> EvaluationReport:
         demo_results = run_happy_path(harness, html_code)
         reality_results = run_reality_tests(harness, html_code)
 
-    return calculate_scores("realitybench-login", demo_results + reality_results)
+    report = calculate_scores("realitybench-login", demo_results + reality_results)
+    report.fake_backend = harness.fake_backend
+    return report
 
 
 # %%

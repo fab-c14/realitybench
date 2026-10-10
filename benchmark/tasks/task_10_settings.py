@@ -411,7 +411,7 @@ def run_happy_path(harness: HeadlessHarness, html_code: str) -> List[TestResult]
 
         name_box.fill("Ada Lovelace")
         email_box.fill("ada@analytical.engine")
-        save_btn.click()
+        session.click(save_btn)
         session.page.wait_for_timeout(500)
 
         network_success = len(session.intercepted_requests) >= 1
@@ -457,7 +457,7 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
         # Case 1: blank name
         name_box.fill("   ")
         email_box.fill("valid@domain.com")
-        save_btn.click()
+        session.click(save_btn)
         session.page.wait_for_timeout(300)
 
         blank_rejected = len(session.intercepted_requests) == 0
@@ -465,7 +465,7 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
         # Case 2: invalid email
         name_box.fill("Alan Turing")
         email_box.fill("invalid-email-address")
-        save_btn.click()
+        session.click(save_btn)
         session.page.wait_for_timeout(300)
 
         email_rejected = len(session.intercepted_requests) == 0
@@ -507,7 +507,7 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
         session.page.wait_for_timeout(200)
 
         session.page.on("dialog", lambda dialog: dialog.accept())
-        discard_btn.click()
+        session.click(discard_btn)
         session.page.wait_for_timeout(300)
 
         restored_val = name_box.input_value()
@@ -545,7 +545,7 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
         test_email = "grace@compiler.org"
         name_box.fill(test_name)
         email_box.fill(test_email)
-        save_btn.click()
+        session.click(save_btn)
         session.page.wait_for_timeout(500)
 
         content_lower = session.visible_text()
@@ -674,7 +674,9 @@ def grade_settings_implementation(html_code: str) -> EvaluationReport:
         demo_results = run_happy_path(harness, html_code)
         reality_results = run_reality_tests(harness, html_code)
 
-    return calculate_scores("realitybench-settings", demo_results + reality_results)
+    report = calculate_scores("realitybench-settings", demo_results + reality_results)
+    report.fake_backend = harness.fake_backend
+    return report
 
 
 # %%

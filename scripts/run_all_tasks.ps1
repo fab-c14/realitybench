@@ -12,6 +12,8 @@ $env:PYTHONIOENCODING = "utf-8"
 $root = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
 Set-Location $root
 
+$Models = $Models -split ","
+$Tasks = $Tasks -split "," | Where-Object { $_ }
 $slugs = if ($Tasks) { $Tasks | ForEach-Object { "realitybench-$_" } } else {
     Get-ChildItem kaggle_tasks/*.py | Sort-Object Name | ForEach-Object { $_.BaseName }
 }

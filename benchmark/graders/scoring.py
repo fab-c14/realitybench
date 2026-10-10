@@ -57,6 +57,8 @@ class EvaluationReport:
     category_scores: dict[str, float] = field(default_factory=dict)
     test_results: list[TestResult] = field(default_factory=list)
     failure_taxonomy: list[str] = field(default_factory=list)
+    # The page replaced fetch/XMLHttpRequest, i.e. shipped its own fake server. Reported, not scored.
+    fake_backend: bool = False
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -65,6 +67,7 @@ class EvaluationReport:
             "reality_score": round(self.reality_score, 4),
             "reality_gap": round(self.reality_gap, 4),
             "overall_score": round(self.overall_score, 4),
+            "fake_backend": self.fake_backend,
             "category_scores": {k: round(v, 4) for k, v in self.category_scores.items()},
             "failure_taxonomy": self.failure_taxonomy,
             "tests_passed": sum(1 for t in self.test_results if t.passed),

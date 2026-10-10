@@ -333,7 +333,7 @@ def run_happy_path(harness: HeadlessHarness, html_code: str) -> List[TestResult]
         next_btn = session.page.locator('button:has-text("Next"), button:has-text(">")').first
         has_next = next_btn.count() > 0
         if has_next:
-            next_btn.click()
+            session.click(next_btn)
         session.page.wait_for_timeout(400)
 
         page2_reqs = [r for r in session.intercepted_requests if "page=2" in r["url"]]
@@ -568,7 +568,9 @@ def grade_admin_table_implementation(html_code: str) -> EvaluationReport:
         demo_results = run_happy_path(harness, html_code)
         reality_results = run_reality_tests(harness, html_code)
 
-    return calculate_scores("realitybench-admin-table", demo_results + reality_results)
+    report = calculate_scores("realitybench-admin-table", demo_results + reality_results)
+    report.fake_backend = harness.fake_backend
+    return report
 
 
 # %%
