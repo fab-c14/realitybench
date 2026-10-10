@@ -200,7 +200,7 @@ def run_happy_path(harness: HeadlessHarness, html_code: str) -> List[TestResult]
             if isinstance(post_data, dict):
                 body_correct = ("email" in post_data and "alice@example.com" in str(post_data.get("email")))
 
-        content_lower = session.page.content().lower()
+        content_lower = session.visible_text()
         shows_success = any(w in content_lower for w in ["success", "welcome", "alice", "logged in"])
 
         passed = req_sent and body_correct and shows_success
@@ -304,7 +304,7 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
         btn_el.click()
         session.page.wait_for_timeout(500)
 
-        content_lower = session.page.content().lower()
+        content_lower = session.visible_text()
         shows_error_message = any(w in content_lower for w in ["error", "failed", "invalid", "try again", "connection", "server"])
 
         results.append(TestResult(

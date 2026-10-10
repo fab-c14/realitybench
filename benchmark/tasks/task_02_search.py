@@ -135,7 +135,7 @@ def run_happy_path(harness: HeadlessHarness, html_code: str) -> List[TestResult]
     try:
         session.load_html(html_code)
         input_el = session.page.locator('input[type="search"], input[type="text"], input').first
-        btn_el = session.page.locator('button, input[type="submit"]').first
+        btn_el = session.primary_button("Search", "Go", "Submit")
 
         has_elements = (input_el.count() > 0 and btn_el.count() > 0)
         results.append(TestResult(
@@ -163,7 +163,7 @@ def run_happy_path(harness: HeadlessHarness, html_code: str) -> List[TestResult]
         session.load_html(html_code)
 
         input_el = session.page.locator('input[type="search"], input[type="text"], input').first
-        btn_el = session.page.locator('button, input[type="submit"]').first
+        btn_el = session.primary_button("Search", "Go", "Submit")
 
         input_el.fill("principles")
         btn_el.click()
@@ -174,7 +174,7 @@ def run_happy_path(harness: HeadlessHarness, html_code: str) -> List[TestResult]
         if req_sent:
             query_passed = "principles" in session.intercepted_requests[0]["url"]
 
-        content_lower = session.page.content().lower()
+        content_lower = session.visible_text()
         shows_results = "design principles" in content_lower and "robust interface" in content_lower
 
         passed = req_sent and query_passed and shows_results
@@ -208,7 +208,7 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
     try:
         session.mock_route("**/api/search*", status=200, json_body=SAMPLE_RESULTS)
         session.load_html(html_code)
-        btn_el = session.page.locator('button, input[type="submit"]').first
+        btn_el = session.primary_button("Search", "Go", "Submit")
         btn_el.click()
         session.page.wait_for_timeout(300)
 
@@ -238,13 +238,13 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
         session.mock_route("**/api/search*", status=200, json_body={"results": []})
         session.load_html(html_code)
         input_el = session.page.locator('input[type="search"], input[type="text"], input').first
-        btn_el = session.page.locator('button, input[type="submit"]').first
+        btn_el = session.primary_button("Search", "Go", "Submit")
 
         input_el.fill("nonexistentquery")
         btn_el.click()
         session.page.wait_for_timeout(400)
 
-        content_lower = session.page.content().lower()
+        content_lower = session.visible_text()
         shows_empty_state = any(w in content_lower for w in ["no results", "found 0", "not found", "no items", "0 results"])
         results.append(TestResult(
             test_name="state_empty_results_feedback",
@@ -270,13 +270,13 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
         session.mock_route("**/api/search*", status=500, json_body={"error": "Search service down"})
         session.load_html(html_code)
         input_el = session.page.locator('input[type="search"], input[type="text"], input').first
-        btn_el = session.page.locator('button, input[type="submit"]').first
+        btn_el = session.primary_button("Search", "Go", "Submit")
 
         input_el.fill("algorithms")
         btn_el.click()
         session.page.wait_for_timeout(500)
 
-        content_lower = session.page.content().lower()
+        content_lower = session.visible_text()
         shows_error = any(w in content_lower for w in ["error", "failed", "unavailable", "try again", "unable"])
         results.append(TestResult(
             test_name="network_500_search_recovery",

@@ -209,7 +209,7 @@ def run_happy_path(harness: HeadlessHarness, html_code: str) -> List[TestResult]
         })
         session.page.wait_for_timeout(200)
 
-        btn = session.page.locator('button, input[type="submit"]').first
+        btn = session.primary_button("Upload", "Submit")
         if btn.count() > 0 and btn.is_visible():
             btn.click()
         session.page.wait_for_timeout(500)
@@ -219,7 +219,7 @@ def run_happy_path(harness: HeadlessHarness, html_code: str) -> List[TestResult]
         if req_sent:
             body_ok = session.intercepted_requests[0]["method"] == "POST"
 
-        content_lower = session.page.content().lower()
+        content_lower = session.visible_text()
         shows_confirm = "quarterly_report.pdf" in content_lower or "success" in content_lower
 
         passed = req_sent and body_ok and shows_confirm
@@ -262,13 +262,13 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
         })
         session.page.wait_for_timeout(200)
 
-        btn = session.page.locator('button, input[type="submit"]').first
+        btn = session.primary_button("Upload", "Submit")
         if btn.count() > 0 and btn.is_visible():
             btn.click()
         session.page.wait_for_timeout(300)
 
         request_blocked = (len(session.intercepted_requests) == 0)
-        content_lower = session.page.content().lower()
+        content_lower = session.visible_text()
         shows_err = any(w in content_lower for w in ["invalid", "only", "pdf", "png", "jpg", "not allowed", "error", "type"])
         accept_attr = file_input.get_attribute("accept") or ""
         has_accept = (".pdf" in accept_attr or "image" in accept_attr or "pdf" in accept_attr)
@@ -307,13 +307,13 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
         })
         session.page.wait_for_timeout(200)
 
-        btn = session.page.locator('button, input[type="submit"]').first
+        btn = session.primary_button("Upload", "Submit")
         if btn.count() > 0 and btn.is_visible():
             btn.click()
         session.page.wait_for_timeout(300)
 
         request_blocked = (len(session.intercepted_requests) == 0)
-        content_lower = session.page.content().lower()
+        content_lower = session.visible_text()
         shows_size_err = any(w in content_lower for w in ["size", "large", "5mb", "limit", "exceed", "max", "error"])
 
         passed = request_blocked and shows_size_err
@@ -349,12 +349,12 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
         })
         session.page.wait_for_timeout(200)
 
-        btn = session.page.locator('button, input[type="submit"]').first
+        btn = session.primary_button("Upload", "Submit")
         if btn.count() > 0 and btn.is_visible():
             btn.click()
         session.page.wait_for_timeout(400)
 
-        content_lower = session.page.content().lower()
+        content_lower = session.visible_text()
         shows_error = any(w in content_lower for w in ["error", "fail", "unavailable", "problem", "could not"])
         elements_intact = session.page.locator('input[type="file"]').count() > 0
 

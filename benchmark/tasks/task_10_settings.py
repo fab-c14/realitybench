@@ -415,7 +415,7 @@ def run_happy_path(harness: HeadlessHarness, html_code: str) -> List[TestResult]
         session.page.wait_for_timeout(500)
 
         network_success = len(session.intercepted_requests) >= 1
-        content_lower = session.page.content().lower()
+        content_lower = session.visible_text()
         success_ui = any(w in content_lower for w in ["saved", "success", "updated"])
 
         passed = network_success and success_ui
@@ -548,7 +548,7 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
         save_btn.click()
         session.page.wait_for_timeout(500)
 
-        content_lower = session.page.content().lower()
+        content_lower = session.visible_text()
         has_error_ui = any(w in content_lower for w in ["error", "fail", "500", "problem"])
 
         curr_name = name_box.input_value()

@@ -31,28 +31,54 @@ SYS_PATH_BLOCK_RE = re.compile(
     r"\s+sys\.path\.insert\(0, bench_root\)\n",
     re.MULTILINE,
 )
+# Kaggle cannot delete tasks, and "realitybench-login" was left without a source kernel.
+KAGGLE_SLUG_OVERRIDES = {"realitybench-login": "realitybench-auth-login"}
 TASK_DECORATOR_RE = re.compile(r'@kbench\.task\(name="([^"]+)"\)\s*\ndef (realitybench_\w+)')
 
 SETUP_CELL = '''# %%
 # Ensure a headless Chromium is available for the Playwright grader.
+# Kaggle notebooks run an asyncio loop on the main thread, and the Playwright
+# sync API refuses to start there, so browser work runs on a worker thread.
+import concurrent.futures as _futures
+import functools as _functools
 import subprocess
 import sys as _sys
 
 
-def _ensure_chromium() -> None:
+def _in_thread(fn):
+    @_functools.wraps(fn)
+    def wrapper(*args, **kwargs):
+        with _futures.ThreadPoolExecutor(max_workers=1) as pool:
+            return pool.submit(fn, *args, **kwargs).result()
+    return wrapper
+
+
+@_in_thread
+def _chromium_ok() -> bool:
     from playwright.sync_api import sync_playwright
 
     try:
         with sync_playwright() as p:
             p.chromium.launch(headless=True).close()
-        return
+        return True
     except Exception:
-        pass
+        return False
+
+
+def _ensure_chromium() -> None:
+    if _chromium_ok():
+        return
     subprocess.run([_sys.executable, "-m", "playwright", "install", "--with-deps", "chromium"], check=False)
     subprocess.run([_sys.executable, "-m", "playwright", "install", "chromium"], check=True)
 
 
 _ensure_chromium()
+'''
+
+THREAD_GRADERS_CELL = '''# %%
+for _name, _obj in list(globals().items()):
+    if _name.startswith("grade_") and _name.endswith("_implementation") and callable(_obj):
+        globals()[_name] = _in_thread(_obj)
 '''
 
 
@@ -96,11 +122,16 @@ def build_task(path: Path) -> tuple[str, Path]:
     slug, func_name = match.groups()
 
     body = _split_task(source)
+    if slug in KAGGLE_SLUG_OVERRIDES:
+        new_slug = KAGGLE_SLUG_OVERRIDES[slug]
+        body = body.replace(f'@kbench.task(name="{slug}")', f'@kbench.task(name="{new_slug}")')
+        slug = new_slug
     output = "\n".join([
         f"# %%\n# RealityBench Kaggle task: {slug} (generated from benchmark/tasks/{path.name})\n",
         SETUP_CELL,
         _grader_source(),
         body,
+        THREAD_GRADERS_CELL,
         f"# %%\n{func_name}.run(kbench.llm)\n",
     ])
 
@@ -111,6 +142,8 @@ def build_task(path: Path) -> tuple[str, Path]:
 
 def main() -> None:
     OUT_DIR.mkdir(exist_ok=True)
+    for stale in OUT_DIR.glob("*.py"):
+        stale.unlink()
     for path in sorted(TASKS_DIR.glob("task_*.py")):
         slug, out_path = build_task(path)
         print(f"{slug} -> {out_path.relative_to(ROOT)}")

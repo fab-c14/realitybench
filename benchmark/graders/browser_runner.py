@@ -88,6 +88,37 @@ class BrowserSession:
         self.page.set_content(full_doc, wait_until="domcontentloaded")
         self.page.wait_for_timeout(100)
 
+    def visible_text(self) -> str:
+        """
+        Lowercased text a user can actually see, plus current form field values.
+        Excludes <script>/<style> source and hidden elements, so words like
+        "error" in a catch block or a display:none success banner do not count.
+        """
+        return self.page.evaluate(
+            """() => {
+                const fields = [...document.querySelectorAll('input, textarea, select')]
+                    .map(el => el.value || '');
+                const body = document.body ? document.body.innerText : '';
+                return body + '\\n' + fields.join('\\n');
+            }"""
+        ).lower()
+
+    def primary_button(self, *labels: str):
+        """
+        Locate the button a user would press for the main action: the first visible
+        button whose text contains one of `labels`, then a visible submit button,
+        then the first button on the page.
+        """
+        page = self.page
+        for label in labels:
+            match = page.locator(f'button:visible:has-text("{label}")')
+            if match.count() > 0:
+                return match.first
+        submit = page.locator('button[type="submit"]:visible, input[type="submit"]:visible')
+        if submit.count() > 0:
+            return submit.first
+        return page.locator('button, input[type="submit"]').first
+
     def mock_route(self, url_pattern: str, status: int = 200, json_body: Any = None, delay_ms: int = 0):
         """
         Mocks network responses for a specified URL pattern.

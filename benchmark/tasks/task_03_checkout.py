@@ -143,7 +143,7 @@ def run_happy_path(harness: HeadlessHarness, html_code: str) -> List[TestResult]
         addr_el = session.page.locator('input[name*="addr" i], textarea[name*="addr" i], input[placeholder*="addr" i], textarea').first
         btn_el = session.page.locator('button[type="submit"], input[type="submit"], button:has-text("Order"), button:has-text("Pay"), button').first
 
-        content_lower = session.page.content().lower()
+        content_lower = session.visible_text()
         has_amount = ("49" in content_lower or "$49" in content_lower)
         has_inputs = (name_el.count() > 0 and email_el.count() > 0 and btn_el.count() > 0)
 
@@ -196,7 +196,7 @@ def run_happy_path(harness: HeadlessHarness, html_code: str) -> List[TestResult]
             if isinstance(post_data, dict):
                 body_valid = ("email" in post_data and "jane@example.com" in str(post_data.get("email")))
 
-        content_lower = session.page.content().lower()
+        content_lower = session.visible_text()
         shows_confirmation = ("ord-998877" in content_lower or "confirmed" in content_lower or "order" in content_lower)
 
         passed = req_sent and body_valid and shows_confirmation
@@ -270,7 +270,7 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
         btn_el.click()
         session.page.wait_for_timeout(500)
 
-        content_lower = session.page.content().lower()
+        content_lower = session.visible_text()
         shows_error = any(w in content_lower for w in ["error", "failed", "declined", "unable", "try again"])
         results.append(TestResult(
             test_name="network_500_payment_error",

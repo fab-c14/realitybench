@@ -416,7 +416,7 @@ def run_happy_path(harness: HeadlessHarness, html_code: str) -> List[TestResult]
 
         post_requests = [r for r in session.intercepted_requests if r["method"] == "POST"]
         posted_data = len(post_requests) >= 1
-        content_lower = session.page.content().lower()
+        content_lower = session.visible_text()
         shows_success = any(w in content_lower for w in ["saved", "success", "confirmed"])
 
         passed = has_options and posted_data and shows_success
@@ -455,7 +455,7 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
         country_select.select_option(value="CA")
         session.page.wait_for_timeout(500)
 
-        content_lower = session.page.content().lower()
+        content_lower = session.visible_text()
         shows_error = any(w in content_lower for w in ["error", "fail", "unable", "500", "retry"])
 
         results.append(TestResult(

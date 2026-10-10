@@ -259,15 +259,15 @@ def run_happy_path(harness: HeadlessHarness, html_code: str) -> List[TestResult]
 
         phone_el = session.page.locator('input[type="tel"], input[name*="phone" i], input[placeholder*="phone" i]').first
         if phone_el.count() > 0:
-            phone_el.fill("555-0199")
+            phone_el.fill("5551230199")
 
-        btn = session.page.locator('button, input[type="submit"]').first
+        btn = session.primary_button("Book", "Confirm", "Reserve", "Submit")
         btn.click()
         session.page.wait_for_timeout(400)
 
         post_requests = [r for r in session.intercepted_requests if r["method"] == "POST"]
         req_sent = len(post_requests) > 0
-        content_lower = session.page.content().lower()
+        content_lower = session.visible_text()
         shows_confirm = "bk-789" in content_lower or "confirmed" in content_lower
 
         passed = req_sent and shows_confirm
@@ -313,13 +313,13 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
         name_el = session.page.locator('input[name*="name" i], input[type="text"]').first
         if name_el.count() > 0:
             name_el.fill("Past Person")
-        btn = session.page.locator('button, input[type="submit"]').first
+        btn = session.primary_button("Book", "Confirm", "Reserve", "Submit")
         btn.click()
         session.page.wait_for_timeout(300)
 
         post_requests = [r for r in session.intercepted_requests if r["method"] == "POST"]
         blocked = (len(post_requests) == 0)
-        content_lower = session.page.content().lower()
+        content_lower = session.visible_text()
         shows_err = any(w in content_lower for w in ["past", "future", "invalid date", "cannot", "error"])
 
         passed = has_min or blocked or shows_err
@@ -350,20 +350,24 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
         date_el = session.page.locator('input[type="date"], input[name*="date" i]').first
         date_el.fill(tomorrow_str)
 
+        select_el = session.page.locator('select').first
+        if select_el.count() > 0 and select_el.locator('option').count() > 1:
+            select_el.select_option(index=1)
+
         name_el = session.page.locator('input[name*="name" i], input[type="text"]').first
         test_name = "Preserved Client Name"
         name_el.fill(test_name)
 
         phone_el = session.page.locator('input[type="tel"], input[name*="phone" i]').first
-        test_phone = "555-9988"
+        test_phone = "5551239988"
         if phone_el.count() > 0:
             phone_el.fill(test_phone)
 
-        btn = session.page.locator('button, input[type="submit"]').first
+        btn = session.primary_button("Book", "Confirm", "Reserve", "Submit")
         btn.click()
         session.page.wait_for_timeout(400)
 
-        content_lower = session.page.content().lower()
+        content_lower = session.visible_text()
         shows_error = any(w in content_lower for w in ["taken", "unavailable", "conflict", "already", "error"])
 
         current_name = name_el.input_value()
@@ -397,7 +401,7 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
         date_el = session.page.locator('input[type="date"], input[name*="date" i]').first
         date_el.fill(tomorrow_str)
 
-        btn = session.page.locator('button, input[type="submit"]').first
+        btn = session.primary_button("Book", "Confirm", "Reserve", "Submit")
         btn.click()
         session.page.wait_for_timeout(300)
 
@@ -439,7 +443,7 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
         name_el.fill("Speedy Clicks")
         phone_el = session.page.locator('input[type="tel"], input[name*="phone" i]').first
         if phone_el.count() > 0:
-            phone_el.fill("555-1234")
+            phone_el.fill("5551231234")
 
         session.page.evaluate("""() => {
             const b = document.querySelector('button, input[type="submit"]');

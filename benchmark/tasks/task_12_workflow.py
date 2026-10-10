@@ -552,7 +552,7 @@ def run_happy_path(harness: HeadlessHarness, html_code: str) -> List[TestResult]
 
         post_requests = [r for r in session.intercepted_requests if r["method"] == "POST"]
         posted_data = len(post_requests) >= 1
-        content_lower = session.page.content().lower()
+        content_lower = session.visible_text()
         shows_success = any(w in content_lower for w in ["completed", "order_id", "ord-9876", "success", "confirmed"])
 
         passed = posted_data and shows_success
@@ -691,7 +691,7 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
         submit_btn.click(timeout=3000)
         session.page.wait_for_timeout(500)
 
-        content_lower = session.page.content().lower()
+        content_lower = session.visible_text()
         has_error_ui = any(w in content_lower for w in ["error", "fail", "unavailable", "500", "retry"])
         retains_data = "dorothy" in content_lower
 

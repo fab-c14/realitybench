@@ -273,7 +273,7 @@ def run_happy_path(harness: HeadlessHarness, html_code: str) -> List[TestResult]
 
         post_requests = [r for r in session.intercepted_requests if r["method"] == "POST"]
         post_sent = len(post_requests) > 0
-        content_lower = session.page.content().lower()
+        content_lower = session.visible_text()
         shows_feedback = any(w in content_lower for w in ["added", "cart", "success", "1 item"])
 
         passed = post_sent and shows_feedback
@@ -338,7 +338,7 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
         session.page.wait_for_timeout(300)
 
         no_post_sent = len([r for r in session.intercepted_requests if r["method"] == "POST"]) == 0
-        content_lower = session.page.content().lower()
+        content_lower = session.visible_text()
         shows_out_of_stock = "out of stock" in content_lower
 
         passed = (is_disabled or no_post_sent) and shows_out_of_stock

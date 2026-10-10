@@ -231,7 +231,7 @@ def run_happy_path(harness: HeadlessHarness, html_code: str) -> List[TestResult]
         session.load_html(html_code)
         session.page.wait_for_timeout(400)
 
-        content_lower = session.page.content().lower()
+        content_lower = session.visible_text()
         shows_items = "write realitybench" in content_lower and "implement test" in content_lower
         has_input = session.page.locator('input[type="text"], input').count() > 0
         has_add_btn = session.page.locator('button, input[type="submit"]').count() > 0
@@ -273,7 +273,7 @@ def run_happy_path(harness: HeadlessHarness, html_code: str) -> List[TestResult]
 
         post_requests = [r for r in session.intercepted_requests if r["method"] == "POST"]
         post_sent = len(post_requests) > 0
-        shows_new_item = "deploy to kaggle" in session.page.content().lower()
+        shows_new_item = "deploy to kaggle" in session.visible_text()
 
         passed = post_sent and shows_new_item
         results.append(TestResult(
@@ -388,7 +388,7 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
             del_btn.click()
         session.page.wait_for_timeout(400)
 
-        content_lower = session.page.content().lower()
+        content_lower = session.visible_text()
         item_preserved = "write realitybench" in content_lower
         shows_error = any(w in content_lower for w in ["error", "fail", "unable", "lock", "problem"])
 
@@ -418,7 +418,7 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
         session.load_html(html_code)
         session.page.wait_for_timeout(300)
 
-        content_lower = session.page.content().lower()
+        content_lower = session.visible_text()
         shows_empty_state = any(phrase in content_lower for phrase in ["no tasks", "no items", "empty", "add a task", "nothing"])
 
         results.append(TestResult(

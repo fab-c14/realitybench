@@ -318,15 +318,19 @@ uv run python scripts/check_kaggle_tasks.py
 # 3. Push all 12 tasks (PowerShell)
 ./scripts/push_all_tasks.ps1
 
-# 4. Run against a model
-uv run kaggle b t run realitybench-login -m claude-opus-5-5-default --wait
+# 4. Run every task on Opus 5.5 plus comparison models (PowerShell)
+./scripts/run_all_tasks.ps1
 
-# 5. Download / publish
-uv run kaggle b t download realitybench-login -o ./results/kaggle
-uv run kaggle b t publish realitybench-login
+# 5. Download runs and write results/kaggle_results.json for the results page
+uv run python scripts/collect_kaggle_results.py
+
+# 6. Publish a task
+uv run kaggle b t publish realitybench-checkout
 ```
 
-Bundles are generated from `benchmark/tasks/task_XX_*.py`; edit the source tasks, never the bundles.
+Bundles are generated from `benchmark/tasks/task_XX_*.py`; edit the source tasks, never the bundles. On Kaggle the login task is published as `realitybench-auth-login`, because Kaggle can't delete the original slug.
+
+After changing a grader, `uv run python scripts/regrade_kaggle_runs.py` re-scores the model outputs you already downloaded, with no model quota spent. `collect_kaggle_results.py` then uses those scores.
 
 Programmatic run (explicit only):
 

@@ -298,7 +298,7 @@ def run_happy_path(harness: HeadlessHarness, html_code: str) -> List[TestResult]
         session.load_html(html_code)
         session.page.wait_for_timeout(400)
 
-        content_lower = session.page.content().lower()
+        content_lower = session.visible_text()
         shows_sarah = "sarah connor" in content_lower
         shows_john = "john connor" in content_lower
 
@@ -338,7 +338,7 @@ def run_happy_path(harness: HeadlessHarness, html_code: str) -> List[TestResult]
 
         page2_reqs = [r for r in session.intercepted_requests if "page=2" in r["url"]]
         page2_fired = len(page2_reqs) > 0
-        content_lower = session.page.content().lower()
+        content_lower = session.visible_text()
         shows_kyle = "kyle reese" in content_lower
 
         passed = page2_fired or shows_kyle
@@ -374,7 +374,7 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
         session.load_html(html_code)
         session.page.wait_for_timeout(300)
 
-        content_lower = session.page.content().lower()
+        content_lower = session.visible_text()
         shows_empty = any(phrase in content_lower for phrase in ["no users", "no results", "empty", "no matching", "not found"])
 
         results.append(TestResult(

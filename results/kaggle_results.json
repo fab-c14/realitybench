@@ -1,0 +1,383 @@
+{
+  "timestamp": "2026-10-10T09:04:37Z",
+  "source": "kaggle-benchmarks",
+  "target_summaries": {
+    "claude-opus-5-5-default": {
+      "avg_demo_score": 1.0,
+      "avg_reality_score": 1.0,
+      "avg_reality_gap": 0.0,
+      "tasks_run": 2,
+      "per_task": {
+        "realitybench-admin-table": {
+          "demo_score": 1.0,
+          "reality_score": 1.0,
+          "reality_gap": 0.0,
+          "failures": []
+        },
+        "realitybench-checkout": {
+          "demo_score": 1.0,
+          "reality_score": 1.0,
+          "reality_gap": 0.0,
+          "failures": []
+        }
+      }
+    },
+    "gemini-3.7-flash": {
+      "avg_demo_score": 0.7292,
+      "avg_reality_score": 0.8125,
+      "avg_reality_gap": -0.0833,
+      "tasks_run": 12,
+      "per_task": {
+        "realitybench-admin-table": {
+          "demo_score": 0.625,
+          "reality_score": 0.75,
+          "reality_gap": -0.125,
+          "failures": [
+            "Expected interaction failure: Exception during pagination",
+            "Expected interaction failure: Search query not sent to API"
+          ]
+        },
+        "realitybench-api-form": {
+          "demo_score": 0.625,
+          "reality_score": 0.7000000000000001,
+          "reality_gap": -0.07500000000000007,
+          "failures": [
+            "Interaction failure: Exception during cascading selection flow",
+            "State robustness failure: Exception testing country switch state reset",
+            "Interaction safety failure: Exception testing double click"
+          ]
+        },
+        "realitybench-booking": {
+          "demo_score": 0.625,
+          "reality_score": 0.9500000000000002,
+          "reality_gap": -0.3250000000000002,
+          "failures": [
+            "Expected interaction failure: Booking submission failed or confirmation missing",
+            "Duplicate interaction: Multiple booking requests sent on double click"
+          ]
+        },
+        "realitybench-chat": {
+          "demo_score": 1.0,
+          "reality_score": 1.0,
+          "reality_gap": 0.0,
+          "failures": []
+        },
+        "realitybench-checkout": {
+          "demo_score": 1.0,
+          "reality_score": 1.0,
+          "reality_gap": 0.0,
+          "failures": []
+        },
+        "realitybench-crud-dashboard": {
+          "demo_score": 0.0,
+          "reality_score": 0.08333333333333334,
+          "reality_gap": -0.08333333333333334,
+          "failures": [
+            "Functional failure: Initial tasks not loaded or controls missing",
+            "Expected interaction failure: Exception creating task",
+            "Expected interaction failure: Task deletion failed or DELETE request missing",
+            "Input robustness failure: Exception testing title validation",
+            "State consistency failure: Item disappeared despite server DELETE failure",
+            "Interaction safety failure: Exception testing double click",
+            "Accessibility failure: Input lacks label or accessible description"
+          ]
+        },
+        "realitybench-file-upload": {
+          "demo_score": 1.0,
+          "reality_score": 0.6666666666666667,
+          "reality_gap": 0.33333333333333326,
+          "failures": [
+            "Expected interaction failure: Upload failed or confirmation missing",
+            "Duplicate interaction: Multiple simultaneous upload requests fired",
+            "Accessibility failure: File input lacks accessible label"
+          ]
+        },
+        "realitybench-login": {
+          "demo_score": 1.0,
+          "reality_score": 1.0,
+          "reality_gap": 0.0,
+          "failures": []
+        },
+        "realitybench-product-page": {
+          "demo_score": 0.625,
+          "reality_score": 0.7833333333333334,
+          "reality_gap": -0.15833333333333344,
+          "failures": [
+            "Expected interaction failure: Exception adding to cart",
+            "Input robustness failure: Exception testing invalid quantity",
+            "Duplicate interaction: Multiple cart POST requests fired on double click"
+          ]
+        },
+        "realitybench-search": {
+          "demo_score": 1.0,
+          "reality_score": 0.9166666666666667,
+          "reality_gap": 0.08333333333333326,
+          "failures": [
+            "Responsive failure: Horizontal scroll overflow on mobile"
+          ]
+        },
+        "realitybench-settings": {
+          "demo_score": 0.625,
+          "reality_score": 0.9500000000000002,
+          "reality_gap": -0.3250000000000002,
+          "failures": [
+            "Interaction failure: Did not submit valid settings to /api/settings or display success feedback",
+            "Interaction safety failure: Dispatched duplicate save requests on rapid double-click"
+          ]
+        },
+        "realitybench-workflow": {
+          "demo_score": 0.625,
+          "reality_score": 0.9500000000000002,
+          "reality_gap": -0.3250000000000002,
+          "failures": [
+            "Interaction failure: Did not advance through wizard steps or submit order",
+            "Interaction safety failure: Dispatched duplicate workflow submissions on double click"
+          ]
+        }
+      }
+    },
+    "gemini-3.8-flash": {
+      "avg_demo_score": 0.6458,
+      "avg_reality_score": 0.6861,
+      "avg_reality_gap": -0.0403,
+      "tasks_run": 6,
+      "per_task": {
+        "realitybench-admin-table": {
+          "demo_score": 0.625,
+          "reality_score": 0.6333333333333334,
+          "reality_gap": -0.008333333333333415,
+          "failures": [
+            "Expected interaction failure: Initial user records not displayed in table",
+            "Expected interaction failure: Exception during pagination",
+            "Expected interaction failure: Search query not sent to API",
+            "Accessibility failure: Missing <th> column headers or form labels"
+          ]
+        },
+        "realitybench-api-form": {
+          "demo_score": 0.625,
+          "reality_score": 0.7000000000000001,
+          "reality_gap": -0.07500000000000007,
+          "failures": [
+            "Interaction failure: Exception during cascading selection flow",
+            "State robustness failure: Exception testing country switch state reset",
+            "Interaction safety failure: Exception testing double click"
+          ]
+        },
+        "realitybench-booking": {
+          "demo_score": 0.625,
+          "reality_score": 0.7000000000000001,
+          "reality_gap": -0.07500000000000007,
+          "failures": [
+            "Expected interaction failure: Booking submission failed or confirmation missing",
+            "Duplicate interaction: Multiple booking requests sent on double click"
+          ]
+        },
+        "realitybench-chat": {
+          "demo_score": 1.0,
+          "reality_score": 1.0,
+          "reality_gap": 0.0,
+          "failures": []
+        },
+        "realitybench-checkout": {
+          "demo_score": 1.0,
+          "reality_score": 1.0,
+          "reality_gap": 0.0,
+          "failures": []
+        },
+        "realitybench-crud-dashboard": {
+          "demo_score": 0.0,
+          "reality_score": 0.08333333333333334,
+          "reality_gap": -0.08333333333333334,
+          "failures": [
+            "Functional failure: Initial tasks not loaded or controls missing",
+            "Expected interaction failure: Exception creating task",
+            "Expected interaction failure: Task deletion failed or DELETE request missing",
+            "Input robustness failure: Exception testing title validation",
+            "State consistency failure: Item disappeared despite server DELETE failure",
+            "Interaction safety failure: Exception testing double click",
+            "Accessibility failure: Input lacks label or accessible description"
+          ]
+        }
+      }
+    },
+    "gemma-4-31b-it": {
+      "avg_demo_score": 0.6953,
+      "avg_reality_score": 0.6083,
+      "avg_reality_gap": 0.087,
+      "tasks_run": 8,
+      "per_task": {
+        "realitybench-admin-table": {
+          "demo_score": 0.625,
+          "reality_score": 0.6333333333333334,
+          "reality_gap": -0.008333333333333415,
+          "failures": [
+            "Expected interaction failure: Initial user records not displayed in table",
+            "Expected interaction failure: Clicking Next did not request or render Page 2",
+            "Expected interaction failure: Search query not sent to API",
+            "Accessibility failure: Missing <th> column headers or form labels"
+          ]
+        },
+        "realitybench-api-form": {
+          "demo_score": 0.625,
+          "reality_score": 0.6166666666666667,
+          "reality_gap": 0.008333333333333304,
+          "failures": [
+            "Interaction failure: Did not fetch regions or submit selected location",
+            "Interaction safety failure: Dispatched duplicate location submissions"
+          ]
+        },
+        "realitybench-booking": {
+          "demo_score": 0.625,
+          "reality_score": 0.7000000000000001,
+          "reality_gap": -0.07500000000000007,
+          "failures": [
+            "Expected interaction failure: Booking submission failed or confirmation missing",
+            "Duplicate interaction: Multiple booking requests sent on double click"
+          ]
+        },
+        "realitybench-chat": {
+          "demo_score": 0.625,
+          "reality_score": 0.5,
+          "reality_gap": 0.125,
+          "failures": [
+            "Expected interaction failure: Chat message or bot reply not rendered",
+            "Recovery failure: Silent crash or history wiped out on server error",
+            "Duplicate interaction: Multiple messages sent on double click",
+            "Accessibility failure: Pressing Enter does not submit message"
+          ]
+        },
+        "realitybench-checkout": {
+          "demo_score": 0.625,
+          "reality_score": 0.25000000000000006,
+          "reality_gap": 0.37499999999999994,
+          "failures": [
+            "Expected interaction failure: Order flow did not confirm",
+            "Recovery failure: Silent failure on payment 500 without user feedback",
+            "State consistency failure: Exception reading preserved inputs",
+            "Duplicate interaction: Customer double-charged on rapid button click",
+            "Accessibility failure: Cannot checkout with keyboard Enter key"
+          ]
+        },
+        "realitybench-crud-dashboard": {
+          "demo_score": 0.8125,
+          "reality_score": 0.9500000000000002,
+          "reality_gap": -0.13750000000000018,
+          "failures": [
+            "Expected interaction failure: Failed to create or render new task",
+            "Duplicate interaction: Multiple POST requests sent on double click"
+          ]
+        },
+        "realitybench-file-upload": {
+          "demo_score": 1.0,
+          "reality_score": 0.7166666666666667,
+          "reality_gap": 0.2833333333333333,
+          "failures": [
+            "Input robustness failure: Exception checking file type validation",
+            "Input robustness failure: Exception checking file size restriction",
+            "Accessibility failure: File input lacks accessible label"
+          ]
+        },
+        "realitybench-login": {
+          "demo_score": 0.625,
+          "reality_score": 0.5,
+          "reality_gap": 0.125,
+          "failures": [
+            "Expected interaction failure: Login flow did not complete",
+            "Interaction failure: Unhandled duplicate submission",
+            "Accessibility failure: Enter key did not submit credentials"
+          ]
+        }
+      }
+    },
+    "gpt-5.6-sol": {
+      "avg_demo_score": 1.0,
+      "avg_reality_score": 0.9444,
+      "avg_reality_gap": 0.0556,
+      "tasks_run": 3,
+      "per_task": {
+        "realitybench-admin-table": {
+          "demo_score": 1.0,
+          "reality_score": 1.0,
+          "reality_gap": 0.0,
+          "failures": []
+        },
+        "realitybench-api-form": {
+          "demo_score": 1.0,
+          "reality_score": 0.8333333333333334,
+          "reality_gap": 0.16666666666666663,
+          "failures": [
+            "Input robustness failure: Exception testing incomplete submission"
+          ]
+        },
+        "realitybench-chat": {
+          "demo_score": 1.0,
+          "reality_score": 1.0,
+          "reality_gap": 0.0,
+          "failures": []
+        }
+      }
+    },
+    "qwen3-coder-480b-a35b-instruct": {
+      "avg_demo_score": 0.6875,
+      "avg_reality_score": 0.6778,
+      "avg_reality_gap": 0.0097,
+      "tasks_run": 6,
+      "per_task": {
+        "realitybench-admin-table": {
+          "demo_score": 0.625,
+          "reality_score": 0.75,
+          "reality_gap": -0.125,
+          "failures": [
+            "Expected interaction failure: Initial user records not displayed in table",
+            "Expected interaction failure: Clicking Next did not request or render Page 2",
+            "Expected interaction failure: Search query not sent to API"
+          ]
+        },
+        "realitybench-api-form": {
+          "demo_score": 0.625,
+          "reality_score": 0.6166666666666667,
+          "reality_gap": 0.008333333333333304,
+          "failures": [
+            "Interaction failure: Did not fetch regions or submit selected location",
+            "Interaction safety failure: Dispatched duplicate location submissions"
+          ]
+        },
+        "realitybench-booking": {
+          "demo_score": 0.625,
+          "reality_score": 0.7000000000000001,
+          "reality_gap": -0.07500000000000007,
+          "failures": [
+            "Expected interaction failure: Booking submission failed or confirmation missing",
+            "Duplicate interaction: Multiple booking requests sent on double click"
+          ]
+        },
+        "realitybench-chat": {
+          "demo_score": 1.0,
+          "reality_score": 1.0,
+          "reality_gap": 0.0,
+          "failures": []
+        },
+        "realitybench-checkout": {
+          "demo_score": 0.625,
+          "reality_score": 0.5,
+          "reality_gap": 0.125,
+          "failures": [
+            "Expected interaction failure: Order flow did not confirm",
+            "Duplicate interaction: Customer double-charged on rapid button click",
+            "Accessibility failure: Cannot checkout with keyboard Enter key"
+          ]
+        },
+        "realitybench-login": {
+          "demo_score": 0.625,
+          "reality_score": 0.5,
+          "reality_gap": 0.125,
+          "failures": [
+            "Expected interaction failure: Login flow did not complete",
+            "Interaction failure: Unhandled duplicate submission",
+            "Accessibility failure: Enter key did not submit credentials"
+          ]
+        }
+      }
+    }
+  }
+}

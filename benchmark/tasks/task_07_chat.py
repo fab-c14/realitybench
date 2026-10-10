@@ -204,7 +204,7 @@ def run_happy_path(harness: HeadlessHarness, html_code: str) -> List[TestResult]
         session.load_html(html_code)
 
         input_el = session.page.locator('input[type="text"], textarea, input').first
-        send_btn = session.page.locator('button, input[type="submit"]').first
+        send_btn = session.primary_button("Send", "Submit")
 
         input_el.fill("Hello RealityBench")
         send_btn.click()
@@ -212,7 +212,7 @@ def run_happy_path(harness: HeadlessHarness, html_code: str) -> List[TestResult]
 
         post_requests = [r for r in session.intercepted_requests if r["method"] == "POST"]
         post_fired = len(post_requests) > 0
-        content_lower = session.page.content().lower()
+        content_lower = session.visible_text()
 
         user_msg_shown = "hello realitybench" in content_lower
         bot_reply_shown = "automated ai assistant" in content_lower
@@ -251,7 +251,7 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
         session.load_html(html_code)
 
         input_el = session.page.locator('input[type="text"], textarea, input').first
-        send_btn = session.page.locator('button, input[type="submit"]').first
+        send_btn = session.primary_button("Send", "Submit")
 
         input_el.fill("    ")
         send_btn.click()
@@ -285,7 +285,7 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
         session.load_html(html_code)
 
         input_el = session.page.locator('input[type="text"], textarea, input').first
-        send_btn = session.page.locator('button, input[type="submit"]').first
+        send_btn = session.primary_button("Send", "Submit")
 
         input_el.fill("First question")
         send_btn.click()
@@ -296,7 +296,7 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
         send_btn.click()
         session.page.wait_for_timeout(400)
 
-        content_lower = session.page.content().lower()
+        content_lower = session.visible_text()
         shows_error = any(w in content_lower for w in ["error", "fail", "unable", "overloaded", "problem", "could not"])
         first_msg_preserved = "first question" in content_lower and "first response ok" in content_lower
 
@@ -396,7 +396,7 @@ def run_reality_tests(harness: HeadlessHarness, html_code: str) -> List[TestResu
 
         long_word = "A" * 150
         input_el = session.page.locator('input[type="text"], textarea, input').first
-        send_btn = session.page.locator('button, input[type="submit"]').first
+        send_btn = session.primary_button("Send", "Submit")
         input_el.fill(long_word)
         send_btn.click()
         session.page.wait_for_timeout(300)
