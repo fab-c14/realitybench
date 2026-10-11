@@ -575,7 +575,7 @@ def grade_admin_table_implementation(html_code: str) -> EvaluationReport:
 
 # %%
 @kbench.task(name="realitybench-admin-table")
-def realitybench_admin_table(llm) -> dict:
+def realitybench_admin_table(llm) -> float:
     """
     Evaluates LLM on Admin Table software generation.
     """
@@ -586,7 +586,7 @@ def realitybench_admin_table(llm) -> dict:
         report.demo_score > 0.0,
         expectation="Model should produce a functional admin table on happy path"
     )
-    return report.to_dict()
+    return report.overall_score
 
 
 # %%

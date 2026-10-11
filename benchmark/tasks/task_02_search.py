@@ -405,7 +405,7 @@ def grade_search_implementation(html_code: str) -> EvaluationReport:
 
 # %%
 @kbench.task(name="realitybench-search")
-def realitybench_search(llm) -> dict:
+def realitybench_search(llm) -> float:
     """
     Evaluates LLM on Search software generation across Demo Score, Reality Score, and Reality Gap.
     """
@@ -419,7 +419,7 @@ def realitybench_search(llm) -> dict:
         expectation="Model should produce a functional search component on happy path"
     )
 
-    return report.to_dict()
+    return report.overall_score
 
 
 # %%

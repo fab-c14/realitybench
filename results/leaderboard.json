@@ -1,0 +1,26 @@
+{
+  "updated": "2026-10-11",
+  "benchmark": "https://www.kaggle.com/benchmarks/neondev0/realitybench",
+  "note": "One overall score per cell, from the public Kaggle leaderboard. Weighted 40% happy path and 60% real-user checks.",
+  "models": [
+    "Claude Opus 5.5",
+    "GPT-6 Sol",
+    "Gemini 3.8 Flash",
+    "Gemini 3.7 Flash"
+  ],
+  "overall": [92.9, 90.6, 81.7, 77.6],
+  "tasks": [
+    {"slug": "realitybench-auth-login", "scores": [100.0, 100.0, 100.0, 100.0]},
+    {"slug": "realitybench-search", "scores": [43.0, 100.0, 100.0, 38.0]},
+    {"slug": "realitybench-checkout", "scores": [100.0, 55.0, 100.0, 55.0]},
+    {"slug": "realitybench-file-upload", "scores": [100.0, 100.0, 93.0, 93.0]},
+    {"slug": "realitybench-crud-dashboard", "scores": [100.0, 72.5, 22.0, 95.0]},
+    {"slug": "realitybench-booking", "scores": [100.0, 100.0, 82.0, 82.0]},
+    {"slug": "realitybench-chat", "scores": [100.0, 100.0, 100.0, 100.0]},
+    {"slug": "realitybench-product-page", "scores": [90.0, 100.0, 82.0, 67.0]},
+    {"slug": "realitybench-admin-table", "scores": [100.0, 100.0, 70.0, 70.0]},
+    {"slug": "realitybench-settings", "scores": [82.0, 80.0, 82.0, 82.0]},
+    {"slug": "realitybench-api-form", "scores": [100.0, 100.0, 67.0, 67.0]},
+    {"slug": "realitybench-workflow", "scores": [100.0, 80.0, 82.0, 82.0]}
+  ]
+}

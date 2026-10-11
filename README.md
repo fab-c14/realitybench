@@ -10,13 +10,22 @@ Every page gets two scores:
 |---|---|
 | **Demo** | The happy path works: the page renders and the main action actually reaches the server. |
 | **Reality** | It still works under server errors, bad input, double clicks, keyboard-only use and small screens. |
-| **Reality gap** | Demo minus Reality. A big gap means it looks finished in a demo and breaks in production. |
+| **Reality gap** | Demo minus Reality. A big gap means it looks finished in a demo and breaks for a real user. |
 
 Graders only count what a user can see. Text inside a `<script>` or a hidden element doesn't pass a check, so a page can't score by containing the word "error" or a `display:none` success banner.
 
 ## Results
 
-Runs on [Kaggle Benchmarks](https://www.kaggle.com/benchmarks/tasks/neondev0/realitybench-checkout) with Claude Opus 5.5, GPT-5.6 Sol, Gemini 3.8 Flash, Gemma 4 31B and Qwen 3 Coder. The latest numbers are in [`results/kaggle_results.json`](results/kaggle_results.json) and on the results page (`site/index.html`).
+The public leaderboard is [realitybench on Kaggle](https://www.kaggle.com/benchmarks/neondev0/realitybench). Each cell is one run's overall score, weighted 40% happy path and 60% real-user checks. The login task is published as `realitybench-auth-login`.
+
+| Model | Overall |
+|---|---|
+| Claude Opus 5.5 | 92.9 |
+| GPT-6 Sol | 90.6 |
+| Gemini 3.8 Flash | 81.7 |
+| Gemini 3.7 Flash | 77.6 |
+
+The same twelve rows are in [`results/leaderboard.json`](results/leaderboard.json) and [`site/index.html`](site/index.html). The write-up is on [DEV](https://dev.to/fabc14/i-asked-ai-models-to-build-web-apps-most-of-them-shipped-a-fake-server-inside-the-page-5hl0).
 
 ## Grade your own page
 

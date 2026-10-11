@@ -466,7 +466,7 @@ def grade_chat_implementation(html_code: str) -> EvaluationReport:
 
 # %%
 @kbench.task(name="realitybench-chat")
-def realitybench_chat(llm) -> dict:
+def realitybench_chat(llm) -> float:
     """
     Evaluates LLM on Chat software generation.
     """
@@ -477,7 +477,7 @@ def realitybench_chat(llm) -> dict:
         report.demo_score > 0.0,
         expectation="Model should produce a functional chat component on happy path"
     )
-    return report.to_dict()
+    return report.overall_score
 
 
 # %%

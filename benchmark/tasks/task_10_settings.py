@@ -681,7 +681,7 @@ def grade_settings_implementation(html_code: str) -> EvaluationReport:
 
 # %%
 @kbench.task(name="realitybench-settings")
-def realitybench_settings(llm) -> dict:
+def realitybench_settings(llm) -> float:
     """
     Evaluates LLM on User Settings software generation.
     """
@@ -692,7 +692,7 @@ def realitybench_settings(llm) -> dict:
         report.demo_score > 0.0,
         expectation="Model should produce a functional settings panel on happy path"
     )
-    return report.to_dict()
+    return report.overall_score
 
 
 # %%

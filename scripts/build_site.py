@@ -1,5 +1,5 @@
 """
-Build the public results page (site/index.html) from results/kaggle_results.json.
+Build site/index.html from results/leaderboard.json.
 
 Usage:
     uv run python scripts/build_site.py
@@ -8,28 +8,16 @@ Usage:
 from __future__ import annotations
 
 import json
-import sys
 from html import escape
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT))
 
-from benchmark.tasks.registry import ALL_TASKS
-
-RESULTS = ROOT / "results" / "kaggle_results.json"
+RESULTS = ROOT / "results" / "leaderboard.json"
 OUT = ROOT / "site" / "index.html"
 GITHUB_URL = "https://github.com/fab-c14/realitybench"
-KAGGLE_URL = "https://www.kaggle.com/benchmarks/tasks/neondev0/realitybench-checkout"
-
-MODEL_NAMES = {
-    "claude-opus-5-5-default": "Claude Opus 5.5",
-    "gpt-5.6-sol": "GPT-5.6 Sol",
-    "gemini-3.8-flash": "Gemini 3.8 Flash",
-    "gemini-3.7-flash": "Gemini 3.7 Flash",
-    "gemma-4-31b-it": "Gemma 4 31B",
-    "qwen3-coder-480b-a35b-instruct": "Qwen 3 Coder 480B",
-}
+KAGGLE_URL = "https://www.kaggle.com/benchmarks/neondev0/realitybench"
+DEV_URL = "https://dev.to/fabc14/i-asked-ai-models-to-build-web-apps-most-of-them-shipped-a-fake-server-inside-the-page-5hl0"
 
 CSS = """
 :root { --bg:#fafaf9; --fg:#1c1917; --muted:#78716c; --line:#e7e5e4; --good:#15803d; --bad:#b91c1c; }
@@ -58,38 +46,23 @@ pre { background:#fff; border:1px solid var(--line); border-radius:8px; padding:
 """
 
 
-def _pct(x: float) -> str:
-    return f"{x * 100:.0f}"
-
-
 def _cls(score: float) -> str:
-    return "good" if score >= 0.9 else "bad" if score < 0.6 else ""
+    return "good" if score >= 90 else "bad" if score < 60 else ""
+
+
+def _cell(score: float) -> str:
+    return f"<td class='{_cls(score)}'>{score:.1f}</td>"
 
 
 def build() -> str:
     data = json.loads(RESULTS.read_text(encoding="utf-8"))
-    models = sorted(data["target_summaries"].items(), key=lambda kv: -kv[1]["avg_reality_score"])
-
-    summary_rows = "\n".join(
-        f"<tr><td>{escape(MODEL_NAMES.get(m, m))}</td><td>{s['tasks_run']} / {len(ALL_TASKS)}</td>"
-        f"<td>{_pct(s['avg_demo_score'])}</td><td class='{_cls(s['avg_reality_score'])}'>"
-        f"{_pct(s['avg_reality_score'])}</td><td>{s['avg_reality_gap'] * 100:+.0f}</td>"
-        f"<td class='{'bad' if s.get('fake_backend_pages') else ''}'>{s.get('fake_backend_pages', 0)}</td></tr>"
-        for m, s in models
-    )
-
-    head = "".join(f"<th>{escape(MODEL_NAMES.get(m, m))}</th>" for m, _ in models)
-    task_rows = []
-    for t in ALL_TASKS:
-        cells = []
-        for _, s in models:
-            r = s.get("per_task", {}).get(t.task_id)
-            if r:
-                mark = "*" if r.get("fake_backend") else ""
-                cells.append(f"<td class='{_cls(r['reality_score'])}'>{_pct(r['reality_score'])}{mark}</td>")
-            else:
-                cells.append("<td class='none'>&middot;</td>")
-        task_rows.append(f"<tr><td>{escape(t.name)}</td>{''.join(cells)}</tr>")
+    models = data["models"]
+    head = "".join(f"<th>{escape(name)}</th>" for name in models)
+    overall = "".join(_cell(score) for score in data["overall"])
+    task_rows = [
+        f"<tr><td>{escape(task['slug'])}</td>{''.join(_cell(score) for score in task['scores'])}</tr>"
+        for task in data["tasks"]
+    ]
 
     return f"""<!DOCTYPE html>
 <html lang="en">
@@ -105,30 +78,22 @@ def build() -> str:
 <h1>Does AI-written code survive real users?</h1>
 <p class="lede">RealityBench asks a model to build a small web app, then opens it in a real browser
 and does what users do: the server fails, they double-click, they type nonsense, they use a phone.</p>
-<div class="links"><a href="{KAGGLE_URL}">Kaggle benchmark</a><a href="{GITHUB_URL}">Source on GitHub</a></div>
+<div class="links"><a href="{KAGGLE_URL}">Kaggle benchmark</a><a href="{DEV_URL}">Write-up</a><a href="{GITHUB_URL}">Source on GitHub</a></div>
 
 <h2>How it scores</h2>
 <div class="scores">
-<p><b>Demo score</b>The happy path works: the page renders and the main action reaches the server.</p>
-<p><b>Reality score</b>It still works under a 500 error, invalid input, a double click, keyboard only and a 375px screen.</p>
-<p><b>Reality gap</b>Demo minus reality. A big gap means it looks done in a demo and breaks for real users.</p>
+<p><b>Overall</b>One number from 0 to 100. Happy path is 40% of the weight. Server errors, bad input, double clicks, keyboard-only use and a 375px screen are the other 60%.</p>
+<p><b>What counts</b>Text a person can see. A page that replaces <code>fetch</code> or <code>XMLHttpRequest</code> answers itself, and the request never arrives.</p>
+<p><b>One run</b>Each cell is a single run of that model on that task. The same table is on the Kaggle leaderboard.</p>
 </div>
 
-<h2>Results</h2>
-<div class="wrap"><table>
-<thead><tr><th>Model</th><th>Tasks run</th><th>Demo</th><th>Reality</th><th>Gap</th><th>Fake server</th></tr></thead>
-<tbody>{summary_rows}</tbody>
-</table></div>
-<p class="muted">Scores out of 100, from runs on Kaggle Benchmarks. Fake server counts pages that replace
-<code>fetch</code> when they load, so they answer their own requests instead of calling the API.
-Updated {escape(data["timestamp"][:10])}.</p>
-
-<h2>Reality score by task</h2>
+<h2>Leaderboard</h2>
 <div class="wrap"><table>
 <thead><tr><th>Task</th>{head}</tr></thead>
-<tbody>{''.join(task_rows)}</tbody>
+<tbody>{''.join(task_rows)}
+<tr><td><b>Overall</b></td>{overall}</tr></tbody>
 </table></div>
-<p class="muted">* The page shipped its own fake server.</p>
+<p class="muted">Scores from the Kaggle leaderboard. Updated {escape(data["updated"])}.</p>
 
 <h2>Grade your own page</h2>
 <pre>uv sync &amp;&amp; uv run playwright install chromium

@@ -502,7 +502,7 @@ def grade_product_page_implementation(html_code: str) -> EvaluationReport:
 
 # %%
 @kbench.task(name="realitybench-product-page")
-def realitybench_product_page(llm) -> dict:
+def realitybench_product_page(llm) -> float:
     """
     Evaluates LLM on Product Page software generation.
     """
@@ -513,7 +513,7 @@ def realitybench_product_page(llm) -> dict:
         report.demo_score > 0.0,
         expectation="Model should produce a functional product page on happy path"
     )
-    return report.to_dict()
+    return report.overall_score
 
 
 # %%

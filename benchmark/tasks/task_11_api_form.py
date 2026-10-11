@@ -675,7 +675,7 @@ def grade_api_form_implementation(html_code: str) -> EvaluationReport:
 
 # %%
 @kbench.task(name="realitybench-api-form")
-def realitybench_api_form(llm) -> dict:
+def realitybench_api_form(llm) -> float:
     """Evaluates LLM on Dependent API Form software generation."""
     response = llm.prompt(API_FORM_TASK_PROMPT)
     code = extract_html_code(response)
@@ -684,7 +684,7 @@ def realitybench_api_form(llm) -> dict:
         report.demo_score > 0.0,
         expectation="Model should produce a functional dependent API form on happy path"
     )
-    return report.to_dict()
+    return report.overall_score
 
 
 if __name__ == "__main__":

@@ -843,7 +843,7 @@ def grade_workflow_implementation(html_code: str) -> EvaluationReport:
 
 # %%
 @kbench.task(name="realitybench-workflow")
-def realitybench_workflow(llm) -> dict:
+def realitybench_workflow(llm) -> float:
     """Evaluates LLM on Multi-Step Workflow software generation."""
     response = llm.prompt(WORKFLOW_TASK_PROMPT)
     code = extract_html_code(response)
@@ -852,7 +852,7 @@ def realitybench_workflow(llm) -> dict:
         report.demo_score > 0.0,
         expectation="Model should produce a functional multi-step workflow on happy path"
     )
-    return report.to_dict()
+    return report.overall_score
 
 
 if __name__ == "__main__":

@@ -532,7 +532,7 @@ def grade_booking_implementation(html_code: str) -> EvaluationReport:
 
 # %%
 @kbench.task(name="realitybench-booking")
-def realitybench_booking(llm) -> dict:
+def realitybench_booking(llm) -> float:
     """
     Evaluates LLM on Booking software generation.
     """
@@ -543,7 +543,7 @@ def realitybench_booking(llm) -> dict:
         report.demo_score > 0.0,
         expectation="Model should produce a functional booking component on happy path"
     )
-    return report.to_dict()
+    return report.overall_score
 
 
 # %%

@@ -432,7 +432,7 @@ def grade_checkout_implementation(html_code: str) -> EvaluationReport:
 
 # %%
 @kbench.task(name="realitybench-checkout")
-def realitybench_checkout(llm) -> dict:
+def realitybench_checkout(llm) -> float:
     """
     Evaluates LLM on Checkout software generation across Demo Score, Reality Score, and Reality Gap.
     """
@@ -446,7 +446,7 @@ def realitybench_checkout(llm) -> dict:
         expectation="Model should produce a functional checkout component on happy path"
     )
 
-    return report.to_dict()
+    return report.overall_score
 
 
 # %%

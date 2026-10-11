@@ -492,7 +492,7 @@ def grade_file_upload_implementation(html_code: str) -> EvaluationReport:
 
 # %%
 @kbench.task(name="realitybench-file-upload")
-def realitybench_file_upload(llm) -> dict:
+def realitybench_file_upload(llm) -> float:
     """
     Evaluates LLM on File Upload software generation.
     """
@@ -503,7 +503,7 @@ def realitybench_file_upload(llm) -> dict:
         report.demo_score > 0.0,
         expectation="Model should produce a functional file upload component on happy path"
     )
-    return report.to_dict()
+    return report.overall_score
 
 
 # %%

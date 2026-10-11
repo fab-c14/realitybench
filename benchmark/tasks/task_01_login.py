@@ -458,7 +458,7 @@ def grade_login_implementation(html_code: str) -> EvaluationReport:
 
 # %%
 @kbench.task(name="realitybench-login")
-def realitybench_login(llm) -> dict:
+def realitybench_login(llm) -> float:
     """
     Evaluates LLM on Login software generation across Demo Score, Reality Score, and Reality Gap.
     """
@@ -472,7 +472,7 @@ def realitybench_login(llm) -> dict:
         expectation="Model should produce a functional login component on happy path"
     )
 
-    return report.to_dict()
+    return report.overall_score
 
 
 # %%

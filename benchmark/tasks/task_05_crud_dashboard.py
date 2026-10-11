@@ -557,7 +557,7 @@ def grade_crud_dashboard_implementation(html_code: str) -> EvaluationReport:
 
 # %%
 @kbench.task(name="realitybench-crud-dashboard")
-def realitybench_crud_dashboard(llm) -> dict:
+def realitybench_crud_dashboard(llm) -> float:
     """
     Evaluates LLM on CRUD Dashboard software generation.
     """
@@ -568,7 +568,7 @@ def realitybench_crud_dashboard(llm) -> dict:
         report.demo_score > 0.0,
         expectation="Model should produce a functional CRUD dashboard on happy path"
     )
-    return report.to_dict()
+    return report.overall_score
 
 
 # %%

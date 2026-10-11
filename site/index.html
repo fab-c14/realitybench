@@ -36,32 +36,22 @@ pre { background:#fff; border:1px solid var(--line); border-radius:8px; padding:
 <h1>Does AI-written code survive real users?</h1>
 <p class="lede">RealityBench asks a model to build a small web app, then opens it in a real browser
 and does what users do: the server fails, they double-click, they type nonsense, they use a phone.</p>
-<div class="links"><a href="https://www.kaggle.com/benchmarks/tasks/neondev0/realitybench-checkout">Kaggle benchmark</a><a href="https://github.com/fab-c14/realitybench">Source on GitHub</a></div>
+<div class="links"><a href="https://www.kaggle.com/benchmarks/neondev0/realitybench">Kaggle benchmark</a><a href="https://dev.to/fabc14/i-asked-ai-models-to-build-web-apps-most-of-them-shipped-a-fake-server-inside-the-page-5hl0">Write-up</a><a href="https://github.com/fab-c14/realitybench">Source on GitHub</a></div>
 
 <h2>How it scores</h2>
 <div class="scores">
-<p><b>Demo score</b>The happy path works: the page renders and the main action reaches the server.</p>
-<p><b>Reality score</b>It still works under a 500 error, invalid input, a double click, keyboard only and a 375px screen.</p>
-<p><b>Reality gap</b>Demo minus reality. A big gap means it looks done in a demo and breaks for real users.</p>
+<p><b>Overall</b>One number from 0 to 100. Happy path is 40% of the weight. Server errors, bad input, double clicks, keyboard-only use and a 375px screen are the other 60%.</p>
+<p><b>What counts</b>Text a person can see. A page that replaces <code>fetch</code> or <code>XMLHttpRequest</code> answers itself, and the request never arrives.</p>
+<p><b>One run</b>Each cell is a single run of that model on that task. The same table is on the Kaggle leaderboard.</p>
 </div>
 
-<h2>Results</h2>
+<h2>Leaderboard</h2>
 <div class="wrap"><table>
-<thead><tr><th>Model</th><th>Tasks run</th><th>Demo</th><th>Reality</th><th>Gap</th></tr></thead>
-<tbody><tr><td>Claude Opus 5.5</td><td>2 / 12</td><td>100</td><td class='good'>100</td><td>+0</td></tr>
-<tr><td>GPT-5.6 Sol</td><td>3 / 12</td><td>100</td><td class='good'>94</td><td>+6</td></tr>
-<tr><td>Gemini 3.7 Flash</td><td>12 / 12</td><td>73</td><td class=''>81</td><td>-8</td></tr>
-<tr><td>Gemini 3.8 Flash</td><td>6 / 12</td><td>65</td><td class=''>69</td><td>-4</td></tr>
-<tr><td>Qwen 3 Coder 480B</td><td>6 / 12</td><td>69</td><td class=''>68</td><td>+1</td></tr>
-<tr><td>Gemma 4 31B</td><td>8 / 12</td><td>70</td><td class=''>61</td><td>+9</td></tr></tbody>
+<thead><tr><th>Task</th><th>Claude Opus 5.5</th><th>GPT-6 Sol</th><th>Gemini 3.8 Flash</th><th>Gemini 3.7 Flash</th></tr></thead>
+<tbody><tr><td>realitybench-auth-login</td><td class='good'>100.0</td><td class='good'>100.0</td><td class='good'>100.0</td><td class='good'>100.0</td></tr><tr><td>realitybench-search</td><td class='bad'>43.0</td><td class='good'>100.0</td><td class='good'>100.0</td><td class='bad'>38.0</td></tr><tr><td>realitybench-checkout</td><td class='good'>100.0</td><td class='bad'>55.0</td><td class='good'>100.0</td><td class='bad'>55.0</td></tr><tr><td>realitybench-file-upload</td><td class='good'>100.0</td><td class='good'>100.0</td><td class='good'>93.0</td><td class='good'>93.0</td></tr><tr><td>realitybench-crud-dashboard</td><td class='good'>100.0</td><td class=''>72.5</td><td class='bad'>22.0</td><td class='good'>95.0</td></tr><tr><td>realitybench-booking</td><td class='good'>100.0</td><td class='good'>100.0</td><td class=''>82.0</td><td class=''>82.0</td></tr><tr><td>realitybench-chat</td><td class='good'>100.0</td><td class='good'>100.0</td><td class='good'>100.0</td><td class='good'>100.0</td></tr><tr><td>realitybench-product-page</td><td class='good'>90.0</td><td class='good'>100.0</td><td class=''>82.0</td><td class=''>67.0</td></tr><tr><td>realitybench-admin-table</td><td class='good'>100.0</td><td class='good'>100.0</td><td class=''>70.0</td><td class=''>70.0</td></tr><tr><td>realitybench-settings</td><td class=''>82.0</td><td class=''>80.0</td><td class=''>82.0</td><td class=''>82.0</td></tr><tr><td>realitybench-api-form</td><td class='good'>100.0</td><td class='good'>100.0</td><td class=''>67.0</td><td class=''>67.0</td></tr><tr><td>realitybench-workflow</td><td class='good'>100.0</td><td class=''>80.0</td><td class=''>82.0</td><td class=''>82.0</td></tr>
+<tr><td><b>Overall</b></td><td class='good'>92.9</td><td class='good'>90.6</td><td class=''>81.7</td><td class=''>77.6</td></tr></tbody>
 </table></div>
-<p class="muted">Scores out of 100, from runs on Kaggle Benchmarks. Updated 2026-10-10.</p>
-
-<h2>Reality score by task</h2>
-<div class="wrap"><table>
-<thead><tr><th>Task</th><th>Claude Opus 5.5</th><th>GPT-5.6 Sol</th><th>Gemini 3.7 Flash</th><th>Gemini 3.8 Flash</th><th>Qwen 3 Coder 480B</th><th>Gemma 4 31B</th></tr></thead>
-<tbody><tr><td>Authentication &amp; Login</td><td class='none'>&middot;</td><td class='none'>&middot;</td><td class='good'>100</td><td class='none'>&middot;</td><td class='bad'>50</td><td class='bad'>50</td></tr><tr><td>Search &amp; Autocomplete</td><td class='none'>&middot;</td><td class='none'>&middot;</td><td class='good'>92</td><td class='none'>&middot;</td><td class='none'>&middot;</td><td class='none'>&middot;</td></tr><tr><td>Order Checkout</td><td class='good'>100</td><td class='none'>&middot;</td><td class='good'>100</td><td class='good'>100</td><td class='bad'>50</td><td class='bad'>25</td></tr><tr><td>File Upload</td><td class='none'>&middot;</td><td class='none'>&middot;</td><td class=''>67</td><td class='none'>&middot;</td><td class='none'>&middot;</td><td class=''>72</td></tr><tr><td>Task CRUD Dashboard</td><td class='none'>&middot;</td><td class='none'>&middot;</td><td class='bad'>8</td><td class='bad'>8</td><td class='none'>&middot;</td><td class='good'>95</td></tr><tr><td>Appointment Booking</td><td class='none'>&middot;</td><td class='none'>&middot;</td><td class='good'>95</td><td class=''>70</td><td class=''>70</td><td class=''>70</td></tr><tr><td>Live Chat Component</td><td class='none'>&middot;</td><td class='good'>100</td><td class='good'>100</td><td class='good'>100</td><td class='good'>100</td><td class='bad'>50</td></tr><tr><td>Product Detail Page</td><td class='none'>&middot;</td><td class='none'>&middot;</td><td class=''>78</td><td class='none'>&middot;</td><td class='none'>&middot;</td><td class='none'>&middot;</td></tr><tr><td>Admin Data Table</td><td class='good'>100</td><td class='good'>100</td><td class=''>75</td><td class=''>63</td><td class=''>75</td><td class=''>63</td></tr><tr><td>User Settings Panel</td><td class='none'>&middot;</td><td class='none'>&middot;</td><td class='good'>95</td><td class='none'>&middot;</td><td class='none'>&middot;</td><td class='none'>&middot;</td></tr><tr><td>Dependent API Form</td><td class='none'>&middot;</td><td class=''>83</td><td class=''>70</td><td class=''>70</td><td class=''>62</td><td class=''>62</td></tr><tr><td>Multi-Step Workflow Wizard</td><td class='none'>&middot;</td><td class='none'>&middot;</td><td class='good'>95</td><td class='none'>&middot;</td><td class='none'>&middot;</td><td class='none'>&middot;</td></tr></tbody>
-</table></div>
+<p class="muted">Scores from the Kaggle leaderboard. Updated 2026-10-11.</p>
 
 <h2>Grade your own page</h2>
 <pre>uv sync &amp;&amp; uv run playwright install chromium
