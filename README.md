@@ -41,6 +41,13 @@ uv run realitybench baselines                     # check the graders on hand-wr
 
 `grade` accepts a plain HTML file or a whole model reply with the HTML in a code block.
 
+The terminal report shows the overall score, each category's passed checks,
+weight, earned points, and the time spent evaluating the page. Scores below 60%
+show the points lost in each category.
+Failed checks show their recorded failure reason and check details. Categories
+with no checks are marked as not evaluated; their points follow the existing
+scoring policy. `--json` continues to emit the structured report.
+
 ## Run it on Kaggle
 
 Kaggle uploads one file per task, so `build_kaggle_tasks.py` bundles each task with its graders into `kaggle_tasks/`. The account must be phone-verified.
